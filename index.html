@@ -2195,21 +2195,29 @@ function stAnalyze(text){
  let tail=0;const fw=x=>(x.toLowerCase().match(/[a-z’']+/g)||[]);
  for(let i=0;i+1<sens.length;i++){const a=fw(sens[i]),b=fw(sens[i+1]).slice(0,3);const last=a[a.length-1];if(last&&!STSTOP.has(last)&&b.includes(last))tail++}
  const shortN=wc.filter(n=>n<=4).length,contrast=(t.match(/\bnot\b[^.!?]{0,60}?\bbut\b|,\s*not\s|\b(?:(?:was|were|is|are|do|does|did|could|would)\s+not|\w+n['’]t)\b[^.!?]*[.!?]\s+(?:It|They|That|He|She|We|I)(?:['’](?:s|re|d)|\s+(?:was|is|were|are|wanted|gave|did|will))\b/gi)||[]).length,qn=(t.match(/\?/g)||[]).length,iStart=sens.filter(x=>/^I\b/.test(x)).length;
- return{paras,n:sens.length,words,avg:sens.length?words/sens.length:0,long,con,unc,tb,tail,shortN,contrast,qn,iStart,iRatio:sens.length?iStart/sens.length:0}}
-function stRows(a){const vi=UI==="vi",r=[];
- const LR=[[70,90,5,7],[120,150,8,11],[170,9999,11,14]][s.lv],okW=a.words>=LR[0]&&a.words<=LR[1],okS=a.n>=LR[2]&&a.n<=LR[3];
- r.push([T("분량: 단어 수","Độ dài: số từ"),`${a.words} / ${T("기준","chuẩn")} ${LR[0]}~${LR[1]>999?"+":LR[1]}`,a.n?(okW?"ok":"warn"):"info",okW?T("이 레벨 분량 기준 안이에요","Nằm trong chuẩn độ dài của cấp này"):T("이 레벨의 연습용 분량 기준(내가 정한 기준, 공식 아님)에서 벗어났어요","Lệch so với chuẩn độ dài luyện tập của cấp này (chuẩn tự đặt, không chính thức)")]);
- r.push([T("문장 수 · 평균 길이","Số câu · độ dài trung bình"),`${a.n} · ${a.avg.toFixed(1)} / ${T("기준","chuẩn")} ${LR[2]}~${LR[3]}`,a.n?(okS?"ok":"warn"):"info",okS?T("문장 수 기준 안이에요","Số câu nằm trong chuẩn"):T("문장 수가 기준 밖이에요. 고급은 짧은 호흡 문장이 많으면 기준보다 많아질 수 있어요","Số câu ngoài chuẩn. Ở cấp cao, nhiều câu ngắn có thể vượt chuẩn")]);
- r.push([T("20단어 초과 문장","Câu dài hơn 20 từ"),String(a.long.length),a.long.length?"warn":"ok",a.long.length?a.long.slice(0,3).map(z=>`(${z[1]}) ${z[0].slice(0,60)}…`).join(" / ")+T(" → 둘로 쪼개 보세요","  → hãy tách thành hai câu"):T("말로 하기 좋은 길이예요","Độ dài phù hợp để nói")]);
- r.push([T("축약형 (I'm, it's, didn't)","Dạng rút gọn (I'm, it's, didn't)"),`${a.con} / ${T("풀어 쓴 형태","dạng đầy đủ")} ${a.unc.length}`,a.n>=3&&(a.con<1||a.con<a.unc.length)?"warn":"ok",a.unc.length?T("풀어 쓴 형태: ","Dạng đầy đủ: ")+[...new Set(a.unc)].slice(0,4).join(", ")+T(" → 축약형으로 바꾸면 말투가 부드러워져요"," → đổi sang dạng rút gọn cho tự nhiên"):T("OK","OK")]);
- r.push([T("교과서식 연결어","Từ nối kiểu sách giáo khoa"),String(a.tb.length),a.tb.length>=2?"warn":"ok",a.tb.length?[...new Set(a.tb)].join(", ")+T(" (2회 이상이면 남발)"," (từ 2 lần trở lên là lạm dụng)"):T("없음","Không có")]);
- r.push([T("꼬리 물기 (앞 문장 끝 단어 반복)","Nối đuôi (lặp từ cuối câu trước)"),String(a.tail),a.tail?"ok":"info",a.tail?T("앞 문장이 다음 문장으로 이어져요","Câu trước nối sang câu sau"):T("없음 → 예: …simple. Simple, until…","Chưa có → ví dụ: …simple. Simple, until…")]);
- r.push([T("짧은 문장(4단어 이하) 리듬","Nhịp câu ngắn (≤4 từ)"),String(a.shortN),a.shortN?"ok":"info",a.shortN?T("긴 문장 사이에 리듬이 생겨요","Tạo nhịp giữa các câu dài"):T("없음 → 예: One day.","Chưa có → ví dụ: One day.")]);
- r.push([T("대구·역설 (근사 탐지)","Đối lập·nghịch lý (dò gần đúng)"),String(a.contrast),a.contrast?"ok":"info",a.contrast?T("대비로 의미가 또렷해져요 (단순 패턴 탐지라 놓칠 수 있어요)","Đối lập làm ý rõ hơn (dò theo mẫu đơn giản nên có thể bỏ sót)"):T("없음 (단순 패턴 탐지)","Chưa có (dò theo mẫu đơn giản)")]);
- r.push([T("'I'로 시작하는 문장 비율","Tỉ lệ câu bắt đầu bằng 'I'"),`${Math.round(a.iRatio*100)}%`,a.n>=4&&a.iRatio>0.5?"warn":"ok",a.n>=4&&a.iRatio>0.5?T("50% 넘으면 단조로워요. 장면·시간 표현으로 문장을 시작해 보세요","Trên 50% sẽ đơn điệu. Hãy mở câu bằng cảnh hoặc thời gian"):T("OK","OK")]);
- r.push([T("문단 수 · 자문자답(?)","Số đoạn · câu hỏi tự đáp (?)"),`${a.paras} · ${a.qn}`,"info",T("고급은 3단락 권장, 자문자답은 선택","Cao cấp nên 3 đoạn; tự hỏi tự đáp là tùy chọn")]);
+ return{paras,n:sens.length,wc,words,avg:sens.length?words/sens.length:0,long,con,unc,tb,tail,shortN,contrast,qn,iStart,iRatio:sens.length?iStart/sens.length:0}}
+function stRows(a){const vi=UI==="vi",r=[],L=s.lv,LR=[[70,90,5,7],[120,150,8,11],[170,9999,11,14]][L],has=a.n>0;
+ const W=(lo,hi)=>hi>999?lo+"+":lo+"~"+hi,st=(c,w)=>has?(c?"ok":(w||"warn")):"info";
+ const row=(l,res,crit,status,note)=>r.push([l,res,status,note||"",crit]);
+ const okW=a.words>=LR[0]&&a.words<=LR[1],okS=a.n>=LR[2]&&a.n<=LR[3];
+ row(T("단어 수","Số từ"),String(a.words),W(LR[0],LR[1]),st(okW),okW?T("이 레벨 연습용 분량 기준 안(내가 정한 기준, 공식 아님)","Trong chuẩn độ dài luyện tập (chuẩn tự đặt, không chính thức)"):T("연습용 분량 기준(내가 정한 기준, 공식 아님)을 벗어났어요","Lệch chuẩn độ dài luyện tập (chuẩn tự đặt, không chính thức)"));
+ row(T("문장 수","Số câu"),String(a.n),W(LR[2],LR[3]),st(okS),okS?"":T("고급은 짧은 호흡 문장이 많으면 기준을 넘을 수 있어요","Ở cấp cao, nhiều câu ngắn có thể vượt chuẩn"));
+ row(T("평균 문장 길이","Độ dài câu trung bình"),a.avg.toFixed(1),T("20단어 이하","≤ 20 từ"),st(a.avg<=20));
+ row(T("20단어 초과 문장","Câu dài hơn 20 từ"),String(a.long.length),T("0개","0 câu"),st(!a.long.length),a.long.length?a.long.slice(0,3).map(z=>`(${z[1]}) ${z[0].slice(0,50)}…`).join(" / ")+T(" → 둘로 쪼개 보세요"," → hãy tách thành hai câu"):"");
+ const cOk=a.con>=1&&a.con>=a.unc.length;
+ row(T("축약형 (I'm, it's, didn't)","Dạng rút gọn (I'm, it's, didn't)"),`${a.con} / ${T("풀어 쓴 형태","dạng đầy đủ")} ${a.unc.length}`,T("축약형 ≥ 풀어 쓴 형태, 1개 이상","Rút gọn ≥ đầy đủ, từ 1 trở lên"),st(cOk),a.unc.length?T("풀어 쓴 형태: ","Dạng đầy đủ: ")+[...new Set(a.unc)].slice(0,4).join(", "):"");
+ row(T("교과서식 표현","Từ nối kiểu sách giáo khoa"),String(a.tb.length),T("남발 금지(2회 미만)","Không lạm dụng (< 2 lần)"),st(a.tb.length<2),a.tb.length?[...new Set(a.tb)].join(", "):"");
+ const need=L>=1;
+ row(T("꼬리 물기","Nối đuôi (lặp từ cuối câu trước)"),String(a.tail),need?T("1회 이상","Từ 1 lần"):T("선택","Tùy chọn"),need?st(a.tail>=1):(has?"info":"info"),a.tail?"":T("예: …simple. Simple, until…","Ví dụ: …simple. Simple, until…"));
+ row(T("짧은 문장(4단어 이하)","Câu ngắn (≤ 4 từ)"),String(a.shortN),T("1회 이상","Từ 1 lần"),st(a.shortN>=1),a.shortN?"":T("예: One day.","Ví dụ: One day."));
+ row(T("대구·역설 (근사 탐지)","Đối lập·nghịch lý (dò gần đúng)"),String(a.contrast),need?T("1회 이상","Từ 1 lần"):T("선택","Tùy chọn"),need?st(a.contrast>=1):"info",T("단순 패턴 탐지라 놓칠 수 있어요","Dò theo mẫu đơn giản nên có thể bỏ sót"));
+ row(T("'I'로 시작하는 문장 비율","Tỉ lệ câu bắt đầu bằng 'I'"),`${Math.round(a.iRatio*100)}%`,T("50% 이하","≤ 50%"),a.n>=4?st(a.iRatio<=0.5):"info",a.n>=4&&a.iRatio>0.5?T("장면·시간 표현으로 문장을 시작해 보세요","Hãy mở câu bằng cảnh hoặc thời gian"):"");
+ row(T("문단 수","Số đoạn"),String(a.paras),L===2?T("3단락","3 đoạn"):T("1단락","1 đoạn"),has?st(L===2?a.paras===3:a.paras===1,"info"):"info");
+ row(T("철학적 여운","Dư vị suy tưởng"),"—",L===2?T("필수(마지막 단락)","Bắt buộc (đoạn cuối)"):L===1?T("마지막 문장에 1회","1 lần ở câu cuối"):T("선택","Tùy chọn"),"info",T("자동 판정 불가 → 소리 내어 읽고 직접 판단하세요","Không tự động đánh giá được → hãy đọc to và tự đánh giá"));
+ const calc=a.wc.length>14?a.wc.slice(0,14).join("+")+"+…":a.wc.join("+");
+ row(T("단어 수 계산 과정","Cách tính số từ"),has?calc+"="+a.words:"—",T("문장별 단어 수의 합","Tổng số từ từng câu"),"info");
  return r}
-function stTable(a){const ic={ok:"✅",warn:"⚠️",info:"ℹ️"};return `<div class="tw"><table><tr><th>${T("항목","Mục")}</th><th>${T("결과","Kết quả")}</th><th>${T("해석","Giải thích")}</th></tr>${stRows(a).map(z=>`<tr><td>${esc(z[0])}</td><td>${ic[z[2]]} ${esc(z[1])}</td><td>${esc(z[3])}</td></tr>`).join("")}</table></div>`}
+function stTable(a){const ic={ok:"✅",warn:"⚠️",info:"ℹ️"};return `<div class="tw"><table><tr><th>${T("항목","Mục")}</th><th>${T("결과","Kết quả")}</th><th>${T("기준","Chuẩn")}</th><th>${T("판정","Đánh giá")}</th></tr>${stRows(a).map(z=>`<tr><td>${esc(z[0])}</td><td>${esc(z[1])}</td><td>${esc(z[4])}</td><td>${ic[z[2]]}${z[3]?" "+esc(z[3]):""}</td></tr>`).join("")}</table></div>`}
 const stNote=()=>`<p class="mut nt">${T("이 점검은 앱의 자체 규칙(문장 길이·축약형·연결어 등)을 숫자로 세는 것이며 OPIc 점수 예측이 아니에요. 문체가 점수를 올리는지는 확인할 수 없습니다.","Phép kiểm tra này chỉ đếm theo quy tắc riêng của ứng dụng (độ dài câu, dạng rút gọn, từ nối…) và không dự đoán điểm OPIc. Không thể xác nhận văn phong này có nâng điểm hay không.")}</p>`;
 /* --- 카드 --- */
 (function(){const pc=$("pq").closest(".card");const d=document.createElement("div");d.className="card";d.id="storycard";d.innerHTML='<h2 id="sth"></h2><div id="stbody"></div>';pc.insertAdjacentElement("beforebegin",d);
