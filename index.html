@@ -7,7 +7,7 @@
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b20;--card:#16262d;--ink:#e6eef1;--mut:#9bb0b8;--pri:#6cc4dc;--on:#08202a;--acc:#1d3540;--ok:#5fd18f;--bad:#ff8a80;--line:#2a4350}}
 :root[data-theme="dark"]{--bg:#0f1b20;--card:#16262d;--ink:#e6eef1;--mut:#9bb0b8;--pri:#6cc4dc;--on:#08202a;--acc:#1d3540;--ok:#5fd18f;--bad:#ff8a80;--line:#2a4350}
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.65 system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif}
 main{max-width:min(1100px,100%);margin:0 auto;padding:16px;box-sizing:border-box}
 h1{font-size:1.5rem;margin:8px 0 2px}h2{font-size:1rem;margin:0 0 8px;color:var(--pri)}
 .mut{color:var(--mut);font-size:.88rem}
@@ -39,7 +39,7 @@ details.study{border:1px solid var(--line);border-radius:10px;padding:6px 12px;m
 .study h3{font-size:.98rem;margin:14px 0 6px;color:var(--pri)}
 .pat{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:.95rem;line-height:1.7}.pat .pp{font-weight:700;color:var(--pri)}
 .exs{margin-top:4px}.en{font-weight:600}
-.toks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.tok{display:inline-block;border:1px solid var(--pri);border-radius:8px;padding:2px 10px;text-align:center;font-weight:700}.tok small{display:block;color:var(--mut);font-weight:400;font-size:.74rem}
+.toks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.tok{display:inline-block;border:1px solid var(--pri);border-radius:8px;padding:2px 10px;text-align:center;font-weight:700}.tok small{display:block;color:var(--mut);font-weight:400;font-size:.8rem}
 .why{background:var(--acc);border-radius:8px;padding:6px 12px;margin-top:6px}.why ul{margin:4px 0}
 .qar{margin:6px 0;line-height:1.7}.ans2{padding-left:20px}
 .alb{border:1px dashed var(--pri);border-radius:10px;padding:2px 12px 8px;margin:10px 0}.alb h3{margin:8px 0 4px}
@@ -56,14 +56,23 @@ table.st th:first-child,table.st td:first-child{width:2.4em;text-align:right;col
 @media(max-width:720px){.tw:has(table.st){overflow-x:visible}table.st,table.st tbody{display:block;width:100%}table.st tr:first-child{display:none}
  table.st tr{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:6px 0}table.st td{border:0;padding:1px 4px;width:auto}
  table.st td:first-child{flex:0 0 2em;width:2em}table.st td:nth-child(2){flex:1 1 calc(100% - 2.6em);font-weight:600}
- table.st td[data-l]{flex:1 1 100%;padding-left:2.4em;font-size:.88rem}table.st td[data-l]::before{content:attr(data-l);display:inline-block;min-width:4.2em;margin-right:6px;font-size:.72rem;opacity:.65}}
+ table.st td[data-l]{flex:1 1 100%;padding-left:2.4em;font-size:.88rem}table.st td[data-l]::before{content:attr(data-l);display:inline-block;min-width:4.2em;margin-right:6px;font-size:.8rem;opacity:.65}}
 .steps{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.stp{font-size:.8rem;background:var(--acc);border-radius:999px;padding:2px 10px}
 .keep{padding-left:18px}.chk{list-style:none;padding-left:0}.chk li{margin:4px 0}
 #practice button,#setcard button{min-height:44px}
 @media(prefers-color-scheme:dark){.warn{background:#3b2c10;color:#f3d9a4;border-color:#6b5320}.ok{background:#12301d;color:#b8e6c6;border-color:#2c6a41}.mem{background:#33290f;color:#f3d9a4}}
 
 @media(max-width:480px){.hdr h1{font-size:1.15rem}.uisw{flex-direction:column;gap:4px;margin-top:8px}.uisw .chip{padding:4px 10px;font-size:.8rem}}
-#lg,.uisw{display:none} #lg.closest{}
+#lg,.uisw{display:none}
+html{font-size:18px}
+.font-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0;color:var(--ink)}
+.font-controls .btn{min-width:44px;min-height:44px;padding:6px 12px;font-size:1rem}
+.font-controls output{font-size:.9rem;min-width:4.2em;text-align:center}
+.mut,.fl,.badge,.badge2,.stp,.mem{font-size:max(.85rem,12px)}
+.fl input,.fl select,textarea{font-size:max(1rem,16px)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #2383ab;outline-offset:2px}
+@media(max-width:480px){main{padding:12px}.card{padding:12px}.frm{grid-template-columns:minmax(0,1fr)}#modal .mhead{flex-wrap:wrap}#modal .mhead .font-controls{order:3;width:100%;margin:2px 0}}
+
 </style></head><body><main>
 <div class="hdr"><h1>Barron OPIc 영어 연습실</h1><div class="uisw" role="group" aria-label="UI language"><button class="chip" id="uiko" aria-pressed="true">한국어</button><button class="chip" id="uivi" aria-pressed="false">Tiếng Việt</button></div></div>
 <div class="mut">언어·레벨·주제를 클릭으로 고르면 질문과 모범 답변이 자동 생성됩니다. 문장을 누르면 소리를 듣고, 내 답변을 쓰면 첨삭합니다.</div>
@@ -3498,6 +3507,11 @@ function readLocal(){try { const v=JSON.parse(localStorage.getItem(STORAGE_KEY)|
 function persist(){try {saveTopic(); localStorage.setItem(STORAGE_KEY,JSON.stringify({version:1,state:s,topics:topicProfiles,progress,draft:$("mine").value,savedAt:new Date().toISOString()})); const e=$("saveStatus");if(e)e.textContent="이 브라우저에 저장됨 · "+new Date().toLocaleTimeString();}catch(e){const el=$("saveStatus");if(el)el.textContent="저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요."}}
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,500)}
 const restored=readLocal(); s.lang="en"; UI="ko";
+const FONT_KEY="barron.opic.fontSize.v1";let fontSize=18;try{const v=Number(localStorage.getItem(FONT_KEY));if([16,18,20,22,24].includes(v))fontSize=v}catch(e){}
+function fontControl(){const el=document.createElement("div");el.className="font-controls";el.setAttribute("role","group");el.setAttribute("aria-label","글자 크기 조절");el.innerHTML='<strong>글자 크기</strong><button class="btn" type="button" data-font="down" aria-label="글자 작게">A−</button><output aria-live="polite"></output><button class="btn" type="button" data-font="up" aria-label="글자 크게">A＋</button><button class="btn" type="button" data-font="reset">기본</button>';return el}
+const mainFont=fontControl();document.querySelector(".hdr").after(mainFont);document.querySelector("#modal .mhead").appendChild(fontControl());
+function applyFont(){document.documentElement.style.fontSize=fontSize+"px";document.querySelectorAll(".font-controls").forEach(el=>{el.querySelector("output").textContent=fontSize+"px";el.querySelector('[data-font="down"]').disabled=fontSize<=16;el.querySelector('[data-font="up"]').disabled=fontSize>=24});try{localStorage.setItem(FONT_KEY,String(fontSize))}catch(e){}}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-font]");if(!b)return;fontSize=b.dataset.font==="reset"?18:Math.min(24,Math.max(16,fontSize+(b.dataset.font==="up"?2:-2)));applyFont()});applyFont();
 const localPanel=document.createElement("div"); localPanel.className="card"; localPanel.innerHTML='<b>학습 기록</b> <span id="saveStatus" class="mut" role="status">이 기기의 브라우저에 저장됩니다.</span><div class="row"><button class="btn" id="exportLocal">백업 파일 내보내기</button><button class="btn" id="importLocal">백업 파일 가져오기</button><button class="btn" id="deleteLocal">이 기기의 학습 기록 삭제</button></div><p class="mut">기기나 브라우저가 달라지면 자동으로 옮겨지지 않습니다. 공용 기기에서는 브라우저 프로필을 따로 사용하세요.</p><input id="backupFile" type="file" accept="application/json,.json" hidden>'; document.querySelector("main").insertBefore(localPanel,document.querySelector("#sumrow"));
 $("exportLocal").onclick=()=>{persist();const b=new Blob([localStorage.getItem(STORAGE_KEY)],{type:"application/json"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="opic-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 $("importLocal").onclick=()=>$("backupFile").click();
