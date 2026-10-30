@@ -2110,7 +2110,7 @@ tech:["Tell me about a new app or device you started using. How did you learn to
 food:["Tell me about a meal you enjoyed recently. Where was it, and what did you eat?","Tell me about a memorable meal with someone important. What happened?","Food waste is a growing concern in many countries. What do you think causes it, and what can be done about it?"],
 friends:["Tell me about a friend you met recently. What did you do together?","Tell me about a time you supported a friend through a difficult moment. What happened?","Social media has changed how people make and keep friends. What is your view? Explain with an example."]};
 const STLV=()=>[T("초급","Sơ cấp"),T("중급","Trung cấp"),T("고급 · 어드밴스(사회 이슈)","Cao cấp · Nâng cao (vấn đề xã hội)")];
-const STFMT=()=>[T("과거 경험 5~7문장 · 70~90단어 · 쉬운 단어 · and/so/because로 연결","Trải nghiệm quá khứ 5~7 câu · 70~90 từ · từ dễ · nối bằng and/so/because"),T("과거 경험 서사 8~11문장 · 120~150단어 (문제 → 해결 → 교훈)","Kể chuyện quá khứ 8~11 câu · 120~150 từ (vấn đề → giải quyết → bài học)"),T("사회 이슈 의견 3단락 · 11~14문장 · 170단어 이상 (관점 → 반대 면 → 제안)","Ý kiến về vấn đề xã hội 3 đoạn · 11~14 câu · từ 170 từ trở lên (quan điểm → mặt trái → đề xuất)")];
+const STFMT=()=>[T("과거 경험 5~7문장 · 70~90단어 · 쉬운 단어 · and/so/because로 연결","Trải nghiệm quá khứ 5~7 câu · 70~90 từ · từ dễ · nối bằng and/so/because"),T("과거 경험 서사 8~11문장 · 120~150단어 (문제 → 해결 → 교훈)","Kể chuyện quá khứ 8~11 câu · 120~150 từ (vấn đề → giải quyết → bài học)"),T("사회 이슈 의견 3단락 · 170단어 이상 · 짧은 호흡 문장 허용 (관점 → 반대 면 → 제안)","Ý kiến về vấn đề xã hội 3 đoạn · từ 170 từ trở lên · cho phép câu ngắn nhịp (quan điểm → mặt trái → đề xuất)")];
 const STTIP=[
  ["문장 끝은 내리고, because·so 앞에서 아주 짧게 쉬어요. 마지막 문장은 조금 천천히 말해요.","Hạ giọng cuối câu, ngắt rất ngắn trước because/so. Câu cuối nói chậm lại một chút."],
  ["'One day.'처럼 짧은 문장은 앞뒤로 잠깐 쉬어 리듬을 만들고, but·until 뒤에서 목소리를 살짝 올려 전환을 알려요.","Với câu ngắn như 'One day.' hãy ngắt trước và sau để tạo nhịp; lên giọng nhẹ sau but/until để báo chuyển ý."],
@@ -2128,8 +2128,9 @@ const STPROMPT=(topic,lvn)=>`역할: 너는 OPIc 말하기 시험 답안을 설�
 [1. 분량 기준 — 반드시 준수]
 - 초급: 70~90 단어, 5~7문장
 - 중급: 120~150 단어, 8~11문장
-- 고급: 170 단어 이상, 11~14문장, 3단락(관점 → 반대 면 → 제안)
+- 고급: 170 단어 이상, 3단락(관점 → 반대 면 → 제안). 문장 수 제한은 두지 않는다 (짧은 호흡 문장 허용, 평균 20단어 이하 유지)
 - 한 문장은 평균 20단어 이하 (고급도 25단어 초과 금지). 말로 하는 시험이므로 숨 쉬는 지점이 있어야 한다.
+- 참고: ACTFL 공식 안내서(OPIc Familiarization Guide 2024)는 텍스트 유형만 정의한다 — 초급/중급은 문장(sentences), 고급은 구두 문단·연결 담화(oral paragraphs, connected discourse). 단어 수·문장 수의 공식 기준은 없으며, 위 숫자는 연습용 자체 기준이다.
 
 [2. 내용 구조]
 1) 첫 문장: 질문에 바로 답하는 한 줄
@@ -2196,12 +2197,13 @@ function stAnalyze(text){
  for(let i=0;i+1<sens.length;i++){const a=fw(sens[i]),b=fw(sens[i+1]).slice(0,3);const last=a[a.length-1];if(last&&!STSTOP.has(last)&&b.includes(last))tail++}
  const shortN=wc.filter(n=>n<=4).length,contrast=(t.match(/\bnot\b[^.!?]{0,60}?\bbut\b|,\s*not\s|\b(?:(?:was|were|is|are|do|does|did|could|would)\s+not|\w+n['’]t)\b[^.!?]*[.!?]\s+(?:It|They|That|He|She|We|I)(?:['’](?:s|re|d)|\s+(?:was|is|were|are|wanted|gave|did|will))\b/gi)||[]).length,qn=(t.match(/\?/g)||[]).length,iStart=sens.filter(x=>/^I\b/.test(x)).length;
  return{paras,n:sens.length,wc,words,avg:sens.length?words/sens.length:0,long,con,unc,tb,tail,shortN,contrast,qn,iStart,iRatio:sens.length?iStart/sens.length:0}}
-function stRows(a){const vi=UI==="vi",r=[],L=s.lv,LR=[[70,90,5,7],[120,150,8,11],[170,9999,11,14]][L],has=a.n>0;
+function stRows(a){const vi=UI==="vi",r=[],L=s.lv,LR=[[70,90,5,7],[120,150,8,11],[170,9999,0,9999]][L],has=a.n>0;
  const W=(lo,hi)=>hi>999?lo+"+":lo+"~"+hi,st=(c,w)=>has?(c?"ok":(w||"warn")):"info";
  const row=(l,res,crit,status,note)=>r.push([l,res,status,note||"",crit]);
  const okW=a.words>=LR[0]&&a.words<=LR[1],okS=a.n>=LR[2]&&a.n<=LR[3];
- row(T("단어 수","Số từ"),String(a.words),W(LR[0],LR[1]),st(okW),okW?T("이 레벨 연습용 분량 기준 안(내가 정한 기준, 공식 아님)","Trong chuẩn độ dài luyện tập (chuẩn tự đặt, không chính thức)"):T("연습용 분량 기준(내가 정한 기준, 공식 아님)을 벗어났어요","Lệch chuẩn độ dài luyện tập (chuẩn tự đặt, không chính thức)"));
- row(T("문장 수","Số câu"),String(a.n),W(LR[2],LR[3]),st(okS),okS?"":T("고급은 짧은 호흡 문장이 많으면 기준을 넘을 수 있어요","Ở cấp cao, nhiều câu ngắn có thể vượt chuẩn"));
+ row(T("단어 수","Số từ"),String(a.words),W(LR[0],LR[1]),st(okW),okW?T("연습용 분량 기준 안(자체 기준, 공식 아님)","Trong chuẩn độ dài luyện tập (chuẩn tự đặt, không chính thức)"):T("연습용 분량 기준(내가 정한 기준, 공식 아님)을 벗어났어요","Lệch chuẩn độ dài luyện tập (chuẩn tự đặt, không chính thức)"));
+ row(T("문장 수 (참고)","Số câu (tham khảo)"),String(a.n),L===2?T("제한 없음","Không giới hạn"):W(LR[2],LR[3]),L===2?"info":(has&&okS?"ok":"info"),L===2?T("고급은 짧은 호흡 문장을 허용해요. 공식 문장 수 기준은 없어요","Cấp cao cho phép câu ngắn nhịp. Không có chuẩn số câu chính thức"):T("자체 참고 범위예요. 공식 문장 수 기준은 없어요","Khoảng tham khảo tự đặt. Không có chuẩn số câu chính thức"));
+ row(T("텍스트 유형 (ACTFL 공식)","Loại văn bản (ACTFL chính thức)"),"—",[T("문장 (Sentences)","Câu (Sentences)"),T("문장 (Sentences)","Câu (Sentences)"),T("구두 문단·연결 담화 (Oral paragraphs, connected discourse)","Đoạn nói·diễn ngôn liên kết (Oral paragraphs, connected discourse)")][L],"info",T("출처: ACTFL OPIc Familiarization Guide 2024, Table 1. 단어 수·문장 수 기준은 공식 자료에 없어요","Nguồn: ACTFL OPIc Familiarization Guide 2024, Table 1. Tài liệu chính thức không có chuẩn số từ/số câu"));
  row(T("평균 문장 길이","Độ dài câu trung bình"),a.avg.toFixed(1),T("20단어 이하","≤ 20 từ"),st(a.avg<=20));
  row(T("20단어 초과 문장","Câu dài hơn 20 từ"),String(a.long.length),T("0개","0 câu"),st(!a.long.length),a.long.length?a.long.slice(0,3).map(z=>`(${z[1]}) ${z[0].slice(0,50)}…`).join(" / ")+T(" → 둘로 쪼개 보세요"," → hãy tách thành hai câu"):"");
  const cOk=a.con>=1&&a.con>=a.unc.length;
