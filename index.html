@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko"><head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; media-src 'none'; font-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"><meta charset="utf-8">
+<html lang="ko"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; media-src blob:; font-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Barron OPIc 연습실</title>
 <style>
@@ -37,6 +36,15 @@ details.study{border:1px solid var(--line);border-radius:10px;padding:6px 12px;m
 .alb{border:1px dashed var(--pri);border-radius:10px;padding:2px 12px 8px;margin:10px 0}.alb h3{margin:8px 0 4px}
 ins{background:transparent}
 #alin{min-height:70px}
+.frm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:8px 0}.fl{display:flex;flex-direction:column;font-size:.85rem;color:var(--mut);gap:2px}.fl input,.fl select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg,#fff);color:inherit;min-height:40px}
+.badge{display:inline-block;font-size:.8rem;border:1px solid var(--pri);border-radius:999px;padding:2px 10px;margin:4px 0;color:var(--pri)}
+.warn{background:#fff4e5;color:#7a4b00;border:1px solid #f0c27b;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:.92rem}.ok{background:#e8f6ec;color:#1d6b35;border:1px solid #a9d8b8;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:.92rem}
+.mem{font-size:.85rem;color:#7a4b00;background:#fff9ec;border-radius:8px;padding:6px 10px;margin:8px 0}
+table.st td{vertical-align:top}.steps{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.stp{font-size:.8rem;background:var(--acc);border-radius:999px;padding:2px 10px}
+.keep{padding-left:18px}.chk{list-style:none;padding-left:0}.chk li{margin:4px 0}
+#practice button,#setcard button{min-height:44px}
+@media(prefers-color-scheme:dark){.warn{background:#3b2c10;color:#f3d9a4;border-color:#6b5320}.ok{background:#12301d;color:#b8e6c6;border-color:#2c6a41}.mem{background:#33290f;color:#f3d9a4}}
+
 @media(max-width:480px){.hdr h1{font-size:1.15rem}.uisw{flex-direction:column;gap:4px;margin-top:8px}.uisw .chip{padding:4px 10px;font-size:.8rem}}
 </style></head><body><main>
 <div class="hdr"><h1>Barron OPIc 연습실 · English / 中文 / 日本語</h1><div class="uisw" role="group" aria-label="UI language"><button class="chip" id="uiko" aria-pressed="true">한국어</button><button class="chip" id="uivi" aria-pressed="false">Tiếng Việt</button></div></div>
@@ -943,11 +951,11 @@ qform:{p:"의문사 + be/do + 주어 …?",mk:"~는 언제/얼마/어디인가�
 };
 /* 카드(유형·레벨)별로 보여줄 패턴 키 */
 const PMAP=[
- [["like","act","bec"],["fav","act","reason"],["ifhad","act","back"]],
- [["usu","seq","feel"],["usu","tconj","feel"],["usu","point","bythe"]],
- [["last","feel"],["onetime","atfirst","learned"],["stand","atfirst","turnout","made"]],
- [["didnot","better"],["compared","backthen","biggest"],["rarely","backthen","back","made"]],
- [["wouldlike","qform"],["wouldlike","seq2","qform","thanks"],["wouldlike","seq2","qform","ifcond","thanks"]]];
+ [["like","act","bec"],["fav","act","reason","bec"],["ifhad","fav","act","reason","back","bec"]],
+ [["usu","seq","feel"],["usu","tconj","feel","point"],["usu","seq","tconj","feel","point","bythe"]],
+ [["last","feel","atfirst"],["onetime","atfirst","learned","feel"],["stand","atfirst","turnout","made","learned","feel"]],
+ [["didnot","better","backthen"],["compared","backthen","biggest","better"],["rarely","backthen","back","made","biggest","compared"]],
+ [["wouldlike","qform","thanks"],["wouldlike","seq2","qform","thanks"],["wouldlike","seq2","qform","ifcond","thanks","could"]]];
 
 /* 주고받는 질문(Q&A). 시험관이 묻고 내가 답하는 짝. [영어 Q, 영어 A, ko Q, ko A, vi Q, vi A] 를 함수로 생성 */
 const QAT=[
@@ -1093,6 +1101,401 @@ friends:0|support=응원하다=ủng hộ;keep in touch=연락하다=giữ liên
 friends:1|holiday=명절·휴일=ngày lễ;family=가족=gia đình;together=함께=cùng nhau;best part=가장 좋은 부분=phần tuyệt nhất
 friends:2|coworker=직장 동료=đồng nghiệp;celebrate=축하하다=ăn mừng;project=프로젝트=dự án;closer=더 가까운=gắn bó hơn
 `;
+
+/* 학습 노트 수준별 분량: 문장 수(초급 약 9 : 중급 약 12 : 고급 약 18)에 맞춰 3 : 4 : 6 안팎으로 확장 (자체 기준) */
+const QN=[3,4,6],IN_EN=[2,3,4],IN_ZJ=[1,2,3],VN=[6,9,12];
+/* 추가 질문·답 (영어, ko, vi) — 앞 3개는 기존 QAT, 뒤 3개가 이 목록. 순서 = 초급 3 → 중급 +1 → 고급 +2 */
+const QAX=[
+[["Who do you usually share it with?","My friends know how much I love it, and they often ask me about it.","주로 누구와 함께 하세요?","친구들도 제가 얼마나 좋아하는지 알고, 자주 물어봐요.","Bạn thường chia sẻ nó với ai?","Bạn bè tôi biết tôi yêu thích nó đến mức nào, và họ thường hỏi tôi về nó."],
+ ["Is it ever tiring?","Sometimes, but I almost never regret it.","가끔 힘들 때도 있나요?","가끔 그렇지만, 후회한 적은 거의 없어요.","Có bao giờ bạn thấy mệt không?","Đôi khi có, nhưng tôi hầu như không hối tiếc."],
+ ["What does it mean to you?","It is like a promise to myself, so I make room for it even on busy days.","당신에게 어떤 의미인가요?","저 자신과의 약속 같아서, 바쁜 날에도 시간을 내요.","Nó có ý nghĩa gì với bạn?","Nó giống như lời hứa với chính mình, nên ngay cả ngày bận tôi cũng dành thời gian cho nó."]],
+[["How long does it usually take?","It takes some time, but I do it step by step, so it never feels heavy.","보통 얼마나 걸리세요?","시간이 좀 걸리지만 한 걸음씩 하니까 부담스럽지 않아요.","Thường mất bao lâu?","Mất chút thời gian, nhưng tôi làm từng bước một nên không thấy nặng nề."],
+ ["What do you do when it does not go well?","I stop for a moment and start again.","잘 안 풀릴 때는 어떻게 하세요?","잠깐 멈췄다가 다시 시작해요.","Khi không suôn sẻ bạn làm gì?","Tôi dừng lại một chút rồi bắt đầu lại."],
+ ["What would you tell a friend who wants to start?","I would say start small and stay patient.","시작하려는 친구에게 뭐라고 하시겠어요?","작게 시작하고 참을성을 가지라고 말할 거예요.","Bạn sẽ nói gì với một người bạn muốn bắt đầu?","Tôi sẽ nói hãy bắt đầu nhỏ và kiên nhẫn."]],
+[["Who was with you?","A friend was with me and told me to relax.","누가 함께 있었나요?","친구가 함께 있었고, 저에게 긴장을 풀라고 말해 줬어요.","Ai đã ở cùng bạn?","Một người bạn ở cùng tôi và bảo tôi thư giãn."],
+ ["Was it difficult at the time?","I was more nervous than I needed to be, but it went well.","그때 힘들었나요?","필요 이상으로 긴장했지만 잘 됐어요.","Lúc đó có khó không?","Tôi lo lắng hơn mức cần thiết, nhưng mọi chuyện đều ổn."],
+ ["Do you still think about it today?","Yes. I still smile when I think about it.","지금도 그 일을 생각하세요?","네, 지금도 생각하면 웃음이 나요.","Bây giờ bạn còn nghĩ đến chuyện đó không?","Có. Nghĩ lại tôi vẫn mỉm cười."]],
+[["Why did your habits change?","I stopped waiting for perfect conditions and started with what I had.","왜 습관이 바뀌었나요?","완벽한 조건을 기다리는 걸 그만두고 가진 것으로 시작했어요.","Vì sao thói quen của bạn thay đổi?","Tôi thôi chờ điều kiện hoàn hảo và bắt đầu với những gì mình có."],
+ ["How does your family feel about the change?","They noticed the change, and they were glad.","가족은 그 변화를 어떻게 생각하나요?","가족도 변화를 알아채고 기뻐했어요.","Gia đình bạn nghĩ gì về sự thay đổi?","Gia đình tôi cũng nhận ra sự thay đổi và rất vui."],
+ ["What advice would you give someone?","I would say start small and stay patient.","누군가에게 어떤 조언을 하시겠어요?","작게 시작하고 참을성을 가지라고 말할 거예요.","Bạn sẽ khuyên ai đó điều gì?","Tôi sẽ nói hãy bắt đầu nhỏ và kiên nhẫn."]]];
+const QAXZ=[
+[["你通常和谁一起做？","我的朋友知道我很喜欢它，他们常常问我。"],["有时候会觉得累吗？","有时候会，不过我从来不后悔。"],["它对你意味着什么？","它像是对自己的一个承诺，所以再忙我也会留出时间。"]],
+[["通常要花多长时间？","要花一点时间，但我一步一步地做，所以不觉得累。"],["不顺利的时候你怎么办？","我会停一下，再重新开始。"],["你会对想开始的朋友说什么？","我会说从小事开始，保持耐心。"]],
+[["当时谁和你在一起？","一个朋友在我身边，让我放松。"],["当时很难吗？","我比需要的更紧张，但是进行得很顺利。"],["你现在还会想起这件事吗？","会，想起来我还会笑。"]],
+[["你为什么改变了习惯？","我不再等待完美的条件，而是从手边已有的开始。"],["你的家人对这个变化怎么看？","他们也发现了这个变化，而且很高兴。"],["你会给别人什么建议？","我会说从小事开始，保持耐心。"]]];
+const QAXJ=[
+[["普段、誰と一緒にしますか。","友達も私が好きなことを知っていて、よく聞いてくれます。"],["疲れることもありますか。","ときどきありますが、後悔したことはほとんどありません。"],["あなたにとってどんな意味がありますか。","自分との約束のようなもので、忙しい日でも時間をつくります。"]],
+[["普段、どのくらい時間がかかりますか。","少し時間はかかりますが、一歩ずつやるので重く感じません。"],["うまくいかないときはどうしますか。","いったん止まって、またやり直します。"],["始めたい友達にはなんと言いますか。","小さく始めて、焦らないでと言います。"]],
+[["そのとき、誰と一緒でしたか。","友達が一緒にいて、落ち着いてと言ってくれました。"],["そのときは大変でしたか。","必要以上に緊張していましたが、うまくいきました。"],["今もそのことを思い出しますか。","はい、今思い出しても笑ってしまいます。"]],
+[["なぜ習慣が変わったのですか。","完璧な条件を待つのをやめて、あるもので始めたからです。"],["ご家族は変化をどう思っていますか。","家族も変化に気づいて、喜んでいます。"],["人にどんなアドバイスをしますか。","小さく始めて、焦らないでと言います。"]]];
+/* 답안 안에 실제로 나오는 일반 단어 사전: 영어 word=ko=vi */
+const GLO={};`
+balanced=균형 잡힌=cân bằng
+nervous=긴장한=lo lắng
+relaxed=느긋한=thư giãn
+relax=긴장을 풀다=thư giãn
+afterward=그 후에=sau đó
+heavy=무거운=nặng nề
+mattered=중요했다=có ý nghĩa
+moment=순간=khoảnh khắc
+noticed=알아챘다=nhận ra
+remember=기억하다=nhớ
+routine=루틴=thói quen hằng ngày
+stress=스트레스=căng thẳng
+glad=기쁜=vui
+smile=미소 짓다=mỉm cười
+smiled=미소 지었다=đã mỉm cười
+tired=피곤한=mệt
+experience=경험=trải nghiệm
+change=변화=thay đổi
+changed=바뀌었다=đã thay đổi
+past=과거=quá khứ
+enjoy=즐기다=tận hưởng
+focus=집중하다=tập trung
+forget=잊다=quên
+family=가족=gia đình
+friends=친구들=bạn bè
+friend=친구=bạn
+calm=차분한=bình tĩnh
+calmer=더 차분한=bình tĩnh hơn
+attitude=태도=thái độ
+duty=의무=nghĩa vụ
+reward=보상=phần thưởng
+habit=습관=thói quen
+patient=참을성 있는=kiên nhẫn
+perfect=완벽한=hoàn hảo
+proud=자랑스러운=tự hào
+regret=후회하다=hối tiếc
+result=결과=kết quả
+satisfied=만족한=hài lòng
+schedule=일정=lịch trình
+serious=진지한=nghiêm túc
+simple=단순한=đơn giản
+slowly=천천히=từ từ
+surprised=놀란=ngạc nhiên
+worry=걱정=lo lắng
+worth=가치가 있는=đáng giá
+braver=더 용감한=dũng cảm hơn
+breath=숨=hơi thở
+difference=차이=sự khác biệt
+biggest=가장 큰=lớn nhất
+compared=비교하면=so với
+honestly=솔직히=thành thật mà nói
+prepare=준비하다=chuẩn bị
+preparing=준비하는=đang chuẩn bị
+protect=지키다=bảo vệ
+overall=전반적으로=nhìn chung
+promise=약속=lời hứa
+patience=인내=sự kiên nhẫn
+strength=힘=sức mạnh
+grateful=감사하는=biết ơn
+memory=기억=ký ức
+memories=기억들=những ký ức
+fade=사라지다=phai nhạt
+rhythm=리듬=nhịp
+mindset=마음가짐=tư duy
+choices=선택=những lựa chọn
+advice=조언=lời khuyên
+conditions=조건=điều kiện
+future=미래=tương lai
+hope=바라다=hy vọng
+share=나누다=chia sẻ
+improve=나아지다=cải thiện
+restart=다시 시작하다=bắt đầu lại
+solid=단단한=vững chắc
+secret=비결=bí quyết
+attention=주의=sự chú ý
+challenge=도전=thử thách
+afraid=두려운=sợ
+apply=적용하다=áp dụng
+beginning=처음=lúc đầu
+daily=매일의=hằng ngày
+decided=결정했다=đã quyết định
+lately=요즘=gần đây
+method=방법=phương pháp
+quietly=조용히=lặng lẽ
+realize=깨닫다=nhận ra
+repeat=반복하다=lặp lại
+teach=가르치다=dạy
+teaching=가르치는=đang dạy
+taught=가르쳤다=đã dạy
+value=소중히 여기다=trân trọng
+sounds=소리=âm thanh
+smells=냄새=mùi
+shape=형성하다=định hình
+mornings=아침=những buổi sáng
+skip=건너뛰다=bỏ qua
+tomorrow=내일=ngày mai
+step=단계=bước
+busy=바쁜=bận rộn
+often=자주=thường
+usually=보통=thường
+`.trim().split("\n").forEach(l=>{const z=l.split("=");GLO[z[0]]=[z[0],z[1],z[2]]});
+const GLZ=`朋友,péngyou,친구,bạn bè
+家人,jiārén,가족,gia đình
+紧张,jǐnzhāng,긴장하다,căng thẳng
+放松,fàngsōng,긴장을 풀다,thư giãn
+习惯,xíguàn,습관,thói quen
+耐心,nàixīn,인내심,sự kiên nhẫn
+力量,lìliang,힘,sức mạnh
+承诺,chéngnuò,약속,lời hứa
+后悔,hòuhuǐ,후회하다,hối tiếc
+满足,mǎnzú,만족하다,hài lòng
+秘诀,mìjué,비결,bí quyết
+勇敢,yǒnggǎn,용감하다,dũng cảm
+完美,wánměi,완벽하다,hoàn hảo
+平衡,pínghéng,균형,cân bằng
+态度,tàidu,태도,thái độ
+责任,zérèn,책임·의무,trách nhiệm
+奖励,jiǎnglì,보상,phần thưởng
+选择,xuǎnzé,선택,lựa chọn
+条件,tiáojiàn,조건,điều kiện
+感激,gǎnjī,감사하다,biết ơn
+进步,jìnbù,발전하다,tiến bộ
+重复,chóngfù,반복하다,lặp lại
+节奏,jiézòu,리듬,nhịp điệu
+平静,píngjìng,평온하다,bình tĩnh
+惊讶,jīngyà,놀라다,ngạc nhiên
+认真,rènzhēn,진지하다,nghiêm túc
+压力,yālì,압박·스트레스,áp lực
+声音,shēngyīn,소리,âm thanh
+气味,qìwèi,냄새,mùi
+挑战,tiǎozhàn,도전,thử thách
+改变,gǎibiàn,바꾸다·변화,thay đổi
+回想,huíxiǎng,돌이켜 생각하다,hồi tưởng
+说实话,shuōshíhuà,솔직히 말해서,nói thật
+建议,jiànyì,조언·제안,lời khuyên
+未来,wèilái,미래,tương lai
+开始,kāishǐ,시작하다,bắt đầu
+准备,zhǔnbèi,준비하다,chuẩn bị
+学习,xuéxí,배우다,học
+经历,jīnglì,경험,trải nghiệm
+记得,jìde,기억하다,nhớ
+忙,máng,바쁘다,bận
+心情,xīnqíng,기분,tâm trạng
+开心,kāixīn,기쁘다,vui
+高兴,gāoxìng,기쁘다,vui mừng
+时间,shíjiān,시간,thời gian
+担心,dānxīn,걱정하다,lo lắng
+顺利,shùnlì,순조롭다,thuận lợi
+舒服,shūfu,편안하다,dễ chịu
+一步一步,yí bù yí bù,한 걸음씩,từng bước một
+重要,zhòngyào,중요하다,quan trọng
+意义,yìyì,의미,ý nghĩa
+一周,yì zhōu,일주일,một tuần
+坚持,jiānchí,꾸준히 하다,kiên trì
+享受,xiǎngshòu,즐기다,tận hưởng`.split("\n").map(l=>{const z=l.split(",");return[z[0],z[0],z[1],z[2],z[3]]});
+const JD={"繰り返":["繰り返す","くりかえす"],"驚":["驚く","おどろく"],"思い出":["思い出す","おもいだす"],"教え":["教える","おしえる"],"学び":["学ぶ","まなぶ"],"落ち着":["落ち着く","おちつく"],"振り返":["振り返る","ふりかえる"],"笑":["笑う","わらう"],"続け":["続ける","つづける"]};
+const GLJ=`友達,ともだち,친구,bạn bè
+家族,かぞく,가족,gia đình
+緊張,きんちょう,긴장,căng thẳng
+習慣,しゅうかん,습관,thói quen
+忍耐,にんたい,인내,sự kiên nhẫn
+約束,やくそく,약속,lời hứa
+後悔,こうかい,후회,hối tiếc
+満足,まんぞく,만족,hài lòng
+準備,じゅんび,준비,chuẩn bị
+勇気,ゆうき,용기,dũng khí
+完璧,かんぺき,완벽,hoàn hảo
+バランス,ばらんす,균형,cân bằng
+態度,たいど,태도,thái độ
+義務,ぎむ,의무,nghĩa vụ
+ご褒美,ごほうび,보상,phần thưởng
+選択,せんたく,선택,lựa chọn
+条件,じょうけん,조건,điều kiện
+将来,しょうらい,장래,tương lai
+変化,へんか,변화,thay đổi
+経験,けいけん,경험,kinh nghiệm
+冗談,じょうだん,농담,đùa
+挑戦,ちょうせん,도전,thử thách
+集中,しゅうちゅう,집중,tập trung
+上達,じょうたつ,숙달·향상,tiến bộ
+正直,しょうじき,솔직,thật lòng
+繰り返,くりかえ,반복(繰り返す),lặp lại
+驚,おどろ,놀라다(驚く),ngạc nhiên
+真面目,まじめ,성실·진지,nghiêm túc
+思い出,おもいだ,떠올리다(思い出す),nhớ lại
+心臓,しんぞう,심장,tim
+教え,おしえ,가르치다(教える),dạy
+学び,まなび,배우다(学ぶ),học
+落ち着,おちつ,차분해지다(落ち着く),bình tĩnh lại
+記憶,きおく,기억,ký ức
+振り返,ふりかえ,돌아보다(振り返る),nhìn lại
+気持ち,きもち,기분,cảm giác
+忙しい,いそがしい,바쁘다,bận rộn
+気分,きぶん,기분,tâm trạng
+時間,じかん,시간,thời gian
+不安,ふあん,불안,bất an
+楽しい,たのしい,즐겁다,vui
+うれしい,うれしい,기쁘다,vui
+大切,たいせつ,소중하다,quan trọng
+意味,いみ,의미,ý nghĩa
+一週間,いっしゅうかん,일주일,một tuần
+笑,わらい,웃다,cười
+深呼吸,しんこきゅう,심호흡,hít thở sâu
+手順,てじゅん,절차,trình tự
+続け,つづけ,계속하다,tiếp tục`.split("\n").map(l=>{const z=l.split(","),m=z[0],d=JD[m];return[m,d?d[0]:m,d?d[1]:z[1],z[2].replace(/\(.*\)/,""),z[3]]});
+function ansOf(x,lg){if(x.a)return x.a;const c=x.key.split(":")[0],ix=+x.key.split(":")[1];if(x.q>=4)return"";
+ try{return lg==="zh"?FZ[x.q][s.lv](Z[c][ix]):lg==="ja"?FJ[x.q][s.lv](J[c][ix]):F[x.q][s.lv](D[c].i[ix])}catch(e){return""}}
+/* 영어: 항목 단어(have) + 답안 속 일반 단어, 목표 개수 VN[L] */
+function vocEN(x,have){const L=s.lv,txt=ansOf(x,"en").toLowerCase(),out=have.slice(),seen=new Set(have.map(z=>z[0].toLowerCase()));
+ (txt.match(/[a-z']+/g)||[]).forEach(w=>{if(out.length<VN[L]&&GLO[w]&&!seen.has(w)){seen.add(w);out.push(GLO[w])}});return out}
+function vocZJ(x,lg,have){const L=s.lv,txt=ansOf(x,lg),out=have.slice(),seen=new Set(have.map(z=>z[0]));
+ const G=lg==="zh"?GLZ:GLJ,hit=G.map(g=>[txt.indexOf(g[0]),g]).filter(z=>z[0]>=0).sort((a,b)=>a[0]-b[0]);
+ hit.forEach(z=>{const g=z[1];if(out.length<VN[L]&&!seen.has(g[1])){seen.add(g[1]);out.push([g[1],g[2],g[3],g[4]])}});return out}
+
+/* ===== 화자·문체·내 이야기 엔진 =====
+   모든 문장은 5개 언어 [en, zh, ja, ko, vi]가 한 묶음(S)이라 문장별로 해석이 정확히 맞는다. */
+const LG5=["en","zh","ja","ko","vi"];
+const CP2=x=>x?x.charAt(0).toUpperCase()+x.slice(1):x;
+const dot=(t,L)=>{t=(t||"").trim();if(!t)return t;return /[.!?。！？]$/.test(t)?t:t+(L==="zh"||L==="ja"?"。":".")};
+/* ---- 선택지 (언제·어디서·누구와·빈도·감정) : [en, zh, ja, ko, vi] ---- */
+const CHO={
+ when:{morning:["in the morning","早上","朝に","아침에","vào buổi sáng"],afternoon:["in the afternoon","下午","午後に","오후에","vào buổi chiều"],evening:["in the evening","晚上","夜に","저녁에","vào buổi tối"],weekend:["on weekends","周末","週末に","주말에","vào cuối tuần"],weekday:["on weekdays","工作日","平日に","평일에","vào các ngày trong tuần"],holiday:["on holidays","节假日","休みの日に","쉬는 날에","vào ngày nghỉ"]},
+ place:{home:["at home","在家","家で","집에서","ở nhà"],office:["at work","在公司","会社で","직장에서","ở nơi làm việc"],school:["at school","在学校","学校で","학교에서","ở trường"],park:["in the park","在公园","公園で","공원에서","ở công viên"],gym:["at the gym","在健身房","ジムで","체육관에서","ở phòng tập"],outside:["outside","在外面","外で","밖에서","ở bên ngoài"],online:["online","在网上","オンラインで","온라인으로","trực tuyến"]},
+ comp:{alone:["by myself","一个人","一人で","혼자","một mình"],friends:["with friends","和朋友","友達と","친구들과","cùng bạn bè"],family:["with my family","和家人","家族と","가족과","cùng gia đình"],coworkers:["with coworkers","和同事","同僚と","동료들과","cùng đồng nghiệp"]},
+ freq:{daily:["every day","每天","毎日","매일","mỗi ngày"],few_week:["a few times a week","一周几次","週に数回","일주일에 몇 번","vài lần mỗi tuần"],once_week:["about once a week","大约一周一次","週に一回くらい","일주일에 한 번쯤","khoảng một lần mỗi tuần"],few_month:["a few times a month","一个月几次","月に数回","한 달에 몇 번","vài lần mỗi tháng"],sometimes:["once in a while","偶尔","ときどき","가끔","thỉnh thoảng"]}
+};
+/* 감정: en 형용사, zh 형용사, ja 연체형, koP 현재, koPast 과거, ja과거문, vi */
+const FEEL={happy:{en:"happy",zh:"开心",jaA:"うれしい",jaPast:"うれしかったです",koP:"기뻐요",koPast:"기뻤어요",vi:"vui",label:["행복·기쁨","vui"]},
+ relaxed:{en:"relaxed",zh:"放松",jaA:"リラックスした",jaPast:"リラックスしていました",koP:"편안해요",koPast:"편안했어요",vi:"thư giãn",label:["편안함","thư giãn"]},
+ proud:{en:"proud",zh:"自豪",jaA:"誇らしい",jaPast:"誇らしかったです",koP:"뿌듯해요",koPast:"뿌듯했어요",vi:"tự hào",label:["뿌듯함","tự hào"]},
+ nervous:{en:"nervous",zh:"紧张",jaA:"緊張した",jaPast:"緊張していました",koP:"긴장돼요",koPast:"긴장했어요",vi:"lo lắng",label:["긴장","lo lắng"]},
+ tired:{en:"tired",zh:"累",jaA:"疲れた",jaPast:"疲れていました",koP:"피곤해요",koPast:"피곤했어요",vi:"mệt",label:["피곤함","mệt"]},
+ excited:{en:"excited",zh:"兴奋",jaA:"わくわくした",jaPast:"わくわくしていました",koP:"설레요",koPast:"설렜어요",vi:"háo hức",label:["설렘","háo hức"]}};
+const CHL={when:["아침에","오후에","저녁에","주말에","평일에","쉬는 날에"],place:["집에서","직장에서","학교에서","공원에서","체육관에서","밖에서","온라인으로"],comp:["혼자","친구들과","가족과","동료들과"],freq:["매일","일주일에 몇 번","일주일에 한 번쯤","한 달에 몇 번","가끔"]};
+const CHLV={when:["vào buổi sáng","vào buổi chiều","vào buổi tối","vào cuối tuần","vào các ngày trong tuần","vào ngày nghỉ"],place:["ở nhà","ở nơi làm việc","ở trường","ở công viên","ở phòng tập","ở bên ngoài","trực tuyến"],comp:["một mình","cùng bạn bè","cùng gia đình","cùng đồng nghiệp"],freq:["mỗi ngày","vài lần mỗi tuần","khoảng một lần mỗi tuần","vài lần mỗi tháng","thỉnh thoảng"]};
+/* ---- 문체 추가 문장 [en, zh, ja, ko, vi] ---- */
+const STYL={
+ talk:{name:["자연스러운 회화 (기본)","Hội thoại tự nhiên (mặc định)"],o:[],m:[],c:[],noEmo:false},
+ calm:{name:["담담하게","Điềm đạm"],o:[],m:[],c:[["It's a small thing, and I like it that way.","这是件小事，我就喜欢这样。","小さなことですが、それでいいと思っています。","작은 일이지만 저는 그게 좋아요.","Chuyện nhỏ thôi, và tôi thích như vậy."]],noEmo:true},
+ story:{name:["이야기하듯","Như kể chuyện"],o:[["Let me tell you a little about it.","我来简单说说吧。","少しお話ししますね。","조금 이야기해 볼게요.","Để tôi kể một chút nhé."]],m:[],c:[["That's the short version of my story.","这就是我的故事的简短版本。","これが私の話の短いバージョンです。","이게 제 이야기의 짧은 버전이에요.","Đó là phiên bản ngắn của câu chuyện của tôi."]],noEmo:false},
+ insight:{name:["절제된 통찰","Chiêm nghiệm tiết chế"],o:[],m:[],c:[["Small things, I think, say a lot about us.","我觉得，小事常常能说明很多。","小さなことが、案外多くを語ると思います。","작은 일들이 의외로 많은 걸 말해 준다고 생각해요.","Tôi nghĩ những điều nhỏ bé lại nói lên rất nhiều."]],noEmo:true},
+ D:{name:["D (담담한 장면 → 짧은 회고 → 절제된 마무리)","D (cảnh điềm đạm → hồi tưởng ngắn → kết tiết chế)"],o:[],m:[["Looking back, it was never a big thing.","回头看，这从来不是什么大事。","振り返ると、大きなことではありませんでした。","돌아보면 큰 일은 아니었어요.","Nhìn lại, đó chưa bao giờ là chuyện lớn."]],c:[["That is enough for me.","对我来说，这就够了。","それで十分です。","저에게는 그걸로 충분해요.","Với tôi, vậy là đủ."]],noEmo:true}
+};
+const STK=["talk","calm","story","insight","D"];
+/* ---- 가상 인물 소개 문장 (사용자가 쓴 말을 그대로 끼워 넣음 — 번역하지 않음) ---- */
+const PERS={job:["I work as ${x}.","我的工作是${x}。","私は${x}として働いています。"],home:["I live in ${x}.","我住在${x}。","私は${x}に住んでいます。"],interest:["In my free time, I enjoy ${x}.","空闲时我喜欢${x}。","暇なときは${x}を楽しんでいます。"],life:["My daily life is ${x}.","我的生活方式是${x}。","私の生活は${x}です。"],trait:["I would describe myself as ${x}.","我觉得自己是${x}的人。","私は${x}な人間だと思います。"]};
+const PERSL={job:["직업","nghề nghiệp"],home:["사는 곳","nơi sống"],interest:["관심사","sở thích"],life:["생활 방식","lối sống"],trait:["성격","tính cách"]};
+const PERSK=["job","home","interest","life","trait"];
+const rawKV=(t,lab)=>UI==="vi"?`「${t}」 (nhập trực tiếp, không dịch)`:`「${t}」 (직접 입력, 번역하지 않음)`;
+/* ---- 가상 예시 슬롯: P={en,zh,ja,ko,vi} 필드 묶음 ---- */
+const SLOTS=[
+/* q0 설명 */[
+ {e:[1,1,1],pat:"like",t:[P=>`I like ${P.en.n}.`,P=>`我喜欢${P.zh.n}。`,P=>`私は${P.ja.n}が好きです。`,P=>`저는 ${P.ko.n}${eul(P.ko.n)} 좋아해요.`,P=>`Tôi thích ${P.vi.n}.`]},
+ {e:[1,1,1],pat:"act",t:[P=>`I ${P.en.a} ${P.en.w}.`,P=>`我${P.zh.w}${P.zh.a}。`,P=>`${P.ja.w}${P.ja.a}。`,P=>`${P.ko.w} ${P.ko.a}.`,P=>`Tôi ${P.vi.a} ${P.vi.w}.`]},
+ {e:[0,1,1],t:[P=>`${CP2(P.en.d)}.`,P=>`${P.zh.d}。`,P=>`${P.ja.d}。`,P=>`${P.ko.d}.`,P=>`${CP2(P.vi.d)}.`]},
+ {e:[1,1,1],pat:"bec",t:[P=>`I like it because ${P.en.y}.`,P=>`我喜欢它，因为${P.zh.y}。`,P=>`${P.ja.y}ので、好きです。`,P=>`좋아하는 이유는 이래요: ${P.ko.y}.`,P=>`Tôi thích nó vì ${P.vi.y}.`]},
+ {e:[0,1,1],emo:1,t:[P=>`It makes my week better.`,P=>`它让我的一周变得更好。`,P=>`一週間が少しよくなります。`,P=>`한 주가 더 좋아져요.`,P=>`Nó làm cho tuần của tôi tốt hơn.`]},
+ {e:[0,0,1],t:[P=>`I've come to believe that ${P.en.r}.`,P=>`我渐渐相信${P.zh.r}。`,P=>`${P.ja.r}と思うようになりました。`,P=>`${P.ko.r}는 걸 믿게 됐어요.`,P=>`Tôi dần tin rằng ${P.vi.r}.`]}],
+/* q1 루틴 */[
+ {e:[1,1,1],pat:"usu",t:[P=>`I usually ${P.en.a} ${P.en.w}.`,P=>`我通常${P.zh.w}${P.zh.a}。`,P=>`たいてい、${P.ja.w}${P.ja.a}。`,P=>`저는 보통 ${P.ko.w} ${P.ko.a}.`,P=>`Tôi thường ${P.vi.a} ${P.vi.w}.`]},
+ {e:[1,1,1],pat:"seq",t:[P=>`First, I get ready.`,P=>`首先，我做好准备。`,P=>`まず、準備をします。`,P=>`먼저 준비를 해요.`,P=>`Đầu tiên, tôi chuẩn bị.`]},
+ {e:[1,1,1],pat:"seq",t:[P=>`Then I start and focus.`,P=>`然后，我开始专心做。`,P=>`次に、集中して始めます。`,P=>`그다음에 시작해서 집중해요.`,P=>`Rồi tôi bắt đầu và tập trung.`]},
+ {e:[0,1,1],t:[P=>`${CP2(P.en.d)}.`,P=>`${P.zh.d}。`,P=>`${P.ja.d}。`,P=>`${P.ko.d}.`,P=>`${CP2(P.vi.d)}.`]},
+ {e:[1,1,1],pat:"feel",emo:1,t:[P=>`Afterward, I feel good.`,P=>`之后，我觉得心情很好。`,P=>`そのあと、気分がよくなります。`,P=>`끝나고 나면 기분이 좋아요.`,P=>`Sau đó, tôi thấy dễ chịu.`]},
+ {e:[0,1,1],pat:"bec",t:[P=>`I like this routine because ${P.en.y}.`,P=>`我喜欢这个习惯，因为${P.zh.y}。`,P=>`${P.ja.y}ので、この習慣が好きです。`,P=>`이 루틴이 좋은 이유는 이래요: ${P.ko.y}.`,P=>`Tôi thích thói quen này vì ${P.vi.y}.`]},
+ {e:[0,0,1],t:[P=>`It is a small habit, but it keeps me steady.`,P=>`这是个小习惯，但它让我保持稳定。`,P=>`小さな習慣ですが、私を安定させてくれます。`,P=>`작은 습관이지만 저를 꾸준하게 해 줘요.`,P=>`Đó là một thói quen nhỏ, nhưng nó giúp tôi đều đặn.`]}],
+/* q2 경험 */[
+ {e:[1,1,1],pat:"onetime",t:[P=>`One time, ${P.en.p}.`,P=>`有一次，${P.zh.p}。`,P=>`ある時、${P.ja.p}。`,P=>`한번은 ${P.ko.p}.`,P=>`Có một lần, ${subjV(P.vi.p)}.`]},
+ {e:[1,1,1],pat:"atfirst",emo:1,t:[P=>`At first, I was a little nervous.`,P=>`一开始，我有一点紧张。`,P=>`最初は、少し緊張しました。`,P=>`처음에는 조금 긴장했어요.`,P=>`Lúc đầu, tôi hơi lo lắng.`]},
+ {e:[1,1,1],t:[P=>`But it went well.`,P=>`但是进行得很顺利。`,P=>`でも、うまくいきました。`,P=>`하지만 잘 됐어요.`,P=>`Nhưng mọi chuyện đều suôn sẻ.`]},
+ {e:[1,1,1],pat:"learned",t:[P=>`I learned that ${P.en.r}.`,P=>`我明白了${P.zh.r}。`,P=>`${P.ja.r}と学びました。`,P=>`${P.ko.r}는 걸 배웠어요.`,P=>`Tôi học được rằng ${P.vi.r}.`]},
+ {e:[0,1,1],emo:1,t:[P=>`I still smile when I think about it.`,P=>`现在想起来，我还会笑。`,P=>`今思い出しても、笑ってしまいます。`,P=>`지금도 생각하면 웃음이 나요.`,P=>`Nghĩ lại, tôi vẫn mỉm cười.`]},
+ {e:[0,0,1],t:[P=>`Now, whenever I try something new, I remember that day.`,P=>`现在，每当我尝试新事物，我都会想起那一天。`,P=>`今、新しいことに挑戦するたびに、あの日を思い出します。`,P=>`이제는 새로운 일을 할 때마다 그날이 떠올라요.`,P=>`Bây giờ, mỗi khi thử điều mới, tôi lại nhớ đến ngày hôm đó.`]}],
+/* q3 비교 */[
+ {e:[1,1,1],pat:"didnot",t:[P=>`In the past, I did not ${P.en.a} very often.`,P=>`以前我不常${P.zh.a}。`,P=>`昔は、今ほど頻繁ではありませんでした。`,P=>`예전에는 ${P.ko.an}.`,P=>`Ngày trước tôi không hay ${P.vi.a}.`]},
+ {e:[1,1,1],pat:"act",t:[P=>`Now I ${P.en.a} ${P.en.w}.`,P=>`现在我${P.zh.w}${P.zh.a}。`,P=>`今は、${P.ja.w}${P.ja.a}。`,P=>`지금은 ${P.ko.w} ${P.ko.a}.`,P=>`Bây giờ tôi ${P.vi.a} ${P.vi.w}.`]},
+ {e:[1,1,1],pat:"better",t:[P=>`I think it is better now because ${P.en.y}.`,P=>`我觉得现在更好，因为${P.zh.y}。`,P=>`${P.ja.y}ので、今のほうがいいと思います。`,P=>`지금이 더 좋다고 생각해요: ${P.ko.y}.`,P=>`Tôi nghĩ bây giờ tốt hơn vì ${P.vi.y}.`]},
+ {e:[0,1,1],emo:1,pat:"compared",t:[P=>`Back then it felt like a duty, but now it feels like a reward.`,P=>`以前我把它当成责任，现在我把它当成奖励。`,P=>`昔は義務のように感じていましたが、今はご褒美のように感じています。`,P=>`예전에는 의무처럼 느꼈지만 지금은 보상처럼 느껴요.`,P=>`Trước đây tôi thấy nó như một nghĩa vụ, còn bây giờ như một phần thưởng.`]},
+ {e:[0,0,1],t:[P=>`${CP2(P.en.d)}.`,P=>`${P.zh.d}。`,P=>`${P.ja.d}。`,P=>`${P.ko.d}.`,P=>`${CP2(P.vi.d)}.`]},
+ {e:[0,0,1],t:[P=>`Looking ahead, I will keep doing it.`,P=>`展望未来，我会一直做下去。`,P=>`これからも続けていくつもりです。`,P=>`앞으로도 계속할 거예요.`,P=>`Sắp tới, tôi sẽ tiếp tục làm.`]}]
+];
+function fieldsFor(c,j){const it=D[c].i[j],key=c+":"+j;return{en:it,zh:Z[c][j],ja:J[c][j],ko:fK(it,key),vi:fV(it,key)}}
+/* 가상 인물 소개 문장 묶음 */
+function persSents(lv){const out=[],pe=s.pers||{};PERSK.forEach(k=>{const v=(pe[k]||"").trim();if(!v||out.length>=[1,2,3][lv])return;
+ if(s.lang==="en"&&/[가-힯]/.test(v))return;
+ const lab=PERSL[k];out.push({en:PERS[k][0].replace("${x}",v),zh:PERS[k][1].replace("${x}",v),ja:PERS[k][2].replace("${x}",v),ko:"가상 인물 설정 — "+lab[0]+": "+rawKV(v),vi:"Thiết lập nhân vật hư cấu — "+lab[1]+": "+rawKV(v),raw:1})});return out}
+function styleSents(kind,lv){const st=STYL[s.sty||"talk"];return (st[kind]||[]).map(a=>({en:a[0],zh:a[1],ja:a[2],ko:a[3],vi:a[4],sty:1}))}
+function composeVirt(c,j,q,lv){const P=fieldsFor(c,j),st=STYL[s.sty||"talk"],out=[];
+ out.push(...styleSents("o",lv));out.push(...persSents(lv));
+ SLOTS[q].forEach(sl=>{if(!sl.e[lv])return;if(sl.emo&&st.noEmo)return;out.push({en:sl.t[0](P),zh:sl.t[1](P),ja:sl.t[2](P),ko:sl.t[3](P),vi:sl.t[4](P),pat:sl.pat})});
+ out.push(...styleSents("m",lv));
+ if(lv>=1||s.sty!=="talk")out.push(...styleSents("c",lv));
+ return out}
+/* 실제 나: 사용자가 준 사실만 사용. 부족하면 문장을 만들지 않는다. */
+function meTopic(c,j){const P=fieldsFor(c,j),me=s.me||{};let n=P,gen=false;
+ if(c==="job"){gen=true;n={en:{n:"my job",a:"work"},zh:{n:"我的工作",a:"工作"},ja:{n:"私の仕事",a:"仕事をします"},ko:{n:"제 일",a:"일해요"},vi:{n:"công việc của tôi",a:"làm việc"}}}
+ const tn=(me.tn||"").trim(),ta=(me.ta||"").trim();
+ const L=s.lang;if(L==="en"||L==="zh"||L==="ja"){n=Object.assign({},n);n[L]=Object.assign({},n[L]);if(tn)n[L].n=tn;if(ta)n[L].a=ta}
+ return{P:n,gen}}
+function chv(g,k,i){const v=CHO[g][k];return v?v[i]:""}
+function meSents(c,j,q,lv){const L=s.lang,li=LG5.indexOf(L),me=s.me||{},T0=meTopic(c,j),P=T0.P,out=[],st=STYL[s.sty||"talk"];
+ const W=me.when,PL=me.place,CM=me.comp,FQ=me.freq,fe=FEEL[me.fn],ft=FEEL[me.ft],dis=me.pref==="dislike";
+ const RS=(me.rs||"").trim(),EV=(me.ev||"").trim(),TH=(me.th||"").trim(),PA=(me.past||"").trim(),NO=(me.now||"").trim();
+ const has=!!(W||PL||CM);
+ const wh={},mk=(i)=>({when:chv("when",W,i),place:chv("place",PL,i),comp:chv("comp",CM,i)});
+ const act=()=>{const o={};LG5.forEach((l,i)=>{const m=mk(i);let t;
+  if(l==="en")t=`I ${P.en.a}${m.when?" "+m.when:""}${m.place?" "+m.place:""}${m.comp?" "+m.comp:""}.`;
+  else if(l==="zh")t=`我${m.comp}${m.when}${m.place}${P.zh.a}。`;
+  else if(l==="ja")t=`${m.comp}${m.when}${m.place}${P.ja.a}。`;
+  else if(l==="ko")t=`${[m.when,m.comp,m.place].filter(Boolean).join(" ")} ${P.ko.a}.`.trim().replace(/^ /,"");
+  else t=`Tôi ${P.vi.a}${m.when?" "+m.when:""}${m.place?" "+m.place:""}${m.comp?" "+m.comp:""}.`;
+  o[l]=t});return o};
+ const raw=(txt)=>({en:dot(txt,"en"),zh:dot(txt,"zh"),ja:dot(txt,"ja"),ko:rawKV(txt),vi:rawKV(txt),raw:1});
+ const rawL=(txt)=>{const o=raw(txt);return o};
+ const fq=(i)=>chv("freq",FQ,i);
+ const S=(en,zh,ja,ko,vi,pat)=>({en,zh,ja,ko,vi,pat});
+ if(q===0){
+  out.push(dis?S(`I don't like ${P.en.n} very much.`,`我不太喜欢${P.zh.n}。`,`私は${P.ja.n}があまり好きではありません。`,`저는 ${P.ko.n}${eul(P.ko.n)} 별로 좋아하지 않아요.`,`Tôi không thích ${P.vi.n} lắm.`,"like"):S(`I like ${P.en.n}.`,`我喜欢${P.zh.n}。`,`私は${P.ja.n}が好きです。`,`저는 ${P.ko.n}${eul(P.ko.n)} 좋아해요.`,`Tôi thích ${P.vi.n}.`,"like"));
+  if(has){const a=act();out.push(S(a.en,a.zh,a.ja,a.ko,a.vi,"act"))}
+  if(FQ)out.push(S(`I do it ${fq(0)}.`,`我${fq(1)}做。`,`${fq(2)}しています。`,`${fq(3)} 해요.`,`Tôi làm việc đó ${fq(4)}.`));
+  if(RS)out.push(S(`I ${dis?"don't like":"like"} it because ${RS}.`,`我${dis?"不太喜欢":"喜欢"}它，因为${RS}。`,`${RS}ので、${dis?"あまり好きではありません":"好きです"}。`,rawKV(RS),rawKV(RS),"bec"));
+  if(fe&&lv>=1&&!dis)out.push(S(`It makes me feel ${fe.en}.`,`它让我觉得${fe.zh}。`,`それをすると、${fe.jaA}気持ちになります。`,`하고 나면 ${fe.koP}.`,`Điều đó làm tôi thấy ${fe.vi}.`));
+  if(TH&&lv>=2)out.push(rawL(TH));
+ }else if(q===1){
+  if(has||FQ){if(has){const a=act();out.push(S(a.en.replace(/^I /,"I usually "),a.zh.replace(/^我/,"我通常"),"たいてい、"+a.ja,a.ko.replace(/^/,"보통 "),a.vi.replace(/^Tôi /,"Tôi thường "),"usu"))}
+   if(FQ)out.push(S(`I do it ${fq(0)}.`,`我${fq(1)}做。`,`${fq(2)}しています。`,`${fq(3)} 해요.`,`Tôi làm việc đó ${fq(4)}.`))}
+  if(RS)out.push(S(`I keep doing it because ${RS}.`,`我坚持做，因为${RS}。`,`${RS}ので、続けています。`,rawKV(RS),rawKV(RS),"bec"));
+  if(fe&&lv>=1)out.push(S(`Afterward, I feel ${fe.en}.`,`之后，我觉得${fe.zh}。`,`そのあと、${fe.jaA}気持ちになります。`,`끝나고 나면 ${fe.koP}.`,`Sau đó, tôi thấy ${fe.vi}.`,"feel"));
+  if(TH&&lv>=2)out.push(rawL(TH));
+ }else if(q===2){
+  if(EV)out.push(Object.assign(rawL(EV),{pat:"onetime"}));
+  if(has){const m0=[0,1,2,3,4].map(mk);out.push(S(`It happened${m0[0].when?" "+m0[0].when:""}${m0[0].place?" "+m0[0].place:""}${m0[0].comp?" "+m0[0].comp:""}.`,`那是${m0[1].comp}${m0[1].when}${m0[1].place}发生的。`,`それは${m0[2].comp}${m0[2].when}${m0[2].place}のことでした。`,`${[m0[3].when,m0[3].comp,m0[3].place].filter(Boolean).join(" ")} 있었던 일이에요.`,`Chuyện xảy ra${m0[4].when?" "+m0[4].when:""}${m0[4].place?" "+m0[4].place:""}${m0[4].comp?" "+m0[4].comp:""}.`))}
+  if(ft)out.push(S(`At that time, I felt ${ft.en}.`,`当时我很${ft.zh}。`,`そのときは、${ft.jaPast}。`,`그때는 ${ft.koPast}.`,`Lúc đó, tôi thấy ${ft.vi}.`,"atfirst"));
+  if(TH&&lv>=1)out.push(Object.assign(rawL(TH),{pat:"learned"}));
+  if(fe&&lv>=2)out.push(S(`When I think about it now, I feel ${fe.en}.`,`现在想起来，我觉得${fe.zh}。`,`今思い出すと、${fe.jaA}気持ちになります。`,`지금 생각하면 ${fe.koP}.`,`Bây giờ nghĩ lại, tôi thấy ${fe.vi}.`));
+ }else if(q===3){
+  if(PA)out.push(Object.assign(rawL(PA),{pat:"didnot"}));
+  if(NO)out.push(Object.assign(rawL(NO),{pat:"better"}));
+  if(has&&!NO){const a=act();out.push(S(a.en.replace(/^I /,"Now I "),"现在"+a.zh,"今は、"+a.ja,"지금은 "+a.ko,a.vi.replace(/^Tôi /,"Bây giờ tôi "),"act"))}
+  if(RS&&lv>=1)out.push(S(`The reason is that ${RS}.`,`原因是${RS}。`,`理由は、${RS}ことです。`,rawKV(RS),rawKV(RS),"better"));
+  if(fe&&lv>=2)out.push(S(`These days, it makes me feel ${fe.en}.`,`最近，它让我觉得${fe.zh}。`,`最近は、${fe.jaA}気持ちになります。`,`요즘은 ${fe.koP}.`,`Dạo này, tôi thấy ${fe.vi}.`));
+ }
+ const body=out;const res=[];
+ res.push(...styleSents("o",lv));res.push(...body);
+ if(body.length&&(s.sty==="D"))res.push(...styleSents("m",lv));
+ if(body.length&&(lv>=1||s.sty!=="talk"))res.push(...styleSents("c",lv));
+ return res}
+/* 부족한 정보 안내: 어떤 칸을 더 채우면 문장이 늘어나는지 */
+function meNeeds(q){const me=s.me||{},n=[];const has=!!(me.when||me.place||me.comp);
+ if(q===0){if(!has)n.push(["언제·어디서·누구와","khi nào · ở đâu · với ai"]);if(!me.rs)n.push(["이유","lý do"])}
+ if(q===1){if(!has&&!me.freq)n.push(["언제·어디서·얼마나 자주","khi nào · ở đâu · tần suất"])}
+ if(q===2){if(!(me.ev||"").trim())n.push(["실제 있었던 일","chuyện có thật đã xảy ra"]);if(!me.ft)n.push(["당시 감정","cảm xúc lúc đó"])}
+ if(q===3){if(!(me.past||"").trim())n.push(["예전에는 (비교용)","ngày trước (để so sánh)"]);if(!(me.now||"").trim())n.push(["지금은","hiện tại"])}
+ return n}
+/* 역할 상황: 긴 독백이 아니라 대화 한 줄씩 */
+function roleLines(c,j,lv){const L=s.lang,it=D[c].i[j],zi=Z[c][j],ji=J[c][j],key=c+":"+j;const have=!!RPI[c];
+ const rE=have?RPI[c].en:rpItem(it,zi,ji,"en"),rZ=have?RPI[c].zh:rpItem(it,zi,ji,"zh"),rJ=have?RPI[c].ja:rpItem(it,zi,ji,"ja");
+ const rK=have?RPK[c]:RIK(it.ko),rV=have?RPV[c]:RIV(VI[key].vn.toLowerCase());
+ const rep=RPR[have?c:"item"],repZ=RPRZ[have?c:"item"],repJ=RPRJ[have?c:"item"];
+ const lines=[];const A=(who,en,zh,ja,ko,vi)=>lines.push({who,en,zh,ja,ko,vi});
+ A("me",rE.i,rZ.i,rJ.i,rK[1],rV[1]);
+ const nq=lv===0?2:3;
+ for(let k=0;k<nq;k++){A("me",rE.q[k],rZ.q[k],rJ.q[k],rK[2][k],rV[2][k]);A("partner",rep[k][0],repZ[k],repJ[k],rep[k][1],rep[k][2])}
+ if(lv===2)A("me",rE.x,rZ.x,rJ.x,rK[3],rV[3]);
+ A("me","Thank you for your help.","谢谢你的帮助。","ご協力ありがとうございます。","도와주셔서 감사합니다.","Cảm ơn bạn đã giúp đỡ.");
+ return{sc:{en:rE.sc,zh:rZ.sc,ja:rJ.sc,ko:rK[0],vi:rV[0]},lines}}
 
 /* 고급(IH/AL) 어휘 격상 사전: [정규식 문자열, 치환, 원래 표현, 격상 표현, ko 뜻, vi 뜻]. 같은 품사·활용을 유지하는 안전한 교체만 포함 */
 const ALD=[
@@ -1497,11 +1900,11 @@ zthanks:{p:"谢谢你的帮助 (xièxie nǐ de bāngzhù)",mk:"도와주셔서 �
  ex:()=>"谢谢你的帮助。"}
 };
 const PMAPZ=[
- [["zlike","zact","zbec"],["zfav","zact","zreason"],["zifhad","zact","zback"]],
- [["zusu","zseq","zfeel"],["zusu","zseq","zfeel"],["zusu","zseq","zfinal"]],
- [["zlast","zhappy"],["zonetime","zatfirst","zlearned"],["zstand","zatfirst","zlearned"]],
- [["zdidnot","zbetter"],["zcompare","zbig"],["zcompare","zback","zlearned"]],
- [["zwould","zqform"],["zwould","zseq2","zqform","zthanks"],["zwould","zseq2","zqform","zifcond","zthanks"]]];
+ [["zlike","zact","zbec"],["zfav","zact","zreason","zbec"],["zifhad","zfav","zact","zreason","zback","zbec"]],
+ [["zusu","zseq","zfeel"],["zusu","zseq","zfeel","zfinal"],["zusu","zseq","zfeel","zfinal","zact","zbec"]],
+ [["zlast","zhappy","zatfirst"],["zonetime","zatfirst","zlearned","zhappy"],["zstand","zatfirst","zlearned","zonetime","zlast","zhappy"]],
+ [["zdidnot","zbetter","zbig"],["zcompare","zbig","zbetter","zdidnot"],["zcompare","zback","zlearned","zbig","zbetter","zdidnot"]],
+ [["zwould","zqform","zthanks"],["zwould","zseq2","zqform","zthanks"],["zwould","zseq2","zqform","zifcond","zthanks"]]];
 const JPAT={
 jlike:{p:"Nが好きです (すきです)",mk:"저는 ~을 좋아해요",mv:"Tôi thích ~",
  wk:"「好きです」는 な형용사라서 좋아하는 대상 뒤에 を가 아니라 が를 써요(テニスが好きです ✓, テニスを好きです ✗). 한국어는 '~을/를 좋아하다'라서 を를 쓰기 쉬우니 주의하세요.",
@@ -1609,11 +2012,11 @@ jthanks:{p:"ご協力ありがとうございます (ごきょうりょく)",mk:
  ex:()=>"ご協力ありがとうございます。"}
 };
 const PMAPJ=[
- [["jlike","jact","jbec"],["jfav","jact","jreason"],["jifhad","jact","jback"]],
- [["jusu","jseq","jfeel"],["jusu","jseq","jfeel"],["jusu","jseq","jfinal"]],
- [["jlast","jhappy"],["jonetime","jatfirst","jlearned"],["jstand","jatfirst","jlearned"]],
- [["jdidnot","jbetter"],["jcompare","jbig"],["jcompare","jback","jlearned"]],
- [["jwould","jqform"],["jwould","jseq2","jqform","jthanks"],["jwould","jseq2","jqform","jifcond","jthanks"]]];
+ [["jlike","jact","jbec"],["jfav","jact","jreason","jbec"],["jifhad","jfav","jact","jreason","jback","jbec"]],
+ [["jusu","jseq","jfeel"],["jusu","jseq","jfeel","jfinal"],["jusu","jseq","jfeel","jfinal","jact","jbec"]],
+ [["jlast","jhappy","jatfirst"],["jonetime","jatfirst","jlearned","jhappy"],["jstand","jatfirst","jlearned","jonetime","jlast","jhappy"]],
+ [["jdidnot","jbetter","jbig"],["jcompare","jbig","jbetter","jdidnot"],["jcompare","jback","jlearned","jbig","jbetter","jdidnot"]],
+ [["jwould","jqform","jthanks"],["jwould","jseq2","jqform","jthanks"],["jwould","jseq2","jqform","jifcond","jthanks"]]];
 /* 단어 선택 이유 규칙: [동사 정규식, ko, vi] / [시간·장소 정규식, ko, vi] */
 const ZVR=[
 [/^打/,"打(dǎ) + 구기·타구 종목: 손·라켓·채로 치는 운동은 打를 써요(打网球·打篮球·打羽毛球·打乒乓球·打棒球·打排球·打高尔夫). 발로 차는 축구는 踢를 써요.","打 (dǎ) + môn bóng/đánh: môn dùng tay, vợt, gậy thì dùng 打 (打网球, 打篮球, 打羽毛球…). Bóng đá đá bằng chân dùng 踢."],
@@ -2121,26 +2524,29 @@ const sp=(t)=>`<span class="sn" data-t="${esc(t)}">${esc(t)}</span>`;
 function qaFor(x,it,key,c){const vi=UI==="vi",out=[];
  if(x.q===4){const en=RPI[c]?RPI[c].en.q:rpItem(it,Z[c][+key.split(":")[1]],J[c][+key.split(":")[1]],"en").q,r=RPI[c]?(vi?RPV[c]:RPK[c]):(vi?RIV(VI[key].vn.toLowerCase()):RIK(it.ko)),rep=RPR[RPI[c]?c:"item"];
   en.forEach((q,k)=>out.push([q,rep[k][0],r[2][k],rep[k][vi?2:1]]));return out}
- const t=QAT[x.q](it,0,fK(it,key),fV(it,key));t.forEach(z=>out.push([z[0],z[1],vi?z[4]:z[2],vi?z[5]:z[3]]));return out}
+ const t=QAT[x.q](it,0,fK(it,key),fV(it,key)).concat(QAX[x.q]).slice(0,QN[s.lv]);t.forEach(z=>out.push([z[0],z[1],vi?z[4]:z[2],vi?z[5]:z[3]]));return out}
 function studyHTML(x){const key=x.key,c=key.split(":")[0],it=D[c].i[+key.split(":")[1]],L=s.lv,vi=UI==="vi";let h="";
  /* ① 필수 표현 */
- h+=`<h3>${T("① 필수 표현 — 왜 이렇게 쓰나요?","① Cấu trúc câu quan trọng — vì sao viết như vậy?")}</h3>`;
- PMAP[x.q][L].forEach(k=>{const P=PAT[k],ex=P.ex(it);h+=`<div class="pat"><div class="pp">${esc(pt(P.p))} <span class="mut">= ${esc(vi?P.mv:P.mk)}</span></div><div>${esc(vi?P.wv:P.wk)}</div><div class="exs">${ab(ex)} <span class="en">${esc(ex)}</span></div></div>`});
+ h+=`<h3>${T("① 이 답변에서 쓴 필수 표현 — 왜 이렇게 쓰나요?","① Cấu trúc câu quan trọng đã dùng trong câu trả lời — vì sao viết như vậy?")}</h3>`;
+ if(x.pats&&!x.pats.length)h+=`<p class="mut">${T("이 답변에는 아직 정리할 표현이 없습니다.","Câu trả lời này chưa có cấu trúc nào để tổng hợp.")}</p>`;
+ (x.pats?x.pats:PMAP[x.q][L]).filter(k=>PAT[k]).forEach(k=>{const P=PAT[k],ex=P.ex(it);h+=`<div class="pat"><div class="pp">${esc(pt(P.p))} <span class="mut">= ${esc(vi?P.mv:P.mk)}</span></div><div>${esc(vi?P.wv:P.wk)}</div><div class="exs">${ab(ex)} <span class="en">${esc(ex)}</span></div></div>`});
  /* 문장 분해 + 단어 선택 이유 */
- if(x.q<=1){const usu=x.q===1,toks=[["I",T("주어","chủ ngữ")]].concat(usu?[["usually",T("빈도부사","trạng từ tần suất")]]:[]).concat([[it.a,T("동사 + 목적어","động từ + tân ngữ")],[it.w,T("때·장소","thời gian/nơi chốn")]]),sen=`I ${usu?"usually ":""}${it.a} ${it.w}.`;
+ if(x.q<=1&&x.mode!=="real"){const usu=x.q===1,toks=[["I",T("주어","chủ ngữ")]].concat(usu?[["usually",T("빈도부사","trạng từ tần suất")]]:[]).concat([[it.a,T("동사 + 목적어","động từ + tân ngữ")],[it.w,T("때·장소","thời gian/nơi chốn")]]),sen=`I ${usu?"usually ":""}${it.a} ${it.w}.`;
   h+=`<div class="pat"><div class="pp">🔍 ${T("문장 분해","Phân tích câu")} ${ab(sen)}</div><div class="toks">${toks.map(z=>`<span class="tok">${esc(z[0])}<small>${esc(z[1])}</small></span>`).join("")}</div><div class="mut">${esc(sen)}</div>`;
   const wa=whyA(it.a),ww=whyW(it.w);h+=`<div class="why"><b>💡 ${T("단어 선택 이유","Vì sao chọn từ này")}</b><ul><li><b>${esc(it.a)}</b> — ${esc(vi?wa[1]:wa[0])}</li>${ww.map(z=>`<li><b>${esc(z[0])}</b> — ${esc(vi?z[2]:z[1])}</li>`).join("")||`<li><b>${esc(it.w)}</b> — ${T("고정 부사구예요. 통째로 외워 두세요.","Là cụm trạng từ cố định. Hãy học thuộc cả cụm.")}</li>`}</ul></div></div>`}
  /* ② 주고받는 질문 */
- h+=`<h3>${T(x.q===4?"② 주고받는 질문 (내가 묻고 상대가 답하는 연습용 예시 대화)":"② 주고받는 질문 (시험관이 묻고 내가 답하기)",x.q===4?"② Hỏi – đáp (đoạn hội thoại mẫu: bạn hỏi, đối phương trả lời)":"② Hỏi – đáp (giám khảo hỏi, bạn trả lời)")}</h3><div class="qa">`;
- qaFor(x,it,key,c).forEach(z=>{h+=`<div class="qar"><div>${x.q===4?"🙋":"🎤"} ${sp(z[0])} <span class="mut">→ ${esc(z[2])}</span></div><div class="ans2">💬 ${sp(z[1])} <span class="mut">→ ${esc(z[3])}</span></div></div>`});h+="</div>";
+ h+=`<h3>${T(x.q===4?"② 주고받는 질문 (내가 묻고 상대가 답하는 연습용 예시 대화)":"② 주고받는 질문 (가상 진행자가 묻고 내가 답하기 — 답은 예시)",x.q===4?"② Hỏi – đáp (đoạn hội thoại mẫu: bạn hỏi, đối phương trả lời)":"② Hỏi – đáp (người dẫn ảo hỏi, bạn trả lời — câu trả lời chỉ là ví dụ)")}</h3><div class="qa">`;
+ qaFor(x,it,key,c).forEach(z=>{h+=`<div class="qar"><div>${x.q===4?"🙋":"🎤"} ${sp(z[0])} <span class="mut">→ ${esc(z[2])}</span></div>${x.mode==="real"&&x.q!==4?`<div class="ans2 mut">💬 ${T("내 사실로 답해 보세요 (예시 답은 내가 입력하지 않은 사실이 들어 있어 숨김)","Hãy trả lời bằng sự thật của bạn (ẩn câu mẫu vì chứa thông tin bạn chưa nhập)")}</div>`:`<div class="ans2">💬 ${sp(z[1])} <span class="mut">→ ${esc(z[3])}</span></div>`}</div>`});h+="</div>";
  if(x.q===4)h+=`<p class="mut nt">${T("상대 응답은 연습을 위해 제가 만든 가상 대화예요. 실제 시험 내용이 아니에요.","Câu trả lời của đối phương là hội thoại giả định do tôi viết để luyện tập, không phải nội dung thi thật.")}</p>`;
- /* ③ 숙어 */
+ /* ③ 숙어 — 답변에 실제로 쓰인 것만 본문, 나머지는 참고(접힘) */
+ {const al=(x.a||"").toLowerCase(),all=(IDD[c]||[]),used=all.filter(d=>al.includes(d.e.toLowerCase())),rest=all.filter(d=>!used.includes(d)).slice(0,IN_EN[L]),card=d=>`<div class="pat"><div class="pp">${esc(d.e)} ${ab(d.e)} <span class="mut">= ${esc(vi?d.mv:d.mk)}</span></div><div>${esc(vi?d.wv:d.wk)}</div><div class="exs">${ab(d.ex)} <span class="en">${esc(d.ex)}</span></div>${d.src?`<div class="mut">📚 ${T("셰익스피어 작품","Tác phẩm Shakespeare")}: ${esc(d.src)} ${T("(Shakespeare Birthplace Trust 표현 목록 기준)","(theo danh sách cụm từ của Shakespeare Birthplace Trust)")}</div>`:""}</div>`;
  h+=`<h3>${T("③ 숙어·관용 표현","③ Thành ngữ")}</h3>`;
- (IDD[c]||[]).forEach(d=>{h+=`<div class="pat"><div class="pp">${esc(d.e)} ${ab(d.e)} <span class="mut">= ${esc(vi?d.mv:d.mk)}</span></div><div>${esc(vi?d.wv:d.wk)}</div><div class="exs">${ab(d.ex)} <span class="en">${esc(d.ex)}</span></div>${d.src?`<div class="mut">📚 ${T("셰익스피어 작품","Tác phẩm Shakespeare")}: ${esc(d.src)} ${T("(Shakespeare Birthplace Trust 표현 목록 기준)","(theo danh sách cụm từ của Shakespeare Birthplace Trust)")}</div>`:""}</div>`});
+ h+=used.length?used.map(card).join(""):`<p class="mut">${T("이 답변에는 숙어를 쓰지 않았습니다. 억지로 넣지 않는 것이 더 자연스러워요(숙어 0개도 괜찮습니다).","Câu trả lời này không dùng thành ngữ. Không gượng ép sẽ tự nhiên hơn (0 thành ngữ cũng được).")}</p>`;
+ if(rest.length)h+=`<details><summary class="mut">${T("참고: 같은 주제의 숙어 (이 답변에는 쓰이지 않음)","Tham khảo: thành ngữ cùng chủ đề (không dùng trong câu trả lời này)")}</summary>${rest.map(card).join("")}</details>`;}
  h+=`<p class="mut nt">${T("숙어의 뜻과 구조 설명은 일반 영어 지식으로 쓴 것이며, 셰익스피어 작품 표기만 외부 목록으로 확인했어요. 학습 노트는 원어민 검수 전이에요.","Nghĩa và phần giải thích cấu trúc của thành ngữ được viết từ kiến thức tiếng Anh thông thường; chỉ phần ghi tác phẩm Shakespeare được đối chiếu với danh sách bên ngoài. Ghi chú học tập chưa được người bản ngữ kiểm duyệt.")}</p>`;
  /* ④ 단어 */
  h+=`<h3>${T("④ 단어","④ Từ vựng")}</h3><div class="tw"><table><tr><th></th><th>English</th><th>${T("한국어","Tiếng Việt")}</th></tr>`;
- (VOCD[key]||[]).forEach(z=>{h+=`<tr><td>${ab(z[0])}</td><td>${sp(z[0])}</td><td>${esc(vi?z[2]:z[1])}</td></tr>`});h+="</table></div>";
+ vocEN(x,(VOCD[key]||[]).filter(z=>(x.a||"").toLowerCase().includes(z[0].toLowerCase()))).forEach(z=>{h+=`<tr><td>${ab(z[0])}</td><td>${sp(z[0])}</td><td>${esc(vi?z[2]:z[1])}</td></tr>`});h+="</table></div>";
  return h}
 /* --- AL 업그레이드 (고급·영어 전용) --- */
 function alUp(text){const hit=[];let r=text;ALD.forEach(a=>{const re=new RegExp(a[0],"g");if(re.test(text)){hit.push(a);r=r.replace(new RegExp(a[0],"g"),(...m)=>{const rep=a[1].replace(/\$(\d)/g,(z,d)=>m[+d]||"");return"\u0001"+rep+"\u0002"})}});return{r,hit}}
@@ -2157,7 +2563,7 @@ const alNote=()=>`<p class="mut nt">${T("이 변환은 정해진 어휘 사전(2
 /* --- 카드에 붙이기 --- */
 const GT=()=>T("📘 용어 풀이: 주어(문장의 주인공, I), 동사(동작, play), 목적어(동작을 받는 말, tennis), 전치사(on·in·at처럼 명사 앞에서 때·장소를 알려주는 말), 빈도부사(usually·often처럼 얼마나 자주인지 말하는 단어), 접속사(because·but처럼 문장을 잇는 말).","📘 Giải thích thuật ngữ: chủ ngữ (nhân vật chính của câu, I), động từ (hành động, play), tân ngữ (từ nhận hành động, tennis), giới từ (on·in·at đứng trước danh từ để chỉ thời gian/nơi chốn), trạng từ tần suất (usually·often cho biết mức độ thường xuyên), liên từ (because·but nối các câu).");
 function extras(){const cards=document.querySelectorAll("#model .qc");cards.forEach((el,n)=>{const x=SETS[n];if(!x||!x.key)return;let ip;try{ip=interp(x)}catch(e){return}
- const en=s.lang==="en";let h=`<div class="interp"><b>🇰🇷🇻🇳 ${T("원어민식 해석","Bản dịch tự nhiên")}</b><div class="iq">${esc(ip.q)}</div><div>${esc(ip.a)}</div>${en?"":`<div class="mut nt">${T("중국어·일본어 답안은 같은 뜻의 영어 모범답안 기준 해석이에요. 문장 하나하나가 완전히 일치하지 않을 수 있어요.","Bản dịch dựa trên bài mẫu tiếng Anh cùng nội dung; từng câu có thể không khớp hoàn toàn.")}</div>`}</div>`;
+ const en=s.lang==="en";let h=`<div class="interp"><b>🇰🇷🇻🇳 ${T("한국어·베트남어 해석 (AI 작성, 원어민 검수 전)","Bản dịch KO·VI (AI soạn, chưa được người bản ngữ kiểm tra)")}</b><div class="iq">${esc(ip.q)}</div><div>${esc(ip.a)}</div>${en?"":`<div class="mut nt">${T("중국어·일본어 답안은 같은 뜻의 영어 모범답안 기준 해석이에요. 문장 하나하나가 완전히 일치하지 않을 수 있어요.","Bản dịch dựa trên bài mẫu tiếng Anh cùng nội dung; từng câu có thể không khớp hoàn toàn.")}</div>`}</div>`;
   if(en){h+=`<details class="study"><summary><b>${T("📘 학습 노트: 필수 표현 · 주고받는 질문 · 숙어 · 단어","📘 Ghi chú học tập: cấu trúc quan trọng · hỏi đáp · thành ngữ · từ vựng")}</b></summary><p class="mut nt">${GT()}</p>${studyHTML(x)}</details>`;
    if(s.lv===2)h+=`<details class="study al"><summary><b>${T("🌟 AL 업그레이드 (고급)","🌟 Nâng cấp AL (cao cấp)")}</b></summary>${alHTML(x.a,x.key.split(":")[0],x.q)}${alNote()}</details>`}
   else h+=`<details class="study"><summary><b>${T("📘 학습 노트: 필수 표현 · 주고받는 질문 · 숙어 · 단어","📘 Ghi chú học tập: cấu trúc quan trọng · hỏi đáp · thành ngữ · từ vựng")}</b></summary>${studyHTMLZJ(x)}</details>`;
@@ -2240,7 +2646,7 @@ const STPROMPT=(topic,lvn)=>`역할: 너는 OPIc 말하기 시험 답안을 설�
 [5. 출력 형식]
 1) 문제 (영어)
 2) 모범답안 (영어)
-3) 한국어 해석 / 베트남어 해석 (원어민식 자연스러운 표현)
+3) 한국어 해석 / 베트남어 해석 (자연스러운 표현)
 4) 핵심 표현 표: 표현 | 쓰임 | 문법·선택 이유
 5) 숙어·관용 표현 1~2개 (표준 관용구만)
 6) 말하기 팁 1~2줄 (강세, 끊어 읽기 위치)
@@ -2350,7 +2756,7 @@ function storyDraw(){const el=$("stbody");if(!el)return;const vi=UI==="vi",c=s.c
  h+=`<div class="qq"><span class="sn" data-t="${esc(q)}">▶ ${esc(q)}</span></div><p class="mut nt">${T("연습용 질문은 이 앱이 직접 쓴 것이며 실제 OPIc 기출이 아니에요.","Câu hỏi luyện tập do ứng dụng tự viết, không phải đề OPIc thật.")}</p>`;
  h+=`<div class="stp">${paras.map(p=>`<p class="en">${stSens(p).map(sp).join(" ")}</p>`).join("")}</div>`;
  h+=`<div class="row"><button class="btn p" id="stplay">${T("▶ 전체 듣기","▶ Nghe toàn bộ")}</button><button class="btn" id="stcopy">${T("✎ 내 칸으로 복사해 연습","✎ Chép vào ô của tôi để luyện")}</button></div>`;
- h+=`<div class="interp"><b>🇰🇷🇻🇳 ${T("원어민식 해석","Bản dịch tự nhiên")}</b>${tr.map(p=>`<p>${esc(p)}</p>`).join("")}</div>`;
+ h+=`<div class="interp"><b>🇰🇷🇻🇳 ${T("한국어·베트남어 해석 (AI 작성, 원어민 검수 전)","Bản dịch KO·VI (AI soạn, chưa được người bản ngữ kiểm tra)")}</b>${tr.map(p=>`<p>${esc(p)}</p>`).join("")}</div>`;
  h+=`<h3>${T("① 핵심 표현 — 왜 이렇게 쓰나요?","① Cách diễn đạt chính — vì sao viết như vậy?")}</h3><div class="tw"><table><tr><th></th><th>${T("표현","Cách diễn đạt")}</th><th>${T("뜻","Nghĩa")}</th><th>${T("이유","Lý do")}</th></tr>${sd.ex.map(e=>`<tr><td>${ab(e[0])}</td><td>${sp(e[0])}</td><td>${esc(vi?e[2]:e[1])}</td><td>${esc(vi?e[4]:e[3])}</td></tr>`).join("")}</table></div>`;
  h+=`<h3>${T("② 숙어·관용 표현","② Thành ngữ")}</h3>`+sd.id.map(d=>`<div class="pat"><div class="pp">${esc(d[0])} ${ab(d[0])} <span class="mut">= ${esc(vi?d[2]:d[1])}</span></div><div>${esc(vi?d[4]:d[3])}</div></div>`).join("");
  h+=`<h3>${T("③ 말하기 팁","③ Mẹo khi nói")}</h3><p>${esc(STTIP[L][vi?1:0])}</p><p class="mut nt">${T("말하기 팁은 코칭 제안이며 효과를 검증한 자료는 없어요.","Mẹo nói chỉ là gợi ý luyện tập, chưa có tài liệu kiểm chứng hiệu quả.")}</p>`;
@@ -2382,23 +2788,340 @@ function whyZJ(lg,it){const vi=UI==="vi",out=[],seen={};const R1=lg==="zh"?ZVR:J
  if(!out.length)out.push([it.a+" "+it.w,T("이 항목은 통째로 외워 두세요.","Hãy học thuộc nguyên cụm này.")]);return out}
 function studyHTMLZJ(x){const lg=s.lang,key=x.key,c=key.split(":")[0],ix=+key.split(":")[1],it=lg==="zh"?Z[c][ix]:J[c][ix],en=D[c].i[ix],L=s.lv,vi=UI==="vi";
  const PA=lg==="zh"?ZPAT:JPAT,PM=lg==="zh"?PMAPZ:PMAPJ,rp=x.q===4?zjRP(c,en,Z[c][ix],J[c][ix],lg):null;let h="";
- h+=`<h3>${T("① 필수 표현 — 왜 이렇게 쓰나요?","① Cấu trúc câu quan trọng — vì sao viết như vậy?")}</h3>`;
- PM[x.q][L].forEach(k=>{const P=PA[k];let ex="";try{ex=P.ex(it,rp)}catch(e){}h+=`<div class="pat"><div class="pp">${esc(P.p)} <span class="mut">= ${esc(vi?P.mv:P.mk)}</span></div><div>${esc(vi?P.wv:P.wk)}</div><div class="exs">${ab(ex)} <span class="en">${esc(ex)}</span></div></div>`});
- if(x.q<=1){const usu=x.q===1,sen=lg==="zh"?`我${usu?"通常":""}${it.w}${it.a}。`:`${usu?"たいてい、":""}${it.w}${it.a}。`;
+ h+=`<h3>${T("① 이 답변에서 쓴 필수 표현 — 왜 이렇게 쓰나요?","① Cấu trúc câu quan trọng đã dùng trong câu trả lời — vì sao viết như vậy?")}</h3>`;
+ if(x.pats&&!x.pats.length)h+=`<p class="mut">${T("이 답변에는 아직 정리할 표현이 없습니다.","Câu trả lời này chưa có cấu trúc nào để tổng hợp.")}</p>`;
+ (x.pats?x.pats.map(k=>(lg==="zh"?"z":"j")+(k==="compared"?"compare":k)).filter(k=>PA[k]):PM[x.q][L]).forEach(k=>{const P=PA[k];let ex="";try{ex=P.ex(it,rp)}catch(e){}h+=`<div class="pat"><div class="pp">${esc(P.p)} <span class="mut">= ${esc(vi?P.mv:P.mk)}</span></div><div>${esc(vi?P.wv:P.wk)}</div><div class="exs">${ab(ex)} <span class="en">${esc(ex)}</span></div></div>`});
+ if(x.q<=1&&x.mode!=="real"){const usu=x.q===1,sen=lg==="zh"?`我${usu?"通常":""}${it.w}${it.a}。`:`${usu?"たいてい、":""}${it.w}${it.a}。`;
   h+=`<div class="pat"><div class="pp">🔍 ${T("문장 분해","Phân tích câu")} ${ab(sen)}</div><div class="toks">${(lg==="zh"?[["我",T("주어","chủ ngữ")]].concat(usu?[["通常",T("빈도부사","trạng từ tần suất")]]:[]):usu?[["たいてい",T("빈도부사","trạng từ tần suất")]]:[]).concat([[it.w,T("때·장소","thời gian/nơi chốn")],[it.a,T("동사 + 목적어","động từ + tân ngữ")]]).map(z=>`<span class="tok">${esc(z[0])}<small>${esc(z[1])}</small></span>`).join("")}</div><div class="mut">${esc(sen)}</div>`;
   h+=`<div class="why"><b>💡 ${T("단어 선택 이유","Vì sao chọn từ này")}</b><ul>${whyZJ(lg,it).map(z=>`<li><b>${esc(z[0])}</b> — ${esc(z[1])}</li>`).join("")}</ul></div></div>`}
- h+=`<h3>${T(x.q===4?"② 주고받는 질문 (내가 묻고 상대가 답하는 연습용 예시 대화)":"② 주고받는 질문 (시험관이 묻고 내가 답하기)",x.q===4?"② Hỏi – đáp (đoạn hội thoại mẫu: bạn hỏi, đối phương trả lời)":"② Hỏi – đáp (giám khảo hỏi, bạn trả lời)")}</h3><div class="qa">`;
+ h+=`<h3>${T(x.q===4?"② 주고받는 질문 (내가 묻고 상대가 답하는 연습용 예시 대화)":"② 주고받는 질문 (가상 진행자가 묻고 내가 답하기 — 답은 예시)",x.q===4?"② Hỏi – đáp (đoạn hội thoại mẫu: bạn hỏi, đối phương trả lời)":"② Hỏi – đáp (người dẫn ảo hỏi, bạn trả lời — câu trả lời chỉ là ví dụ)")}</h3><div class="qa">`;
  let kq=[];try{kq=qaFor(x,en,key,c)}catch(e){}
  let rows=[];
  if(x.q===4){const RR=(lg==="zh"?RPRZ:RPRJ)[RPI[c]?c:"item"];(rp?rp.q:[]).forEach((q,k)=>rows.push([q,RR[k]]))}
- else rows=(lg==="zh"?QATZ:QATJ)[x.q](it);
- rows.forEach((z,k)=>{const t=kq[k]||["","","",""];h+=`<div class="qar"><div>${x.q===4?"🙋":"🎤"} ${sp(z[0])} <span class="mut">→ ${esc(t[2])}</span></div><div class="ans2">💬 ${sp(z[1])} <span class="mut">→ ${esc(t[3])}</span></div></div>`});h+="</div>";
+ else rows=(lg==="zh"?QATZ:QATJ)[x.q](it).concat((lg==="zh"?QAXZ:QAXJ)[x.q]).slice(0,QN[L]);
+ rows.forEach((z,k)=>{const t=kq[k]||["","","",""];h+=`<div class="qar"><div>${x.q===4?"🙋":"🎤"} ${sp(z[0])} <span class="mut">→ ${esc(t[2])}</span></div>${x.mode==="real"&&x.q!==4?`<div class="ans2 mut">💬 ${T("내 사실로 답해 보세요 (예시 답은 숨김)","Hãy trả lời bằng sự thật của bạn (ẩn câu mẫu)")}</div>`:`<div class="ans2">💬 ${sp(z[1])} <span class="mut">→ ${esc(t[3])}</span></div>`}</div>`});h+="</div>";
  if(x.q===4)h+=`<p class="mut nt">${T("상대 응답은 연습을 위해 제가 만든 가상 대화예요. 실제 시험 내용이 아니에요.","Câu trả lời của đối phương là hội thoại giả định do tôi viết để luyện tập, không phải nội dung thi thật.")}</p>`;
  h+=`<h3>${T("③ 숙어·관용 표현","③ Thành ngữ")}</h3>`;
- (lg==="zh"?IDZ:IDJ).filter(d=>d[0]===c).forEach(d=>{h+=`<div class="pat"><div class="pp">${esc(d[1])} ${ab(d[1])} <span class="mut">(${esc(d[2])}) = ${esc(vi?d[4]:d[3])}</span></div><div>${esc(vi?d[6]:d[5])}</div><div class="exs">${ab(d[7])} <span class="en">${esc(d[7])}</span></div></div>`});
+ {const al=x.a||"",all=(lg==="zh"?IDZ:IDJ).filter(d=>d[0]===c),used=all.filter(d=>al.includes(d[1])),rest=all.filter(d=>!used.includes(d)).slice(0,IN_ZJ[L]),card=d=>`<div class="pat"><div class="pp">${esc(d[1])} ${ab(d[1])} <span class="mut">(${esc(d[2])}) = ${esc(vi?d[4]:d[3])}</span></div><div>${esc(vi?d[6]:d[5])}</div><div class="exs">${ab(d[7])} <span class="en">${esc(d[7])}</span></div></div>`;
+ h+=used.length?used.map(card).join(""):`<p class="mut">${T("이 답변에는 숙어를 쓰지 않았습니다 (0개도 괜찮습니다).","Câu trả lời này không dùng thành ngữ (0 cái cũng được).")}</p>`;if(rest.length)h+=`<details><summary class="mut">${T("참고: 같은 주제의 숙어 (이 답변에는 쓰이지 않음)","Tham khảo: thành ngữ cùng chủ đề (không dùng trong câu trả lời này)")}</summary>${rest.map(card).join("")}</details>`;}
  h+=`<h3>${T("④ 단어","④ Từ vựng")}</h3><div class="tw"><table><tr><th></th><th>${lg==="zh"?"中文 (pinyin)":"日本語 (よみ)"}</th><th>${T("한국어","Tiếng Việt")}</th></tr>`;
- const gl=VOCD[key]||[];((lg==="zh"?ZVD:JVD)[key]||[]).forEach((z,i)=>{const g=gl[i]||["","",""];h+=`<tr><td>${ab(z[0])}</td><td>${sp(z[0])} <span class="mut">${esc(z[1]||"")}</span></td><td>${esc(vi?g[2]:g[1])}</td></tr>`});h+="</table></div>";
+ const gl=VOCD[key]||[];const base=((lg==="zh"?ZVD:JVD)[key]||[]).map((z,i)=>{const g=gl[i]||["","",""];return[z[0],z[1]||"",g[1],g[2]]}).filter(z=>(x.a||"").includes(z[0]));vocZJ(x,lg,base).forEach(z=>{h+=`<tr><td>${ab(z[0])}</td><td>${sp(z[0])} <span class="mut">${esc(z[1]||"")}</span></td><td>${esc(vi?z[3]:z[2])}</td></tr>`});h+="</table></div>";
  h+=`<p class="mut nt">${T("이 학습 노트는 원어민 검수 전이에요. 병음·읽기와 숙어 설명은 일반 중국어·일본어 지식으로 작성했으니 중요한 표현은 사전으로 확인하세요.","Ghi chú này chưa được người bản ngữ kiểm duyệt. Phiên âm/cách đọc và giải thích thành ngữ viết từ kiến thức chung, hãy kiểm tra lại bằng từ điển với biểu hiện quan trọng.")}</p>`;
  return h}
+
+/* 자동 생성: pypinyin / pykakasi 로 만든 읽기 데이터 (원어민 검수 전) */
+const RDZ={"d":{"我":"wǒ","喜":"xǐ","欢":"huān","网":"wǎng","球":"qiú","周":"zhōu","末":"mò","在":"zài","公":"gōng","司":"sī","附":"fù","近":"jìn","的":"de","俱":"jù","乐":"yuè","部":"bù","打":"dǎ","它":"tā","因":"yīn","为":"wèi","让":"ràng","保":"bǎo","持":"chí","健":"jiàn","康":"kāng","也":"yě","能":"néng","放":"fàng","松":"sōng","头":"tóu","脑":"nǎo","通":"tōng","常":"cháng","首":"shǒu","先":"xiān","做":"zuò","好":"hǎo","准":"zhǔn","备":"bèi","然":"rán","后":"hòu","开":"kāi","始":"shǐ","专":"zhuān","心":"xīn","之":"zhī","觉":"jué","得":"de","情":"qíng","很":"hěn","有":"yǒu","一":"yī","次":"cì","参":"cān","加":"jiā","了":"le","场":"chǎng","小":"xiǎo","型":"xíng","比":"bǐ","赛":"sài","点":"diǎn","紧":"jǐn","张":"zhāng","但":"dàn","是":"shì","进":"jìn","行":"xíng","顺":"shùn","利":"lì","明":"míng","白":"bái","坚":"jiān","练":"liàn","习":"xí","天":"tiān","赋":"fù","更":"gèng","重":"zhòng","要":"yào","以":"yǐ","前":"qián","不":"bù","现":"xiàn","饭":"fàn","日":"rì","晚":"wǎn","上":"shàng","忙":"máng","碌":"lù","给":"gěi","全":"quán","家":"jiā","人":"rén","顿":"dùn","提":"tí","轻":"qīng","多":"duō","看":"kàn","电":"diàn","影":"yǐng","五":"wǔ","这":"zhè","种":"zhǒng","简":"jiǎn","单":"dān","方":"fāng","式":"shì","和":"hé","朋":"péng","友":"yǒu","去":"qù","院":"yuàn","个":"gè","故":"gù","事":"shì","可":"kě","改":"gǎi","变":"biàn","阅":"yuè","读":"dú","睡":"shuì","本":"běn","书":"shū","并":"bìng","恢":"huī","复":"fù","精":"jīng","力":"lì","就":"jiù","完":"wán","长":"cháng","篇":"piān","说":"shuō","带":"dài","你":"nǐ","入":"rù","新":"xīn","世":"shì","界":"jiè","听":"tīng","音":"yīn","班":"bān","路":"lù","发":"fā","位":"wèi","歌":"gē","手":"shǒu","合":"hé","适":"shì","整":"zhěng","玩":"wán","游":"yóu","戏":"xì","子":"zǐ","终":"zhōng","于":"yú","关":"guān","难":"nán","卡":"kǎ","耐":"nài","帮":"bāng","战":"zhàn","胜":"shèng","摄":"shè","旅":"lǚ","时":"shí","候":"hòu","拍":"pāi","照":"zhào","自":"zì","己":"jǐ","满":"mǎn","意":"yì","片":"piān","留":"liú","细":"xì","节":"jié","出":"chū","露":"lù","营":"yíng","每":"měi","季":"jì","度":"dù","湖":"hú","边":"biān","亲":"qīn","调":"tiáo","状":"zhuàng","态":"tài","钓":"diào","鱼":"yú","安":"ān","静":"jìng","早":"zǎo","晨":"chén","到":"dào","史":"shǐ","来":"lái","最":"zuì","大":"dà","条":"tiáo","会":"huì","回":"huí","报":"bào","高":"gāo","尔":"ěr","夫":"fū","隔":"gé","成":"chéng","绩":"jì","冷":"lěng","技":"jì","术":"shù","同":"tóng","样":"yàng","画":"huà","空":"kòng","闲":"xián","幅":"fú","用":"yòng","别":"bié","份":"fèn","礼":"lǐ","物":"wù","义":"yì","养":"yǎng","花":"huā","菜":"cài","植":"zhí","浇":"jiāo","水":"shuǐ","第":"dì","批":"pī","番":"fān","茄":"qié","料":"liào","美":"měi","东":"dōng","西":"xī","才":"cái","烘":"hōng","焙":"bèi","下":"xià","雨":"yǔ","烤":"kǎo","面":"miàn","包":"bāo","或":"huò","饼":"bǐng","干":"gān","生":"shēng","蛋":"dàn","糕":"gāo","乎":"hū","快":"kuài","桌":"zhuō","起":"qǐ","赢":"yíng","局":"jú","非":"fēi","接":"jiē","势":"shì","均":"jūn","敌":"dí","取":"qǔ","趣":"qù","学":"xué","外":"wài","语":"yǔ","三":"sān","十":"shí","分":"fēn","钟":"zhōng","门":"mén","对":"duì","话":"huà","使":"shǐ","言":"yán","法":"fǎ","弹":"dàn","吉":"jí","他":"tā","表":"biǎo","演":"yǎn","需":"xū","勇":"yǒng","气":"qì","跳":"tiào","舞":"wǔ","蹈":"dǎo","课":"kè","台":"tái","站":"zhàn","相":"xiāng","信":"xìn","视":"shì","频":"pín","午":"wǔ","从":"cóng","里":"lǐ","项":"xiàng","只":"zhǐ","奇":"qí","几":"jǐ","什":"shén","么":"me","都":"dōu","逛":"guàng","咖":"kā","啡":"fēi","馆":"guǎn","六":"liù","温":"wēn","馨":"xīn","地":"dì","平":"píng","凡":"fán","特":"tè","唱":"chàng","拉":"lā","月":"yuè","把":"bǎ","间":"jiān","系":"xì","慢":"màn","跑":"pǎo","沿":"yán","着":"zhe","河":"hé","充":"chōng","沛":"pèi","步":"bù","达":"dá","目":"mù","标":"biāo","爬":"pá","山":"shān","登":"dēng","座":"zuò","顶":"dǐng","风":"fēng","景":"jǐng","值":"zhí","辛":"xīn","苦":"kǔ","泳":"yǒng","两":"liǎng","停":"tíng","歇":"xiē","掌":"zhǎng","握":"wò","奏":"zòu","远":"yuǎn","身":"shēn","房":"fáng","锻":"duàn","炼":"liàn","创":"chuàng","纪":"jì","录":"lù","记":"jì","动":"dòng","骑":"qí","车":"chē","超":"chāo","计":"jì","划":"huá","距":"jù","离":"lí","增":"zēng","强":"qiáng","篮":"lán","二":"èr","投":"tóu","制":"zhì","团":"tuán","队":"duì","作":"zuò","漂":"piào","亮":"liàng","棒":"bàng","垒":"lěi","失":"shī","败":"bài","再":"zài","试":"shì","踢":"tī","足":"zú","胶":"jiāo","中":"zhōng","配":"pèi","挥":"huī","排":"pái","体":"tǐ","育":"yù","们":"men","决":"jué","任":"rèn","羽":"yǔ","毛":"máo","压":"yā","乒":"pīng","乓":"pāng","休":"xiū","短":"duǎn","暂":"zàn","息":"xī","办":"bàn","滑":"huá","雪":"xuě","年":"nián","冬":"dōng","没":"méi","摔":"shuāi","倒":"dǎo","道":"dào","陡":"dǒu","坡":"pō","那":"nà","怕":"pà","瑜":"yú","伽":"jiā","姿":"zī","稳":"wěn","呼":"hū","吸":"xī","散":"sàn","走":"zǒu","万":"wàn","即":"jí","清":"qīng","醒":"xǐng","潜":"qián","假":"jiǎ","海":"hǎi","龟":"guī","妙":"miào","象":"xiàng","冰":"bīng","扶":"fú","栏":"lán","杆":"gān","圈":"quān","衡":"héng","感":"gǎn","马":"mǎ","奔":"bēn","与":"yǔ","建":"jiàn","立":"lì","格":"gé","斗":"dòu","过":"guò","升":"shēng","考":"kǎo","续":"xù","努":"nǔ","换":"huàn","真":"zhēn","正":"zhèng","伸":"shēn","展":"zhǎn","运":"yùn","顾":"gù","船":"chuán","夏":"xià","舵":"duò","驾":"jià","控":"kòng","氛":"fēn","兴":"xīng","奋":"fèn","艺":"yì","剧":"jù","结":"jié","哭":"kū","深":"shēn","活":"huó","秋":"qiū","当":"dāng","庆":"qìng","典":"diǎn","烟":"yān","享":"xiǎng","刻":"kè","忆":"yì","久":"jiǔ","吃":"chī","韩":"hán","餐":"cān","至":"zhì","少":"shǎo","国":"guó","食":"shí","尝":"cháng","炖":"dùn","惊":"jīng","厅":"tīng","宝":"bǎo","藏":"zàng","探":"tàn","索":"suǒ","父":"fù","母":"mǔ","所":"suǒ","爱":"ài","购":"gòu","夜":"yè","买":"mǎi","算":"suàn","件":"jiàn","价":"jià","夹":"jiá","克":"kè","仔":"zǐ","较":"jiào","省":"shěng","钱":"qián","市":"shì","低":"dī","鲜":"xiān","果":"guǒ","便":"pián","宜":"yi","商":"shāng","妈":"mā","挑":"tiāo","选":"xuǎn","昂":"áng","贵":"guì","智":"zhì","机":"jī","应":"yìng","解":"jiě","问":"wèn","题":"tí","内":"nèi","工":"gōng","具":"jù","写":"xiě","查":"chá","资":"zī","半":"bàn","告":"gào","社":"shè","交":"jiāo","媒":"méi","老":"lǎo","联":"lián","想":"xiǎng","容":"róng","易":"yì","程":"chéng","师":"shī","厂":"chǎng","检":"jiǎn","数":"shù","床":"chuáng","零":"líng","繁":"fán","设":"shè","晰":"xī","沟":"gōu","销":"xiāo","售":"shòu","拜":"bài","访":"fǎng","客":"kè","户":"hù","定":"dìng","期":"qī","经":"jīng","漫":"màn","谈":"tán","判":"pàn","审":"shěn","策":"cè","负":"fù","责":"zé","艰":"jiān","断":"duàn","迟":"chí","寓":"yù","又":"yòu","舒":"shū","布":"bù","置":"zhì","焕":"huàn","住":"zhù","区":"qū","还":"hái","店":"diàn","印":"yìn","庭":"tíng","角":"jiǎo","落":"luò","受":"shòu","扰":"rǎo","集":"jí","注":"zhù","灯":"dēng","环":"huán","境":"jìng","途":"tú","彻":"chè","底":"dǐ","神":"shén","城":"chéng","文":"wén","化":"huà","迷":"mí","遇":"yù","差":"chāi","伙":"huǒ","伴":"bàn","流":"liú","航":"háng","延":"yán","误":"wù","赶":"gǎn","议":"yì","案":"àn","总":"zǒng","见":"jiàn","支":"zhī","聚":"jù","丰":"fēng","盛":"shèng","祝":"zhù","反":"fǎn","知":"zhī","直":"zhí","介":"jiè","累":"lèi","服":"fú","惯":"guàn","错":"cuò","历":"lì","汗":"hàn","切":"qiè","星":"xīng","笑":"xiào","规":"guī","律":"lǜ","票":"piào","功":"gōng","刀":"dāo","补":"bǔ","偿":"cháng","循":"xún","据":"jù","洁":"jié","净":"jìng","儿":"er","理":"lǐ","井":"jǐng","岸":"àn","找":"zhǎo","奖":"jiǎng","励":"lì","实":"shí","主":"zhǔ","原":"yuán","随":"suí","认":"rèn","此":"cǐ","越":"yuè","另":"lìng","悔":"huǐ","束":"shù","急":"jí","乱":"luàn","太":"tài","效":"xiào","确":"què","怎":"zěn","口":"kǒu","继":"jì","担":"dān","讶":"yà","愿":"yuàn","敢":"gǎn","助":"zhù","护":"hù","段":"duàn","渐":"jiàn","望":"wàng","未":"wèi","如":"rú","代":"dài","其":"qí","初":"chū","教":"jiào","而":"ér","量":"liàng","承":"chéng","诺":"nuò","逼":"bī","尽":"jǐn","希":"xī","固":"gù","且":"qiě","骤":"zhòu","豪":"háo","扎":"zhā","秘":"mì","诀":"jué","些":"xiē","够":"gòu","预":"yù","今":"jīn","楚":"chǔ","声":"shēng","味":"wèi","消":"xiāo","积":"jī","许":"xǔ","悄":"qiāo","激":"jī","显":"xiǎn","等":"děng","待":"dài","已":"yǐ","响":"xiǎng","识":"shí","择":"zé","将":"jiāng","向":"xiàng","请":"qǐng","吧":"ba","版":"bǎn","喂":"wèi","吗":"ma","七":"qī","哪":"nǎ","谢":"xiè","邀":"yāo","四":"sì","元":"yuán","处":"chù","订":"dìng","套":"tào","推":"tuī","荐":"jiàn","款":"kuǎn","围":"wéi","巾":"jīn","您":"nín","该":"gāi","启":"qǐ","况":"kuàng","约":"yuē","米":"mǐ","租":"zū","千":"qiān","百":"bǎi","域":"yù","剩":"shèng","概":"gài","她":"tā","退":"tuì","货":"huò","收":"shōu","谁":"shuí","鞋":"xié","饿":"è","装":"zhuāng","修":"xiū","范":"fàn","截":"jié","止":"zhǐ","宠":"chǒng","含":"hán","险":"xiǎn","叫":"jiào","校":"xiào","园":"yuán","偶":"ǒu","像":"xiàng","描":"miáo","述":"shù","普":"pǔ","讲":"jiǎng","举":"jǔ","例":"lì","业":"yè","者":"zhě"},"b":{"的当":"dí","的完":"dì","乐部":"lè","为加":"wéi","好奇":"hào","觉前":"jiào","得很":"dé","得特":"dé","得更":"dé","得多":"dé","得了":"dé","得累":"dé","得简":"dé","得井":"dé","得对":"dé","一点":"yì","一个":"yí","一起":"yì","一步":"yí","一分":"yì","一出":"yì","一半":"yí","一新":"yì","一直":"yì","一口":"yì","了解":"liǎo","场小":"cháng","场电":"cháng","场胶":"cháng","场是":"cháng","场现":"cháng","更新":"gēng","重新":"chóng","重复":"chóng","重启":"chóng","不是":"bú","不会":"bú","种菜":"zhòng","个变":"ge","个习":"ge","个四":"ge","长。":"zhǎng","长时":"zhǎng","长":"zhǎng","子去":"zi","子吗":"zi","子。":"zi","子是":"zi","子":"zi","卡。":"qiǎ","卡":"qiǎ","空间":"kōng","分工":"fèn","分。":"fèn","分是":"fèn","分":"fèn","只海":"zhī","几乎":"jī","都会":"dū","着的":"zhuó","划的":"huà","划。":"huà","划下":"huà","划一":"huà","划，":"huà","划":"huà","假日":"jià","假期":"jià","兴。":"xìng","兴自":"xìng","当成":"dàng","便做":"biàn","便？":"biàn","挑战":"tiǎo","应该":"yīng","差别":"chā","累起":"lěi","处理":"chǔ"}};
+const RDJ={"m":5,"w":{"普段":"ふだん","誰":"だれ","一緒に":"いっしょに","友達":"ともだち","私":"わたし","好き":"すき","知って":"しって","聞い":"きい","疲れ":"つかれ","後悔":"こうかい","意味":"いみ","自分":"じぶん","約束":"やくそく","忙しい":"いそがしい","日":"にち","時間":"じかん","少し":"すこし","一歩":"いっぽ","重く":"おもく","感じ":"かんじ","止ま":"とま","直し":"なおし","始め":"はじめ","言い":"いい","小さく":"ちーさく","焦ら":"あせら","一緒":"いっしょ","落ち着い":"おちつい","言って":"いって","大変":"たいへん","必要以上":"ひつよういじょう","緊張し":"きんちょうし","今":"いま","思い出し":"おもいだし","笑っ":"わらっ","習慣":"しゅうかん","変わ":"かわ","完璧":"かんぺき","条件":"じょうけん","待つ":"まつ","家族":"かぞく","変化":"へんか","思って":"おもって","気づ":"きづ","喜んで":"よろこんで","人":"にん","週末":"しゅうまつ","会社":"かいしゃ","近く":"ちかく","体":"からだ","健康":"けんこう","保っ":"たもっ","頭":"あたま","準備":"じゅんび","次に":"つぎに","集中":"しゅうちゅう","気分":"きぶん","時":"とき","小さ":"ちいさ","大会":"たいかい","出ま":"でま","最初":"さいしょ","続け":"つづけ","才能":"さいのう","大切":"たいせつ","学び":"まなび","昔":"むかし","頻繁":"ひんぱん","思い":"おもい","料理":"りょうり","日曜日":"にちようび","夜":"よる","夕食":"ゆうしょく","作り":"つくり","一週間":"いっしゅうかん","楽":"らく","映画":"えいが","見る":"みる","金曜日":"きんようび","見ま":"みま","簡単":"かんたん","映画館":"えいがかん","物語":"ものがたり","変え":"かえ","読書":"どくしょ","寝る":"ねる","前":"まえ","本":"ほん","読み":"よみ","気分転換":"きぶんてんかん","長編小説":"ちょうへんしょうせつ","読み終え":"よみおえ","新しい":"あたらしい","世界":"せかい","連れ":"つれ","行って":"いって","音楽":"おんがく","聴く":"きく","通勤":"つうきん","途中":"とちゅう","聴き":"きき","歌手":"かしゅ","見つ":"みつ","曲":"きょく","一日":"ついたち","難しい":"むずかしい","忍耐":"にんたい","練習":"れんしゅう","壁":"かべ","越え":"こえ","力":"ちから","写真":"しゃしん","撮る":"とる","旅行":"りょこう","撮り":"とり","気に入っ":"きにいっ","撮れ":"とれ","部分":"ぶぶん","気を":"きを","配る":"くばる","季節":"きせつ","一回":"いっかい","行き":"いき","湖":"みずうみ","自然":"しぜん","中":"なか","過ご":"すご","気持ち":"きもち","整う":"ととのう","釣り":"つり","静か":"しずか","朝":"あさ","今まで":"いままで","一番":"いちばん","大き":"おおき","魚":"さかな","我慢":"がまん","最後":"さいご","報わ":"むくわ","一週":"いっしゅう","自己":"じこ","冷静":"れいせい","技術":"ぎじゅつ","同じ":"おなじ","絵":"え","描く":"えがく","空い":"あい","描き":"えがき","一枚":"いちまい","上げ":"あげ","心":"こころ","込め":"こめ","贈り物":"おくりもの","園芸":"えんげい","毎朝":"まいあさ","植物":"しょくぶつ","水":"みず","初めて":"はじめて","育て":"そだて","毎日":"まいにち","世話":"せわ","育つ":"そだつ","菓子":"かし","雨":"あめ","焼き":"やき","誕生日":"たんじょうび","作る":"つくる","喜び":"よろこび","接戦":"せっせん","勝ち":"かち","楽勝":"らくしょう","楽しい":"たのしい","外国語":"がいこくご","勉強":"べんきょう","三十":"さんじゅう","分外":"ぶんがい","国語":"こくご","会話":"かいわ","言葉":"ことば","使う":"つかう","早い":"はやい","上達":"じょうたつ","方法":"ほうほう","弾く":"ひく","弾き":"ひき","一曲":"いっきょく","人前":"ひとまえ","演奏":"えんそう","勇気":"ゆうき","必要":"ひつよう","水曜日":"すいようび","教室":"きょうしつ","通い":"かよい","踊り":"おどり","舞台":"ぶたい","立つ":"たつ","信じ":"しんじ","昼休み":"ひるやすみ","動画":"どうが","役に立つ":"やくにたつ","好奇心":"こうきしん","何で":"なんで","学べ":"まなべ","巡り":"めぐり","土曜日":"どようび","午後":"ごご","家":"いえ","居心地":"いごこち","場所":"ばしょ","普通":"ふつう","特別":"とくべつ","月":"がつ","同僚":"どうりょう","歌い":"うたい","歌え":"うたえ","歌う":"うたう","関係":"かんけい","深ま":"ふかま","川沿い":"かわぞい","保て":"たもて","元気":"げんき","人生":"じんせい","十":"じゅう","走り":"はしり","目標":"もくひょう","山":"やま","頂上":"ちょうじょう","着き":"つき","景色":"けしき","苦しい":"くるしい","登り":"のぼり","見合う":"みあう","水泳":"すいえい","週":"しゅう","二回":"にかい","泳ぎ":"およぎ","休ま":"やすま","一":"いち","配分":"はいぶん","守れ":"まもれ","遠く":"とおく","行け":"いけ","三回":"さんかい","運動":"うんどう","更新":"こうしん","成長":"せいちょう","記録":"きろく","気が":"きが","続く":"つづく","自転車":"じてんしゃ","乗り":"のり","五十":"ごじゅう","予定":"よてい","自信":"じしん","火曜日":"かようび","仕事":"しごと","決勝":"けっしょう","決め":"きめ","一本":"いっぽん","野球":"やきゅう","打ち":"うち","失敗":"しっぱい","一度":"いちど","挑戦":"ちょうせん","試合":"しあい","合わ":"あわ","最大":"さいだい","体育館":"たいいくかん","仲間":"なかま","強く":"つよく","夕方":"ゆうがた","強い":"つよい","相手":"あいて","勝て":"かて","落ち着け":"おちつけ","卓球":"たっきゅう","社内":"しゃない","優勝":"ゆうしょう","短い":"みじかい","休憩":"きゅうけい","切り替え":"きりかえ","毎年":"まいとし","冬":"ふゆ","転ば":"ころば","滑れ":"すべれ","斜面":"しゃめん","進め":"すすめ","怖く":"こわく","一分間":"いっぷんかん","呼吸":"こきゅう","保つ":"たもつ","助け":"たすけ","昼食":"ちゅうしょく","散歩":"さんぽ","一万":"いちまん","歩":"ほ","歩き":"あるき","年":"ねん","休暇中":"きゅうかちゅう","水中":"すいちゅう","驚く":"おどろく","出会え":"であえ","手":"て","持た":"もた","生まれ":"うまれ","乗馬":"じょうば","馬":"うま","駆け":"かけ","動物":"どうぶつ","信頼関係":"しんらいかんけい","格闘技":"かくとうぎ","昇級試験":"しょうきゅうしけん","合格":"ごうかく","地道":"ぢみち","努力":"どりょく","本当":"ほんとう","前後":"ぜんご","終わ":"おわ","軽く":"かるく","一日中":"いちにちじゅう","遊び":"あそび","夏":"なつ","操縦":"そうじゅう","操る":"あやつる","行く":"いく","数回":"すうかい","現場":"げんば","雰囲気":"ふんいき","興奮":"こうふん","大好き":"だいすき","生":"なま","見に行き":"みにいき","芝居":"しばい","結末":"けつまつ","泣き":"なき","深く":"ふかく","動か":"うごか","祭り":"まつり","秋":"あき","地元":"じもと","花火":"はなび","分か":"わか","合う":"あう","思い出":"おもいで","長く":"ながく","残る":"のこる","韓国料理":"かんこくりょうり","食べ":"たべ","少なくとも":"すくなくとも","幸せ":"しあわせ","鍋":"なべ","試し":"ためし","気に入り":"きにいり","試す":"ためす","発見":"はっけん","隠れ":"かくれ","名店":"めいてん","店":"みせ","探す":"さがす","家庭料理":"かていりょうり","両親":"りょうしん","伝え":"つたえ","夜遅く":"よるおそく","買い物":"かいもの","得な":"えな","得に":"えに","買え":"かえ","比べ":"くらべ","金":"きん","節約":"せつやく","市場":"しじょう","新鮮":"しんせん","果物":"くだもの","安く":"やすく","早く":"はやく","安い":"やすい","休日":"きゅうじつ","母":"はは","買い":"かい","高い":"たかい","使い":"つかい","問題":"もんだい","解決":"かいけつ","数分":"すうふん","文章":"ぶんしょう","作成":"さくせい","調べ":"しらべ","半分":"はんぶん","仕上げ":"しあげ","道具":"どうぐ","大事":"だいじ","使え":"つかえ","休憩中":"きゅうけいちゅう","再び":"ふたたび","連絡":"れんらく","取れ":"とれ","取り":"とり","思った":"おもった","加工":"かこう","工場":"こうじょう","工作機械":"こうさくきかい","段取り":"だんどり","点検":"てんけん","本物":"ほんもの","部品":"ぶひん","見ら":"みら","勤務中":"きんむちゅう","設備":"せつび","明確":"めいかく","問題解決":"もんだいかいけつ","早め":"はやめ","営業":"えいぎょう","平日":"へいじつ","客様":"きゃくさま","会っ":"あっ","販売":"はんばい","計画":"けいかく","立て":"たて","長期的":"ちょうきてき","築け":"きづけ","長い":"ながい","交渉":"こうしょう","獲得":"かくとく","信頼":"しんらい","最も":"もっとも","経営す":"けいえいす","朝早く":"あさはやく","報告書":"ほうこくしょ","確認し":"かくにんし","意思決定":"いしけってい","結果":"けっか","責任":"せきにん","持て":"もて","決断":"けつだん","遅い":"おそい","快適":"かいてき","家具":"かぐ","並べ替え":"ならべかえ","空間":"くうかん","新しく":"あたらしく","住む":"すむ","地域":"ちいき","安全":"あんぜん","記憶":"きおく","自宅":"じたく","働き":"はたらき","邪魔":"じゃま","机":"つくえ","設置":"せっち","環境":"かんきょう","集中力":"しゅうちゅうりょく","高め":"たかめ","海":"うみ","穏や":"おだや","完全":"かんぜん","街":"まち","旅":"たび","文化":"ぶんか","知る":"しる","道":"みち","迷い":"まよい","親切":"しんせつ","出会い":"であい","予想外":"よそうがい","出来事":"できごと","出張":"しゅっちょう","取引先":"とりひきさき","直接":"ちょくせつ","話せ":"はなせ","飛行機":"ひこうき","遅れ":"おくれ","会議":"かいぎ","間に合い":"まにあい","予備":"よび","価値":"かち","会う":"あう","会い":"あい","支え":"ささえ","何年":"なんねん","盛大":"せいだい","食事":"しょくじ","完成":"かんせい","祝い":"いわい","距離":"きょり","縮ま":"ちぢま","毎回":"まいかい","気に":"きに","先月":"せんげつ","経験":"けいけん","心臓":"しんぞう","手に":"てに","汗":"あせ","残り":"のこり","忙しく":"いそがしく","余裕":"よゆう","変わり":"かわり","毎月":"まいつき","一つ":"ひとつ","国":"くに","選ぶ":"えらぶ","多い":"おおい","決ま":"きま","買っ":"かっ","買う":"かう","価格":"かかく","機能":"きのう","学ぶ":"まなぶ","工具":"こうぐ","丁寧":"ていねい","話し合っ":"はなしあっ","立ち":"たち","寄る":"よる","整理":"せいり","海岸":"かいがん","探し":"さがし","定期的":"ていきてき","合っ":"あっ","義務":"ぎむ","褒美":"ほうび","特に":"とくに","正直":"しょうじき","言う":"いう","主な":"おもな","理由":"りゆう","以前":"いぜん","真剣":"しんけん","取り組ん":"とりくん","応援":"おうえん","聞か":"きか","答え":"こたえ","全体":"ぜんたい","生活":"せいかつ","一部":"いちぶ","間":"かん","満足":"まんぞく","落ち着き":"おちつき","真面目":"まじめ","笑わ":"わらわ","時の":"ときの","覚え":"おぼえ","振り返る":"ふりかえる","言わ":"いわ","深呼吸":"しんこきゅう","不安":"ふあん","後":"のち","驚い":"おどろい","避け":"さけ","以来":"いらい","出し":"だし","向き":"むき","落ち着く":"おちつく","最近":"さいきん","違い":"ちがい","楽し":"たのし","見え":"みえ","優し":"やさし","態度":"たいど","思う":"おもう","安定":"あんてい","表す":"あらわす","一番大切":"いちばんたいせつ","聞こ":"きこ","実際":"じっさい","離れ":"はなれ","教え":"おしえ","思わ":"おもわ","誰か":"だれか","限り":"かぎり","合え":"あえ","事前":"じぜん","手順":"てじゅん","乱れ":"みだれ","落ち着か":"おちつか","方を":"ほうを","姿":"すがた","誇らしい":"ほこらしい","繰り返せ":"くりかえせ","確か":"たしか","五分":"ごぶ","戻る":"もどる","明日":"あした","印象":"いんしょう","残っ":"のこっ","次の":"つぎの","以上":"いじょう","活か":"いか","音":"おと","匂い":"におい","言った":"いった","冗談":"じょうだん","思い出せ":"おもいだせ","作っ":"つくっ","消え":"きえ","始ま":"はじま","過去":"かこ","現在":"げんざい","何":"なに","考え":"かんがえ","待っ":"まっ","考え方":"かんがえかた","広が":"ひろが","多く":"おおく","今日":"きょう","意識":"いしき","選ん":"えらん","将来":"しょうらい","増やす":"ふやす","感覚":"かんかく","注意":"ちゅうい","向け":"むけ","相談":"そうだん","学ん":"まなん","選択":"せんたく","話し":"はなし","話":"はなし","案外":"あんがい","語る":"かたる","十分":"じゅうぶん","今週末":"こんしゅうまつ","電話":"でんわ","何時":"なんじ","都合":"つごう","七時":"しちじ","協力":"きょうりょく","楽しみ":"たのしみ","想像":"そうぞう","誘い":"さそい","三つ":"みっつ","四つ":"よつ","質問":"しつもん","音楽鑑賞":"おんがくかんしょう","今月":"こんげつ","公演":"こうえん","今週":"こんしゅう","窓口":"まどぐち","予約":"よやく","願い":"ねがい","開店":"かいてん","五時":"ごじ","三品":"みしな","四十":"しじゅう","何を":"なにを","試せ":"ためせ","携帯電話":"けいたいでんわ","再起動":"さいきどう","起き":"おき","出て":"でて","資料":"しりょう","最新":"さいしん","持っ":"もっ","状況":"じょうきょう","説明し":"せつめいし","広さ":"ひろさ","約":"やく","六十":"ろくじゅう","平方":"へいほう","家賃":"やちん","千":"せん","借り":"かり","不動産会社":"ふどうさんがいしゃ","来月":"らいげつ","行き先":"いきさき","海沿い":"うみぞい","料金":"りょうきん","五百":"ごひゃく","旅行会社":"りょこうがいしゃ","駅":"えき","提案":"ていあん","全部":"ぜんぶ","席":"せき","中央":"ちゅうおう","数":"かず","一人":"ひとり","気に入ら":"きにいら","場合":"ばあい","返品":"へんぴん","以内":"いない","誰が":"だれが","参加":"さんか","呼び":"よび","見学":"けんがく","午前中":"ごぜんちゅう","靴":"くつ","持ち":"もち","何か":"なにか","食べた":"たべた","軽い":"かるい","腹":"はら","天気":"てんき","悪か":"わるか","払い戻し":"はらいもどし","駐車場":"ちゅうしゃじょう","保証":"ほしょう","対象":"たいしょう","段階":"だんかい","期限":"きげん","飼え":"かえ","旅行保険":"りょこうほけん","含ま":"ふくま","思い出す":"おもいだす","休み":"やすみ","学校":"がっこう","公園":"こうえん","外":"そと","誇らしか":"ほこらしか","先":"さき","順番":"じゅんばん","関す":"かんす","瞬間":"しゅんかん","場面":"ばめん","二つ":"ふたつ","具体的":"ぐたいてき","例":"れい","挙げ":"あげ","分":"ふん","経営者":"けいえいしゃ","近所":"きんじょ","都市":"とし"}};
+
+/* ===== 화자·문체·내 이야기·역할 대화·문장별 해석·코치 ===== */
+Object.assign(s,{spk:"virt",sty:"talk",long:false,me:{},pers:{},role:{},pi:0,keep:[],rdon:true});
+const SPKN=[["실제 나","Chính tôi"],["가상 인물","Nhân vật hư cấu"],["역할 상황","Tình huống nhập vai"]],SPKK=["real","virt","role"];
+const LANGW={en:"English",zh:"中文",ja:"日本語"};
+let _rdT=0;const redraw=()=>{clearTimeout(_rdT);_rdT=setTimeout(()=>draw(),250)};
+const joinS=(S,L)=>S.map(z=>z[L]||"").filter(Boolean).join(L==="en"?" ":L==="zh"||L==="ja"?"":" ");
+const splitS=(t,L)=>(t.match((L==="en"||L==="ko"||L==="vi")?/[^.!?]+[.!?]+/g:/[^。！？]+[。！？]+/g)||(t?[t]:[])).map(x=>x.trim()).filter(Boolean);
+function longSents(c,j,q,lv){const P=fieldsFor(c,j),lg=s.lang;
+ const A={en:splitS(F[q][lv](P.en),"en"),zh:splitS(FZ[q][lv](P.zh),"zh"),ja:splitS(FJ[q][lv](P.ja),"ja"),ko:splitS(TK[q][lv](P.ko),"ko"),vi:splitS(TV[q][lv](P.vi),"vi")};
+ const n=A.en.length,ok=LG5.every(l=>A[l].length===n);
+ const body=ok?A.en.map((_,i)=>({en:A.en[i],zh:A.zh[i],ja:A.ja[i],ko:A.ko[i],vi:A.vi[i]})):A[lg].map(t=>({[lg]:t}));
+ return{S:[...styleSents("o",lv),...persSents(lv),...body,...(s.sty!=="talk"||true?styleSents("c",lv):[])],ok}}
+const QKEY=(c,j,L)=>{const it=D[c].i[j],zi=Z[c][j],ji=J[c][j];return L==="ja"?ji.n:L==="zh"?zi.n.replace(/我/g,"你"):it.n.replace(/\bmy own\b/g,"your own").replace(/\bmy\b/g,"your")};
+buildSets=function(){const L=s.lang,out=[],seenRP={},lv=s.lv;
+ const qs=s.spk==="role"?[4]:[...s.qs].sort();
+ s.sel.forEach(key=>{const p=key.split(":"),c=p[0],j=+p[1],it=D[c].i[j],zi=Z[c][j],ji=J[c][j];
+  const lab=L==="ja"?ji.l:L==="zh"?(zi.zl||zi.n):it.k,qk=QKEY(c,j,L);
+  qs.forEach(q=>{
+   if(q===4){if(RPI[c]){if(seenRP[c])return;seenRP[c]=1}const R=roleLines(c,j,lv);
+    out.push({key,q,ko:RPI[c]?"상황 롤플레이":it.ko,kk:RPI[c]?D[c].t.split(" ")[0]:lab,qt:R.sc[L],qk,role:R,mode:"role",a:R.lines.filter(l=>l.who==="me").map(l=>l[L]).join(" "),S:R.lines});return}
+   let S,mode=s.spk==="real"?"real":"virt",align=true;
+   if(mode==="real"){S=meSents(c,j,q,lv)}
+   else if(s.long){const r=longSents(c,j,q,lv);S=r.S;align=r.ok}
+   else S=composeVirt(c,j,q,lv);
+   const pats=[];S.forEach(z=>{if(z.pat&&!pats.includes(z.pat))pats.push(z.pat)});
+   out.push({key,q,ko:it.ko,kk:lab,qt:(L==="ja"?QJ:L==="zh"?QC:QE)[q](qk),qk,mode,align,S,a:joinS(S,L),pats:mode==="virt"&&s.long?null:pats,long:!!s.long&&mode==="virt"})})});
+ return out};
+/* ---- 읽기(병음·かな): d_read.js 데이터가 있을 때만 ---- */
+function RDR(l,t){try{if(l==="zh"&&typeof RDZ!=="undefined"){let o=[];const cs=[...t];for(let i=0;i<cs.length;i++){const c=cs[i];if(/[\u4e00-\u9fff]/.test(c)){o.push(RDZ.b[c+(cs[i+1]||"")]||RDZ.d[c]||"")}else if(/[，。！？、：；]/.test(c)){o.push(c)}else o.push(c)}return o.join(" ").replace(/\s+([，。！？、：；])/g,"$1").replace(/\s+/g," ").trim()}
+ if(l==="ja"&&typeof RDJ!=="undefined"){let o="",i=0;const cs=[...t];while(i<cs.length){let m=0,r="";for(let n=Math.min(RDJ.m,cs.length-i);n>=1;n--){const w=cs.slice(i,i+n).join("");if(RDJ.w[w]){m=n;r=RDJ.w[w];break}}
+  if(m){o+=r;i+=m}else{o+=cs[i];i++}}return o}}catch(e){}return""}
+const needRd=()=>s.lang==="zh"?s.rdon:s.lang==="ja"?(s.rdon&&(s.lv===0||s.rdon===2)):false;
+/* ---- 카드 ---- */
+const TYN=()=>s.lang==="ja"?["説明","日常の習慣","過去の経験","比較","ロールプレイ"]:s.lang==="zh"?["描述","日常习惯","过去经历","比较","角色扮演"]:["설명","루틴","경험","비교","롤플레이"];
+const TIP=[["첫 문장에서 질문에 바로 답하고, 이유 앞에서 잠깐 쉬세요.","Trả lời thẳng câu hỏi ở câu đầu, ngắt nhẹ trước phần lý do."],["순서 단어(First, Then)마다 끊어 읽으면 듣는 사람이 따라가기 쉬워요.","Ngắt sau mỗi từ chỉ thứ tự (First, Then) để người nghe dễ theo dõi."],["과거 이야기는 천천히, 감정을 말하는 문장은 조금 낮게 말해 보세요.","Kể chuyện quá khứ chậm lại, câu nói về cảm xúc hạ giọng một chút."],["'예전'과 '지금'을 말하는 단어를 또렷하게 강조하세요.","Nhấn rõ các từ chỉ 'trước đây' và 'bây giờ'."],["질문 문장은 끝을 올리고, 부탁은 공손한 어조로 말하세요.","Câu hỏi lên giọng cuối câu, lời nhờ thì nói lịch sự."]];
+function badge(x){const m=x.mode;return m==="real"?T("🧾 내가 입력한 사실만 사용한 답변","🧾 Câu trả lời chỉ dùng thông tin bạn đã nhập"):m==="role"?T("🎭 역할 연습용 가상 상황 (실제 시험 내용 아님)","🎭 Tình huống giả định để luyện nhập vai (không phải đề thi thật)"):T("🧪 가상 인물의 예시 답변","🧪 Câu trả lời mẫu của nhân vật hư cấu")+(Object.values(s.pers||{}).some(v=>(v||"").trim())?" · "+T("입력한 인물 설정 반영","có áp dụng thiết lập nhân vật bạn nhập"):"")}
+function sentRows(x){const L=s.lang,vi=UI==="vi",k=vi?"vi":"ko",rd=needRd();let h=`<div class="tw"><table class="st"><tr><th>#</th><th>${LANGW[L]}</th>${rd?`<th>${L==="zh"?"拼音":"よみ"}</th>`:""}<th>${T("해석","Nghĩa")} (${vi?"Tiếng Việt":"한국어"})</th></tr>`;
+ x.S.forEach((z,i)=>{const t=z[L];if(!t)return;const r=rd?RDR(L,t):"";const tr=z[k]!==undefined?z[k]:"—";
+  h+=`<tr><td>${i+1}</td><td>${z.who?`<span class="mut">${z.who==="me"?"🙋":"💬"}</span> `:""}<span class="sn" data-t="${esc(t)}">${esc(t)}</span></td>${rd?`<td class="mut">${esc(r)}</td>`:""}<td>${esc(tr)}</td></tr>`});
+ return h+"</table></div>"}
+function modelCard(x,n){const L=s.lang,ty=TYN()[x.q];let h=`<div class="qc"><div class="mut">Q${n+1} · ${esc(x.kk)} (${esc(x.ko)}) · ${ty}</div><div class="badge">${badge(x)}</div><div class="qq"><span class="sn" data-t="${esc(x.qt)}">▶ ${esc(x.qt)}</span></div>`;
+ if(x.mode==="role"){const ro=s.role||{};if((ro.other||"").trim())h+=`<div class="mut">${T("상대","Đối tượng")}: ${esc(ro.other)} ${T("(직접 입력)","(nhập trực tiếp)")}</div>`;if((ro.sit||"").trim())h+=`<div class="mut">${T("상황 메모","Ghi chú tình huống")}: ${esc(ro.sit)}</div>`;
+  h+=`<div class="mut">${T("긴 독백이 아니라 질문·요청을 한 줄씩 주고받는 대화예요. 상대의 응답은 연습용으로 만든 가상 대화입니다.","Đây là hội thoại hỏi–đáp từng câu, không phải độc thoại dài. Câu trả lời của đối phương là hội thoại giả định để luyện tập.")}</div>`;
+  h+=sentRows(x)}
+ else if(x.mode==="real"&&!x.a.replace(/\s/g,"")){const nd=meNeeds(x.q);h+=`<div class="warn">${T("입력한 사실이 부족해서 답변을 만들지 않았습니다. 지어낸 내용을 넣지 않기 위해서예요.","Chưa đủ thông tin bạn nhập nên chưa tạo câu trả lời, để không bịa thêm nội dung.")}${nd.length?" "+T("추가로 입력하면 좋은 칸: ","Nên nhập thêm: ")+nd.map(z=>UI==="vi"?z[1]:z[0]).join(" · "):""}</div>`}
+ else{h+=`<div class="ans">${splitS(x.a,L).map(t=>`<span class="sn" data-t="${esc(t)}">${esc(t)}</span>`).join(L==="en"?" ":"")}</div>`;
+  if(x.mode==="real"){const nd=meNeeds(x.q);if(nd.length)h+=`<div class="mut">${T("더 풍부하게 만들려면 입력하세요: ","Muốn đầy đủ hơn, hãy nhập: ")}${nd.map(z=>UI==="vi"?z[1]:z[0]).join(" · ")}</div>`}
+  if(x.align!==false)h+=sentRows(x);else h+=`<div class="warn">${T("이 긴 답변은 언어별 문장 수가 달라 문장별 정렬 해석을 제공하지 않습니다. 짧은 기본 답변에서는 문장별로 맞춰 보여 줍니다.","Câu trả lời dài này có số câu khác nhau giữa các ngôn ngữ nên không có bản dịch từng câu. Câu trả lời ngắn mặc định thì luôn khớp từng câu.")}</div>`}
+ h+=`<div class="row" style="margin-top:6px"><button class="btn" data-a="play" data-n="${n}">▶ ${T("답변 듣기","Nghe câu trả lời")}</button><button class="btn" data-a="all" data-n="${n}">▶ ${T("문제+답변 듣기","Nghe đề + trả lời")}</button><button class="btn p" data-a="use" data-n="${n}">✎ ${T("이 문제로 연습 / 고쳐 쓰기","Luyện với câu này / tự chỉnh")}</button><button class="btn" data-a="keep" data-n="${n}">📌 ${T("이 답변 보관","Lưu câu trả lời")}</button></div>`;
+ return h+`</div>`}
+function renderModel(){$("model").innerHTML=SETS.length?SETS.map(modelCard).join(""):`<p class="mut">${T("세부 항목을 1개 이상 선택하세요.","Hãy chọn ít nhất 1 mục chi tiết.")}</p>`}
+/* 상세 검증 · 자가 점검 · 코치 */
+function stats(x){const L=s.lang;const ss=splitS(x.a,L);const cnt=t=>L==="en"?(t.match(/[A-Za-z0-9’']+/g)||[]).length:[...t.replace(/[\s。！？，、.,!?]/g,"")].length;const w=ss.map(cnt);return{ss,w,total:w.reduce((a,b)=>a+b,0)}}
+function detailHTML(x){const st=stats(x),L=s.lang,u=L==="en"?T("단어","từ"):T("자","chữ");let h=`<p class="mut">${T("아래 숫자는 공식 OPIc 기준이 아니라 이 앱의 연습용 참고 값입니다.","Các số dưới đây chỉ là số tham khảo luyện tập của ứng dụng, không phải tiêu chuẩn OPIc chính thức.")}</p>`;
+ h+=`<div class="tw"><table><tr><th>${T("문장","Câu")}</th><th>${u}</th></tr>`+st.ss.map((t,i)=>`<tr><td>${i+1}. ${esc(t)}</td><td>${st.w[i]}</td></tr>`).join("")+`</table></div>`;
+ const n=st.ss.length,avg=n?(st.total/n).toFixed(1):0;h+=`<p>${T("계산","Cách tính")}: ${st.w.join(" + ")||0} = <b>${st.total}</b> ${u} / ${n} ${T("문장","câu")} = ${T("평균","trung bình")} <b>${avg}</b> ${u}</p>`;
+ if(x.long){const LVn=LV[s.lv],W=L==="ja"?LVn.j:L==="zh"?LVn.z:LVn.w;h+=`<p>${T("긴 답변 연습의 자체 목표","Mục tiêu tự đặt cho bài dài")}: ${W[0]}–${W[1]}${W[1]>=300?"+":""} ${u} (${st.total>=W[0]&&st.total<=(W[1]||9999)?T("이 안에 있음","nằm trong khoảng"):T("이 범위 밖","ngoài khoảng")}) — <b>${T("ACTFL 공식 평가가 아닙니다","không phải đánh giá chính thức của ACTFL")}</b></p>`}
+ return h}
+function coachHTML(x){const q=x.q,mode=x.mode,vi=UI==="vi",n=x.S.filter(z=>z[s.lang]).length,pa=x.pats||[];const has=k=>pa.includes(k);
+ let c,e,a;
+ if(mode==="real"&&n===0){c=T("지금은 입력한 사실이 없어서 연습할 답변이 없습니다.","Hiện chưa có thông tin nào được nhập nên chưa có câu trả lời để luyện.");e=T("지어낸 경험을 대신 쓰지 않도록 만들었습니다.","Ứng dụng được thiết kế để không bịa trải nghiệm thay bạn.");a=[T("‘화자 · 문체’ 카드에서 언제·어디서·누구와, 이유를 입력","Nhập khi nào · ở đâu · với ai và lý do ở thẻ 'Người nói · Văn phong'"),T("다시 이 카드를 보고 소리 내어 말하기","Xem lại thẻ này rồi nói thành tiếng")]}
+ else{
+  c=[T("질문에 바로 답하고 이유까지 말하는 짧은 회화 답변입니다.","Đây là câu trả lời hội thoại ngắn, trả lời thẳng và có lý do."),T("지금 하는 습관을 순서대로 설명하는 답변입니다.","Đây là câu trả lời mô tả thói quen hiện tại theo thứ tự."),T("지난 일을 시간 순서로 이야기하고 마무리하는 답변입니다.","Đây là câu trả lời kể lại chuyện đã qua theo thứ tự thời gian."),T("예전과 지금을 나란히 비교하는 답변입니다.","Đây là câu trả lời so sánh trước đây và bây giờ."),T("질문과 요청을 한 줄씩 주고받는 역할 대화입니다.","Đây là hội thoại nhập vai hỏi và nhờ từng câu.")][q];
+  e=T(`문장 ${n}개로 구성되어 있고, `,`Gồm ${n} câu, `)+[T("첫 문장이 질문에 답하고 이어서 이유·세부가 따라옵니다.","câu đầu trả lời và tiếp theo là lý do · chi tiết."),T("순서 표현(First, Then)이 흐름을 만듭니다.","các từ chỉ thứ tự (First, Then) tạo mạch."),T("시점 표현으로 과거 장면을 연결합니다.","từ chỉ thời điểm nối các cảnh quá khứ."),T("과거와 지금 문장이 짝을 이룹니다.","câu quá khứ và hiện tại đi thành cặp."),T("각 줄이 하나의 질문·요청입니다.","mỗi dòng là một câu hỏi hoặc lời nhờ.")][q];
+  a=[T("소리 내어 3번 읽기 (문장 끝 억양까지)","Đọc thành tiếng 3 lần (cả ngữ điệu cuối câu)"),T("내 사실로 한 문장 바꿔 말하기 (‘✎ 이 문제로 연습’ 사용)","Thay một câu bằng sự thật của bạn (dùng '✎ Luyện với câu này')"),T("아래 ‘말하기 연습’에서 녹음하고 모범답안과 비교","Ghi âm ở mục 'Luyện nói' rồi so sánh với câu mẫu")]}
+ return `<p><b>${T("결론","Kết luận")}</b>: ${c}</p><p><b>${T("근거","Căn cứ")}</b>: ${e}</p><p><b>${T("다음 연습 행동","Việc luyện tiếp theo")}</b></p><ol>${a.map(z=>`<li>${z}</li>`).join("")}</ol><p class="mut">${T("자가 점검 (공식 채점이 아닙니다)","Tự kiểm tra (không phải chấm điểm chính thức)")}</p><ul class="chk">${[T("질문이 요구한 일을 했나요? (설명·이야기·비교·질문·요청)","Bạn đã làm điều câu hỏi yêu cầu chưa? (mô tả · kể · so sánh · hỏi · nhờ)"),T("내가 발음하기 어려워 이해가 막히는 부분이 있나요?","Có chỗ nào khó phát âm khiến người nghe khó hiểu không?"),T("내용이 질문과 상황에 맞나요?","Nội dung có phù hợp với câu hỏi và tình huống không?"),T("문장이 자연스럽게 이어지나요?","Các câu có nối tự nhiên không?")].map(z=>`<li><label><input type="checkbox"> ${z}</label></li>`).join("")}</ul>`}
+/* 설정 카드 */
+const HANGUL=/[\uAC00-\uD7AF]/;
+function frmInput(id,lab,ph,val){return `<label class="fl">${lab}<input id="${id}" type="text" value="${esc(val||"")}" placeholder="${esc(ph||"")}" maxlength="120"></label>`}
+function frmSel(id,lab,arr,labs,val,vals){return `<label class="fl">${lab}<select id="${id}"><option value="">${T("(선택 안 함)","(không chọn)")}</option>${vals.map((v,i)=>`<option value="${v}"${val===v?" selected":""}>${esc(labs[i])}</option>`).join("")}</select></label>`}
+function renderSettings(){const el=$("setcard");if(!el)return;const sig=[s.spk,UI,s.lang].join("|");if(el.dataset.sig===sig)return;el.dataset.sig=sig;const vi=UI==="vi";
+ const ex={en:["a distribution company CEO in Hanoi","Hanoi","reading and tennis","busy but regular","calm and careful"],zh:["河内一家流通公司的总经理","河内","读书和打网球","忙碌但很规律","冷静细心"],ja:["ハノイの流通会社のCEO","ハノイ","読書とテニス","忙しいが規則的","落ち着いて慎重"]}[s.lang];
+ let h=`<h2>${T("화자와 문체","Người nói và văn phong")} <span class="mut">${T("(화자와 문체는 따로 고릅니다)","(chọn riêng người nói và văn phong)")}</span></h2><div class="mut">${T("① 화자","① Người nói")}</div><div class="row" id="spk"></div>`;
+ if(s.spk==="virt"){h+=`<div class="mut">${T("가상 인물이 말하는 예시 답변입니다. 아래 칸은 모두 선택 사항이고, 비워 두면 일반 예시 인물이 말합니다. 선택한 언어로 입력하세요(앱은 번역하지 않습니다). 예시 입력일 뿐 기본 설정이 아닙니다.","Đây là câu trả lời mẫu của nhân vật hư cấu. Mọi ô đều tùy chọn; để trống thì dùng nhân vật mẫu chung. Hãy nhập bằng ngôn ngữ đã chọn (ứng dụng không dịch). Chỉ là ví dụ nhập, không phải mặc định.")}</div><div class="frm">`+PERSK.map((k,i)=>frmInput("pe_"+k,PERSL[k][vi?1:0],T("예: ","VD: ")+ex[i],s.pers[k])).join("")+`</div>`}
+ else if(s.spk==="real"){const m=s.me;h+=`<div class="mut">${T("내가 입력하거나 고른 사실만 사용합니다. 입력하지 않은 직업·장소·사건·감정은 만들어 넣지 않아요. 자유 입력 칸은 선택한 언어로 쓰세요(앱은 번역하지 않습니다).","Chỉ dùng thông tin bạn nhập hoặc chọn. Nghề nghiệp, nơi chốn, sự việc, cảm xúc bạn không nhập sẽ không bị tự thêm. Ô nhập tự do hãy viết bằng ngôn ngữ đã chọn (ứng dụng không dịch).")}</div><div class="frm">`
+  +frmInput("me_tn",T("주제 이름 바꾸기 (선택)","Đổi tên chủ đề (tùy chọn)"),T("예: tennis","VD: tennis"),m.tn)+frmInput("me_ta",T("내가 하는 일 (동사구, 선택)","Việc tôi làm (cụm động từ, tùy chọn)"),T("예: play tennis","VD: play tennis"),m.ta)
+  +frmSel("me_pref",T("좋아함 / 싫어함","Thích / Không thích"),0,[T("좋아해요","Thích"),T("별로 안 좋아해요","Không thích lắm")],m.pref,["like","dislike"])
+  +frmSel("me_when",T("언제","Khi nào"),0,vi?CHLV.when:CHL.when,m.when,Object.keys(CHO.when))+frmSel("me_place",T("어디서","Ở đâu"),0,vi?CHLV.place:CHL.place,m.place,Object.keys(CHO.place))+frmSel("me_comp",T("누구와","Với ai"),0,vi?CHLV.comp:CHL.comp,m.comp,Object.keys(CHO.comp))
+  +frmSel("me_freq",T("얼마나 자주","Tần suất"),0,vi?CHLV.freq:CHL.freq,m.freq,Object.keys(CHO.freq))
+  +frmInput("me_rs",T("좋아하거나 싫어하는 이유","Lý do thích / không thích"),T("예: it helps me relax","VD: it helps me relax"),m.rs)+frmInput("me_ev",T("실제 있었던 일 (한 문장)","Chuyện có thật đã xảy ra (một câu)"),T("예: Last week I won a small match.","VD: Last week I won a small match."),m.ev)
+  +frmSel("me_ft",T("당시 감정","Cảm xúc lúc đó"),0,Object.values(FEEL).map(f=>f.label[vi?1:0]),m.ft,Object.keys(FEEL))+frmSel("me_fn",T("지금 느끼는 감정","Cảm xúc bây giờ"),0,Object.values(FEEL).map(f=>f.label[vi?1:0]),m.fn,Object.keys(FEEL))
+  +frmInput("me_th",T("지금의 생각 (한 문장)","Suy nghĩ hiện tại (một câu)"),T("예: I want to keep doing it.","VD: I want to keep doing it."),m.th)
+  +frmInput("me_past",T("예전에는 (비교용, 한 문장)","Ngày trước (để so sánh, một câu)"),T("예: I did not play often.","VD: I did not play often."),m.past)+frmInput("me_now",T("지금은 (비교용, 한 문장)","Bây giờ (để so sánh, một câu)"),T("예: I play every weekend.","VD: I play every weekend."),m.now)+`</div>`}
+ else{h+=`<div class="mut">${T("역할 연습입니다. 아래 ‘주제’에서 고른 항목의 상황(약속 잡기·서비스에 문의하기 등)으로 질문·요청·응답을 한 줄씩 연습합니다. 긴 독백은 만들지 않아요.","Luyện nhập vai. Tình huống (hẹn bạn, hỏi dịch vụ…) lấy từ mục bạn chọn ở 'Chủ đề'; luyện từng câu hỏi · lời nhờ · phản hồi. Không tạo độc thoại dài.")}</div><div class="frm">`+frmInput("ro_sit",T("상황 메모 (선택)","Ghi chú tình huống (tùy chọn)"),T("예: 주말에 친구와 약속 잡기","VD: hẹn bạn vào cuối tuần"),s.role.sit)+frmInput("ro_other",T("상대 (선택)","Đối tượng (tùy chọn)"),T("예: 친구 / 호텔 직원","VD: bạn / nhân viên khách sạn"),s.role.other)+`</div>`}
+ h+=`<div class="mut" style="margin-top:10px">${T("② 문체","② Văn phong")}</div><div class="row" id="sty"></div><div class="mut" id="styinfo"></div>`;
+ h+=`<div class="mut" style="margin-top:10px">${T("③ 분량","③ Độ dài")}</div><div class="row" id="lenc"></div><div class="mut" id="leninfo"></div>`;
+ h+=`<div class="row" style="margin-top:12px"><button class="btn p" id="startp">▶ ${T("연습 시작","Bắt đầu luyện")}</button><span class="mut">${T("규칙 기반 문장 조합입니다(AI 아님). 문체 효과는 문장 추가·순서 방식이라 원어민 검수가 필요합니다.","Ghép câu theo quy tắc (không phải AI). Hiệu ứng văn phong chỉ thêm/sắp xếp câu nên cần người bản ngữ kiểm tra.")}</span></div>`;
+ el.innerHTML=h;wireSettings()}
+function wireSettings(){const bind=(id,obj,key)=>{const e=$(id);if(!e)return;const f=()=>{obj[key]=e.value;if(s.lang==="en"&&HANGUL.test(e.value))e.style.outline="2px solid #c0392b";else e.style.outline="";redraw()};e.oninput=f;e.onchange=f};
+ PERSK.forEach(k=>bind("pe_"+k,s.pers,k));["tn","ta","pref","when","place","comp","freq","rs","ev","ft","fn","th","past","now"].forEach(k=>bind("me_"+k,s.me,k));bind("ro_sit",s.role,"sit");bind("ro_other",s.role,"other");
+ $("startp").onclick=()=>{const p=$("practice");if(p)p.scrollIntoView({behavior:"smooth",block:"start"})}}
+function chipsStatic(){const vi=UI==="vi";chips($("spk"),SPKN.map(z=>z[vi?1:0]),SPKK.indexOf(s.spk),i=>{s.spk=SPKK[i];draw()});
+ chips($("sty"),STK.map(k=>STYL[k].name[vi?1:0]),STK.indexOf(s.sty),i=>{s.sty=STK[i];draw()});
+ const si=$("styinfo");if(si)si.textContent={talk:T("가장 말하기 쉬운 기본 문체입니다.","Văn phong cơ bản, dễ nói nhất."),calm:T("감정 표현을 줄이고 담담하게 마무리합니다.","Giảm biểu cảm, kết thúc điềm đạm."),story:T("‘이야기하듯’ 도입과 마무리 문장을 붙입니다.","Thêm câu mở và kết kiểu kể chuyện."),insight:T("감정은 줄이고 조용한 통찰 한 줄로 마무리합니다.","Giảm cảm xúc, kết bằng một câu chiêm nghiệm nhẹ."),D:T("담담한 장면 → 짧은 회고 → 절제된 마무리. 비유는 쓰지 않습니다. 실제 문학 작품의 문장은 사용하지 않습니다.","Cảnh điềm đạm → hồi tưởng ngắn → kết tiết chế. Không dùng ẩn dụ. Không dùng câu văn của tác phẩm có thật.")}[s.sty];
+ chips($("lenc"),[T("짧은 회화 (기본)","Hội thoại ngắn (mặc định)"),T("긴 답변 연습 (자체 목표)","Luyện câu trả lời dài (mục tiêu tự đặt)")],s.long?1:0,i=>{s.long=i===1;draw()});
+ const li=$("leninfo");if(li)li.textContent=s.spk==="real"?T("‘실제 나’는 입력한 사실만 쓰기 때문에 분량 목표를 적용하지 않습니다(내용을 늘리려고 지어내지 않아요).","‘Chính tôi’ chỉ dùng thông tin bạn nhập nên không áp dụng mục tiêu độ dài (không bịa thêm để kéo dài)."):s.long?T("초급 약 70~90단어 · 중급 약 120~150단어 · 고급 약 170~200단어 (한·중·일은 글자 수로 환산). 이 앱의 자체 연습 목표이며 OPIc 공식 기준·합격 조건이 아닙니다. 점수 향상 효과는 검증되지 않았습니다."+(s.spk==="real"?" ‘실제 나’에서는 입력한 사실만 쓰므로 길이가 제한됩니다.":""),"Sơ cấp khoảng 70~90 từ · trung cấp 120~150 · cao cấp 170~200 (tiếng Trung/Nhật quy đổi theo ký tự). Đây là mục tiêu luyện tập tự đặt, không phải tiêu chuẩn hay điều kiện đậu của OPIc. Hiệu quả tăng điểm chưa được kiểm chứng."):T("먼저 짧게 답하는 연습입니다. 필요하면 ‘긴 답변 연습’으로 이유와 사례를 더 붙여 보세요.","Trước hết hãy trả lời ngắn. Khi cần, chuyển sang 'câu trả lời dài' để thêm lý do và ví dụ.")}
+
+/* 긴 답변 연습(자체 목표): 5개 언어 문장 묶음(en,zh,ja,ko,vi)을 같은 순서로 쌓아 문장 단위 정렬을 보장한다.
+   숫자 m = 이 문장이 들어가는 최소 레벨(0 초급, 1 중급, 2 고급). 정수 항목 = SLOTS[q]의 슬롯 번호. */
+const X5=(en,zh,ja,ko,vi)=>P=>({en,zh,ja,ko,vi});
+const LSEQ=[
+/* q0 설명 */[
+ [0,0],[0,1],[0,2],[0,3],
+ [0,X5("When I'm doing it, I forget my stress.","做这件事的时候，我会忘掉压力。","やっている間は、ストレスを忘れます。","하는 동안에는 스트레스를 잊어요.","Khi làm việc này, tôi quên hết căng thẳng.")],
+ [1,4],
+ [0,X5("My friends know how much I like it, and they often ask me about it.","朋友们知道我有多喜欢它，常常问起我。","友達も私がどれだけ好きか知っていて、よく聞いてくれます。","친구들도 제가 얼마나 좋아하는지 알고, 자주 물어봐요.","Bạn bè biết tôi thích nó đến mức nào và thường hỏi tôi về nó.")],
+ [1,X5("Of course, it isn't always easy, and some days I'm tired.","当然，它并不总是轻松，有些日子我会很累。","もちろん、いつも簡単なわけではなく、疲れる日もあります。","물론 늘 쉽지는 않고, 지치는 날도 있어요.","Dĩ nhiên không phải lúc nào cũng dễ, và có những ngày tôi mệt.")],
+ [1,X5("Still, I almost never regret it.","不过，我几乎从不后悔。","それでも、後悔したことはほとんどありません。","그래도 후회한 적은 거의 없어요.","Dù vậy, tôi hầu như không hối tiếc.")],
+ [0,X5("It didn't happen overnight, but over time it became part of my life.","这不是一夜之间的事，但慢慢地它成了我生活的一部分。","一夜にしてそうなったわけではありませんが、時間とともに生活の一部になりました。","하루아침에 된 일은 아니지만, 시간이 지나며 제 삶의 일부가 됐어요.","Không phải một sớm một chiều, nhưng theo thời gian nó đã thành một phần cuộc sống của tôi.")],
+ [1,X5("Sometimes people ask me why I spend so much time on it.","有时人们会问我，为什么花这么多时间在上面。","ときどき、なぜそんなに時間を使うのかと聞かれます。","가끔 사람들이 왜 그렇게 시간을 쓰냐고 물어요.","Đôi khi người ta hỏi sao tôi dành nhiều thời gian cho nó đến vậy.")],
+ [1,X5("I just smile and say it helps me feel like myself.","我只是笑笑，说它让我做回自己。","私はただ笑って、自分らしくいられるからだと答えます。","저는 그냥 웃으며 저다워지는 기분이 든다고 말해요.","Tôi chỉ mỉm cười và nói rằng nó giúp tôi cảm thấy là chính mình.")],
+ [2,X5("In the beginning, I only wanted a short break from work.","起初，我只是想从工作中休息一下。","始めたころは、仕事から少し離れたいだけでした。","처음에는 일에서 잠깐 벗어나고 싶었을 뿐이에요.","Ban đầu, tôi chỉ muốn nghỉ một chút khỏi công việc.")],
+ [2,X5("Over time, though, it taught me patience.","不过慢慢地，它教会了我耐心。","けれども、時間がたつにつれて、忍耐を教えてくれました。","하지만 시간이 지나면서 인내를 가르쳐 줬어요.","Nhưng theo thời gian, nó dạy tôi sự kiên nhẫn.")],
+ [2,5],
+ [2,X5("Now, even on busy days, I make room for it.","现在，即使很忙，我也会留出时间。","今は、忙しい日でも時間をつくります。","지금은 바쁜 날에도 시간을 내요.","Bây giờ, ngay cả những ngày bận, tôi vẫn dành thời gian cho nó.")],
+ [2,X5("I also hope to share it with people I care about.","我也希望能和我在乎的人分享它。","大切な人とも分かち合えたらうれしいです。","소중한 사람들과 나눌 수 있기를 바라요.","Tôi cũng hy vọng chia sẻ nó với những người tôi quý.")],
+ [0,X5("Looking ahead, I want to keep doing it for as long as I can.","展望未来，我想尽可能一直做下去。","これからも、できる限り続けていきたいです。","앞으로도 할 수 있는 한 계속하고 싶어요.","Sắp tới, tôi muốn tiếp tục làm miễn là còn có thể.")]],
+/* q1 루틴 */[
+ [0,0],[0,1],[0,2],[0,3],[0,4],[0,5],
+ [0,X5("It takes some time, but I don't mind.","这要花一些时间，但我不介意。","少し時間はかかりますが、気になりません。","시간이 좀 걸리지만 신경 쓰이지 않아요.","Việc này tốn chút thời gian, nhưng tôi không bận tâm.")],
+ [0,X5("I keep everything simple so I can start quickly.","我尽量让一切保持简单，这样能很快开始。","すぐ始められるように、できるだけ簡単にしています。","바로 시작할 수 있게 모든 걸 단순하게 해 둬요.","Tôi giữ mọi thứ đơn giản để có thể bắt đầu ngay.")],
+ [0,X5("I like to do things in the same order every time.","我喜欢每次都按同样的顺序来做。","毎回、同じ順番でやるのが好きです。","매번 같은 순서로 하는 걸 좋아해요.","Tôi thích làm theo cùng một thứ tự mỗi lần.")],
+ [1,X5("That order helps me stay calm and focused.","这个顺序帮助我保持冷静和专注。","その順番のおかげで、落ち着いて集中できます。","그 순서 덕분에 차분하게 집중할 수 있어요.","Thứ tự đó giúp tôi bình tĩnh và tập trung.")],
+ [1,X5("On busy days, I shorten it instead of skipping it.","忙的时候，我会缩短时间，而不是直接跳过。","忙しい日は、やめずに短くします。","바쁜 날에는 건너뛰지 않고 시간을 줄여요.","Những ngày bận, tôi rút ngắn thay vì bỏ qua.")],
+ [1,X5("On weekends, I have more time, so I do a little more.","周末时间多一些，所以我会多做一点。","週末は時間があるので、少し多めにやります。","주말에는 시간이 더 있어서 조금 더 해요.","Cuối tuần có nhiều thời gian hơn nên tôi làm nhiều hơn một chút.")],
+ [2,X5("Sometimes I do it with a friend, and that makes it more fun.","有时我会和朋友一起做，这样更有意思。","ときどき友達と一緒にやると、もっと楽しくなります。","가끔 친구와 같이 하면 더 즐거워요.","Thỉnh thoảng tôi làm cùng bạn, và điều đó vui hơn.")],
+ [1,X5("If I miss a day, I just continue the next day.","如果有一天没做，我就第二天继续。","一日できなかったら、次の日にまた続けます。","하루 거르면 다음 날 다시 이어서 해요.","Nếu bỏ lỡ một ngày, tôi chỉ tiếp tục vào hôm sau.")],
+ [2,X5("After a few weeks, I noticed that it was getting easier.","几周之后，我发现它变得越来越容易。","数週間たつと、だんだん楽になってきたことに気づきました。","몇 주가 지나자 점점 쉬워진다는 걸 알게 됐어요.","Sau vài tuần, tôi nhận thấy nó đang dần dễ hơn.")],
+ [1,X5("Now it feels natural, like brushing my teeth.","现在它很自然，就像刷牙一样。","今では歯みがきのように自然に感じます。","이제는 양치질처럼 자연스럽게 느껴져요.","Bây giờ nó tự nhiên như đánh răng.")],
+ [2,X5("I don't need much motivation anymore.","我现在已经不太需要动力了。","もうそれほどやる気に頼らなくても大丈夫です。","이제는 의욕이 많이 필요하지 않아요.","Bây giờ tôi không cần nhiều động lực nữa.")],
+ [2,X5("That is the best part of a routine.","这就是习惯最好的地方。","それが習慣のいちばんいいところです。","그게 루틴의 가장 좋은 점이에요.","Đó là điều tuyệt nhất của một thói quen.")],
+ [2,6],
+ [0,X5("I plan to keep this routine for a long time.","我打算把这个习惯保持很久。","この習慣を長く続けるつもりです。","이 루틴을 오래 이어 갈 생각이에요.","Tôi dự định giữ thói quen này lâu dài.")]],
+/* q2 경험 */[
+ [0,0],
+ [0,X5("I remember the day clearly.","我对那一天记得很清楚。","その日のことははっきり覚えています。","그날이 아직도 또렷이 기억나요.","Tôi nhớ rất rõ ngày hôm đó.")],
+ [0,1],
+ [0,X5("My heart was beating fast before I started.","开始之前，我的心跳得很快。","始める前は、心臓がどきどきしていました。","시작하기 전에는 심장이 빠르게 뛰었어요.","Trước khi bắt đầu, tim tôi đập rất nhanh.")],
+ [1,X5("The whole thing lasted only a short time, but it felt long.","整件事其实没花多久，但感觉很漫长。","ほんの短い時間でしたが、長く感じました。","아주 짧은 시간이었지만 길게 느껴졌어요.","Mọi chuyện chỉ diễn ra trong thời gian ngắn, nhưng tôi thấy rất dài.")],
+ [2,X5("For a moment, I even wanted to give up.","有那么一瞬间，我甚至想放弃。","一瞬、やめたいとさえ思いました。","한순간에는 포기하고 싶다는 생각까지 들었어요.","Có lúc, tôi còn muốn bỏ cuộc.")],
+ [1,X5("I took a deep breath and told myself to stay calm.","我深吸了一口气，告诉自己要冷静。","深呼吸をして、落ち着こうと自分に言い聞かせました。","심호흡을 하고 침착하자고 스스로에게 말했어요.","Tôi hít một hơi sâu và tự nhủ phải bình tĩnh.")],
+ [0,X5("I made a few small mistakes, but I kept going.","我犯了几个小错误，但我继续做了下去。","小さな失敗がいくつかありましたが、最後まで続けました。","작은 실수를 몇 번 했지만 계속했어요.","Tôi mắc vài lỗi nhỏ nhưng vẫn tiếp tục.")],
+ [1,X5("Little by little, I felt more comfortable.","慢慢地，我越来越放松了。","少しずつ、気持ちが楽になりました。","조금씩 마음이 편해졌어요.","Dần dần, tôi cảm thấy thoải mái hơn.")],
+ [0,2],
+ [0,X5("When it was over, I felt proud of myself.","结束的时候，我为自己感到骄傲。","終わったときは、自分が誇らしく思えました。","끝났을 때는 스스로가 자랑스러웠어요.","Khi kết thúc, tôi thấy tự hào về bản thân.")],
+ [2,X5("A friend was with me, and he smiled and said I did well.","有个朋友和我在一起，他笑着说我做得很好。","友達が一緒にいて、笑ってよくやったと言ってくれました。","친구가 함께 있었고, 웃으며 잘했다고 말해 줬어요.","Có một người bạn đi cùng, và bạn ấy mỉm cười nói tôi làm tốt.")],
+ [1,X5("Before that day, I usually avoided things I wasn't sure about.","在那天之前，我通常会避开没把握的事。","あの日までは、自信のないことをたいてい避けていました。","그날 전에는 자신 없는 일은 대개 피했어요.","Trước hôm đó, tôi thường tránh những việc mình không chắc.")],
+ [0,3],
+ [1,4],
+ [0,X5("Since then, I have felt braver about trying new things.","从那以后，我对尝试新事物更有勇气了。","それ以来、新しいことに挑戦する勇気が出ました。","그 뒤로는 새로운 일에 도전할 용기가 생겼어요.","Từ đó, tôi thấy can đảm hơn khi thử điều mới.")],
+ [2,X5("Afterward, I thought about what I could do better next time.","之后，我想了想下次可以怎么做得更好。","そのあと、次はどうすればもっとよくなるか考えました。","그 뒤에는 다음에 어떻게 더 잘할지 생각해 봤어요.","Sau đó, tôi nghĩ xem lần sau có thể làm tốt hơn thế nào.")],
+ [2,X5("I told my family about it that evening, and they were happy for me.","那天晚上我告诉了家人，他们也替我高兴。","その晩、家族に話したら、一緒に喜んでくれました。","그날 저녁 가족에게 얘기했더니 함께 기뻐해 줬어요.","Tối hôm đó tôi kể với gia đình, và họ rất vui cho tôi.")],
+ [2,X5("It was a small event, but it changed how I see challenges.","这是一件小事，但它改变了我看待挑战的方式。","小さな出来事でしたが、挑戦の見方が変わりました。","작은 일이었지만 도전을 바라보는 시각이 달라졌어요.","Đó là chuyện nhỏ, nhưng nó thay đổi cách tôi nhìn thử thách.")],
+ [1,X5("I also stopped worrying so much about being perfect.","我也不再那么担心要做到完美。","完璧であることを、あまり気にしなくなりました。","완벽해야 한다는 걱정도 많이 줄었어요.","Tôi cũng không còn lo phải hoàn hảo nhiều như trước.")],
+ [2,5],
+ [1,X5("Looking back, I'm glad I didn't quit.","回想起来，我很庆幸当时没有放弃。","振り返ると、やめなくてよかったと思います。","돌아보면 포기하지 않아서 다행이에요.","Nhìn lại, tôi mừng vì đã không bỏ cuộc.")]],
+/* q3 비교 */[
+ [0,0],
+ [0,X5("Back then, I had less time and less energy.","那时候，我时间和精力都比较少。","当時は、時間も体力も今より少なかったです。","그때는 시간도 체력도 지금보다 적었어요.","Hồi đó tôi có ít thời gian và ít sức lực hơn.")],
+ [2,X5("Of course, some things were easier in the past.","当然，有些事情以前反而更容易。","もちろん、昔のほうが楽だったこともあります。","물론 예전이 더 쉬웠던 점도 있어요.","Dĩ nhiên, có những điều trước đây dễ hơn.")],
+ [2,X5("For example, I had fewer worries back then.","比如，那时我的烦恼更少。","たとえば、当時は悩みが少なかったです。","예를 들어 그때는 걱정이 더 적었어요.","Ví dụ, hồi đó tôi ít lo lắng hơn.")],
+ [0,1],
+ [0,X5("Now I plan my week, so I can make room for it.","现在我会安排一周的计划，所以能留出时间。","今は一週間の予定を立てるので、時間をつくれます。","지금은 한 주를 계획해서 시간을 낼 수 있어요.","Bây giờ tôi lên kế hoạch cho cả tuần nên có thể dành thời gian.")],
+ [1,X5("I'm also more patient than before.","我也比以前更有耐心了。","以前より我慢強くなったとも思います。","예전보다 인내심도 더 생겼어요.","Tôi cũng kiên nhẫn hơn trước.")],
+ [0,2],
+ [0,3],
+ [0,X5("The biggest difference is how I feel about it.","最大的不同是我对它的感觉。","いちばんの違いは、それに対する気持ちです。","가장 큰 차이는 그것을 대하는 제 마음이에요.","Khác biệt lớn nhất là cảm giác của tôi về nó.")],
+ [1,X5("In the past, I tried to do everything alone.","以前我总想一个人把所有事都做好。","昔は、何でも一人でやろうとしていました。","예전에는 뭐든 혼자 하려고 했어요.","Trước đây tôi cố tự làm mọi thứ một mình.")],
+ [1,X5("Another change is that I ask for help more easily.","另一个变化是，我现在更容易开口求助。","もう一つの変化は、助けを求めやすくなったことです。","또 다른 변화는 도움을 더 쉽게 청한다는 점이에요.","Một thay đổi nữa là tôi dễ nhờ giúp đỡ hơn.")],
+ [1,X5("I learned that small changes add up over time.","我发现，小小的改变会随着时间累积。","小さな変化が時間とともに積み重なると学びました。","작은 변화가 시간이 지나면 쌓인다는 걸 배웠어요.","Tôi học được rằng những thay đổi nhỏ sẽ tích lũy theo thời gian.")],
+ [1,X5("I also think I understand myself better.","我也觉得自己更了解自己了。","自分のこともよく分かるようになったと思います。","저 자신도 더 잘 알게 된 것 같아요.","Tôi cũng nghĩ mình hiểu bản thân hơn.")],
+ [2,4],
+ [2,X5("Even so, the old days gave me a good start.","即便如此，过去的日子给了我一个好的开始。","それでも、昔の経験が今の土台になっています。","그래도 예전의 경험이 지금의 바탕이 됐어요.","Dù vậy, những ngày xưa đã cho tôi một khởi đầu tốt.")],
+ [2,X5("If I compare the two, the real change is inside me, not around me.","比较两者，真正的变化在我心里，而不在周围。","二つを比べると、本当の変化は周りではなく自分の中にあります。","둘을 비교하면 진짜 변화는 주변이 아니라 제 안에 있어요.","So sánh hai thời điểm, thay đổi thật sự nằm ở bên trong tôi, không phải xung quanh.")],
+ [2,X5("I hope the next few years bring more change like this.","我希望未来几年还能有更多这样的变化。","これから数年も、こうした変化が続いてほしいです。","앞으로 몇 년도 이런 변화가 이어지면 좋겠어요.","Tôi hy vọng vài năm tới cũng có thêm thay đổi như vậy.")],
+ [2,X5("Next, I want to try something a little harder.","接下来，我想尝试稍微难一点的事。","次は、もう少し難しいことに挑戦したいです。","다음에는 조금 더 어려운 걸 해 보고 싶어요.","Tiếp theo, tôi muốn thử điều khó hơn một chút.")],
+ [0,5]]
+];
+longSents=function(c,j,q,lv){const P=fieldsFor(c,j),st=STYL[s.sty||"talk"],body=[];
+ (LSEQ[q]||[]).forEach(([m,it])=>{if(lv<m)return;if(typeof it==="number"){const sl=SLOTS[q][it];if(sl.emo&&st.noEmo)return;body.push({en:sl.t[0](P),zh:sl.t[1](P),ja:sl.t[2](P),ko:sl.t[3](P),vi:sl.t[4](P),pat:sl.pat})}else body.push(it(P))});
+ return{S:[...styleSents("o",lv),...persSents(lv),...body,...styleSents("m",lv),...styleSents("c",lv)],ok:true}};
+
+/* ===== 학습 노트 연결 · 말하기 연습 · 첨삭 · 확장 연습 · 안내 ===== */
+extras=function(){renderModel();const vi=UI==="vi";
+ document.querySelectorAll("#model .qc").forEach((el,n)=>{const x=SETS[n];if(!x||!x.key)return;
+  let h=`<div class="mem">${T("⚠ 모범답안은 외워서 말하는 용도가 아닙니다. ACTFL은 ‘암기한 말이 많으면 초급(Novice) 너머의 평가가 어려울 수 있다’고 안내합니다. 내 사실로 바꿔 말해 보세요.","⚠ Câu mẫu không dùng để học thuộc. ACTFL lưu ý rằng nói thuộc lòng nhiều có thể khiến khó được đánh giá vượt mức Novice. Hãy thay bằng sự thật của bạn.")}</div>`;
+  h+=`<details class="study"><summary><b>${T("📌 말하기 팁 · 자가 점검 · 코치 조언","📌 Mẹo nói · Tự kiểm tra · Lời khuyên")}</b></summary><p>${TIP[x.q][vi?1:0]}</p>${coachHTML(x)}</details>`;
+  h+=`<details class="study"><summary><b>${T("🔎 상세 검증 보기 (단어·문장 수 계산)","🔎 Xem kiểm chứng chi tiết (cách đếm từ · câu)")}</b></summary>${detailHTML(x)}</details>`;
+  if(x.a.replace(/\s/g,"")){try{h+=`<details class="study"><summary><b>${T("📘 학습 노트: 이 답변에서 쓴 표현 · 질문 · 단어 · 참고 숙어","📘 Ghi chú học tập: cấu trúc đã dùng · hỏi đáp · từ vựng · thành ngữ tham khảo")}</b></summary><p class="mut nt">${GT()}</p>${s.lang==="en"?studyHTML(x):studyHTMLZJ(x)}</details>`}catch(e){}}
+  el.insertAdjacentHTML("beforeend",h)})};
+$("model").onclick=e=>{const b=e.target.closest("button[data-a]"),t=e.target.closest(".sn");if(b){const x=SETS[+b.dataset.n],a=b.dataset.a;if(a==="play")say(x.a);else if(a==="all")sayQ([x.qt,x.a]);else if(a==="keep")keepAns(x);else{s.pi=+b.dataset.n;act(+b.dataset.n);$("mine").value=x.a;renderPractice()}}else if(t)say(t.dataset.t)};
+/* 보관 (메모리에만) */
+function keepAns(x){s.keep.unshift({t:new Date().toLocaleTimeString(),q:x.qt,a:x.a,lab:SPKN[SPKK.indexOf(s.spk)][UI==="vi"?1:0]+" · "+STYL[s.sty].name[UI==="vi"?1:0]+" · "+LV[s.lv].n+(x.long?" · long":"")});s.keep=s.keep.slice(0,10);renderPractice()}
+/* ---- 질문 변형 · 후속 질문 ---- */
+const VAR={en:[[k=>`What do you enjoy about ${k}? Describe it for me.`,k=>`Describe ${k} to me. Why does it matter to you?`],[k=>`Walk me through how you usually deal with ${k}.`,k=>`What does a normal day look like when it comes to ${k}?`],[k=>`Tell me about a time something happened with ${k}.`,k=>`Can you describe a moment with ${k} that you still remember?`],[k=>`How has ${k} changed for you over time?`,k=>`What is different about ${k} now compared with before?`],[k=>`Imagine a situation about ${k}. Ask me two questions about it.`]],
+ zh:[[k=>`请描述一下「${k}」，它为什么对你重要？`,k=>`你喜欢「${k}」的哪一点？`],[k=>`请说说你平时是怎么处理「${k}」的。`,k=>`和「${k}」有关的一个普通的日子是什么样的？`],[k=>`请讲一次和「${k}」有关的经历。`,k=>`和「${k}」有关，有没有一个你至今记得的时刻？`],[k=>`「${k}」随着时间有什么变化？`,k=>`和以前相比，「${k}」现在有什么不同？`],[k=>`想象一个和「${k}」有关的情境，向对方问两个问题。`]],
+ ja:[[k=>`${k}について説明してください。なぜあなたにとって大切ですか。`,k=>`${k}のどんなところが好きですか。`],[k=>`${k}について、普段どうしているか順番に教えてください。`,k=>`${k}に関する普通の一日はどんな感じですか。`],[k=>`${k}に関するある出来事について話してください。`,k=>`${k}について、今も覚えている瞬間はありますか。`],[k=>`${k}は時間とともにどう変わりましたか。`,k=>`昔と比べて、${k}は今どう違いますか。`],[k=>`${k}に関する場面を想像して、相手に二つ質問してください。`]]};
+const FU={en:[["Can you give me one specific example?","Why is that important to you?"],["What is the hardest part of it?","What do you do when it does not go well?"],["How did it end?","What would you do differently now?"],["Which change do you like most?","Why did that change happen?"],["Now there is a problem. What would you say?","Can you ask one more question?"]],
+ zh:[["能举一个具体的例子吗？","为什么这对你很重要？"],["其中最难的部分是什么？","不顺利的时候你怎么办？"],["最后结果怎么样？","现在你会有什么不同的做法？"],["你最喜欢哪一个变化？","这个变化是怎么发生的？"],["现在出了个问题，你会怎么说？","你能再问一个问题吗？"]],
+ ja:[["具体的な例を一つ挙げてもらえますか。","それはなぜ大切ですか。"],["いちばん難しいところはどこですか。","うまくいかないときはどうしますか。"],["最後はどうなりましたか。","今ならどう変えますか。"],["どの変化がいちばん好きですか。","その変化はなぜ起きたのですか。"],["問題が起きました。どう言いますか。","もう一つ質問してもらえますか。"]]};
+const PQ={v:0,f:-1,show:false};let REC={mr:null,stream:null,chunks:[],url:null,active:false};
+function curQ(x){const L=s.lang;if(PQ.f>=0)return FU[L][x.q][PQ.f%2];if(PQ.v>0&&x.mode!=="role"){const a=VAR[L][x.q];if(a.length)return a[(PQ.v-1)%a.length](x.qk||"")}return x.qt}
+function micHelp(){return T("대체 연습: ① 휴대폰 기본 녹음 앱으로 녹음한 뒤 모범답안과 비교 ② 소리 내어 읽고 아래 ‘내 답변 입력’ 칸에 써서 첨삭 ③ ‘▶ 답변 듣기’를 따라 말하기(섀도잉)","Cách luyện thay thế: ① ghi âm bằng ứng dụng ghi âm của điện thoại rồi so sánh với câu mẫu ② đọc thành tiếng rồi viết vào ô 'Câu trả lời của tôi' để chỉnh ③ nghe '▶ Nghe câu trả lời' rồi nói theo (shadowing)")}
+function micMsg(e){const n=e&&e.name,m={NotAllowedError:T("마이크 권한이 거부되었습니다. 주소창의 자물쇠(사이트 설정)에서 마이크를 ‘허용’으로 바꾼 뒤 다시 시도하세요.","Quyền micro bị từ chối. Hãy chuyển micro sang 'Cho phép' trong cài đặt trang (biểu tượng ổ khóa) rồi thử lại."),NotFoundError:T("마이크 장치를 찾지 못했습니다. 마이크가 연결되어 있는지 확인하세요.","Không tìm thấy micro. Hãy kiểm tra micro đã được kết nối chưa."),NotReadableError:T("다른 앱이 마이크를 쓰고 있을 수 있습니다. 다른 앱을 닫고 다시 시도하세요.","Có thể ứng dụng khác đang dùng micro. Hãy đóng ứng dụng đó rồi thử lại."),unsupported:T("이 브라우저는 녹음(MediaRecorder)을 지원하지 않거나, 보안 연결(https)이 아닙니다.","Trình duyệt này không hỗ trợ ghi âm (MediaRecorder) hoặc kết nối không bảo mật (https).")};
+ $("recmsg").innerHTML=`<div class="warn">${m[n]||T("녹음을 시작할 수 없습니다. 이유를 확인할 수 없습니다.","Không thể bắt đầu ghi âm. Không xác định được lý do.")} ${micHelp()}</div>`}
+async function recStart(){if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){micMsg({name:"unsupported"});return}
+ try{REC.stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){micMsg(e);return}
+ REC.chunks=[];REC.mr=new MediaRecorder(REC.stream);REC.mr.ondataavailable=e=>{if(e.data&&e.data.size)REC.chunks.push(e.data)};
+ REC.mr.onstop=()=>{const b=new Blob(REC.chunks,{type:REC.mr.mimeType||"audio/webm"});if(REC.url)URL.revokeObjectURL(REC.url);REC.url=URL.createObjectURL(b);REC.active=false;REC.stream.getTracks().forEach(t=>t.stop());renderPractice();const a=$("recaudio");if(a)a.src=REC.url;$("recmsg").innerHTML=`<div class="ok">${T("녹음 완료. 아래에서 ‘내 음성 듣기’를 눌러 확인하세요. 이 녹음은 자동 평가되지 않습니다.","Đã ghi xong. Bấm 'Nghe giọng của tôi' bên dưới. Bản ghi này không được chấm tự động.")}</div>`};
+ REC.active=true;REC.mr.start();$("recbtn").disabled=true;$("recstop").disabled=false;$("recmsg").innerHTML=`<div class="ok">🔴 ${T("녹음 중… 끝나면 ‘정지’를 누르세요.","Đang ghi… bấm 'Dừng' khi xong.")}</div>`}
+function recStop(){try{if(REC.mr&&REC.mr.state!=="inactive")REC.mr.stop()}catch(e){}}
+function renderPractice(){const el=$("practice");if(!el||REC.active)return;const vi=UI==="vi";
+ if(!SETS.length){el.innerHTML=`<h2>🎙 ${T("말하기 연습","Luyện nói")}</h2><p class="mut">${T("세부 항목을 선택하면 시작할 수 있어요.","Chọn mục chi tiết để bắt đầu.")}</p>`;return}
+ s.pi=Math.max(0,Math.min(s.pi,SETS.length-1));const x=SETS[s.pi],q=curQ(x);
+ let h=`<h2>🎙 ${T("말하기 연습 (한 문제씩)","Luyện nói (từng câu)")} <span class="mut">Q${s.pi+1} / ${SETS.length}</span></h2>`;
+ h+=`<div class="steps">${[T("① 질문 듣기","① Nghe câu hỏi"),T("② 생각하기","② Suy nghĩ"),T("③ 답변 녹음","③ Ghi âm"),T("④ 내 음성 듣기","④ Nghe lại"),T("⑤ 모범답안과 비교","⑤ So với câu mẫu"),T("⑥ 다시 말하기","⑥ Nói lại")].map(z=>`<span class="stp">${z}</span>`).join("")}</div>`;
+ h+=`<div class="qq"><span class="sn" id="pqs" data-t="${esc(q)}">▶ ${esc(q)}</span></div><div class="mut">${badge(x)}</div>`;
+ h+=`<div class="row"><button class="btn" id="pprev">◀ ${T("이전","Trước")}</button><button class="btn" id="pnext">${T("다음","Sau")} ▶</button><button class="btn p" id="pq1">▶ ${T("질문 듣기","Nghe câu hỏi")}</button><button class="btn" id="pvar">🔀 ${T("다른 표현으로 묻기","Hỏi bằng cách khác")}</button><button class="btn" id="pfu">➕ ${T("후속 질문","Câu hỏi tiếp theo")}</button></div>`;
+ h+=`<div class="row" style="margin-top:8px"><button class="btn p" id="recbtn">⏺ ${T("녹음 시작","Bắt đầu ghi")}</button><button class="btn" id="recstop" disabled>■ ${T("정지","Dừng")}</button><button class="btn" id="recplay"${REC.url?"":" disabled"}>▶ ${T("내 음성 듣기","Nghe giọng của tôi")}</button><button class="btn" id="recagain">↻ ${T("다시 말하기","Nói lại")}</button><button class="btn" id="pcmp">📖 ${T("모범답안 비교","So sánh câu mẫu")}</button></div>`;
+ h+=`<audio id="recaudio" controls${REC.url?` src="${REC.url}"`:""} style="width:100%;margin-top:6px"></audio><div id="recmsg"></div>`;
+ h+=`<div class="mut">🔒 ${T("녹음은 이 기기의 브라우저 메모리에만 잠시 있고, 서버로 전송하거나 저장하지 않습니다. 페이지를 새로 고치거나 닫으면 사라집니다. 녹음은 자동 발음 채점이 아니라 내가 직접 들어 보는 연습용입니다.","Bản ghi chỉ nằm tạm trong bộ nhớ trình duyệt của thiết bị này, không được gửi đi hay lưu trên máy chủ. Làm mới hoặc đóng trang là mất. Bản ghi không phải chấm phát âm tự động; bạn tự nghe lại để luyện.")}</div>`;
+ h+=`<div id="pcmpbox" style="${PQ.show?"":"display:none"}"><h3>${T("모범답안과 비교","So sánh với câu mẫu")}</h3>${x.a.replace(/\s/g,"")?`<div class="ans">${splitS(x.a,s.lang).map(t=>`<span class="sn" data-t="${esc(t)}">${esc(t)}</span>`).join(s.lang==="en"?" ":"")}</div>`:`<p class="mut">${T("입력한 사실이 부족해 비교할 답안이 없습니다.","Chưa đủ thông tin để có câu mẫu so sánh.")}</p>`}<p class="mut">${T("같은 문장을 그대로 외우기보다, 내 사실로 바꿔 한 문장씩 말해 보세요.","Đừng học thuộc nguyên câu; hãy thay bằng sự thật của bạn và nói từng câu.")}</p></div>`;
+ if(s.keep.length)h+=`<h3>📌 ${T("보관한 답변 (이 페이지를 닫으면 사라져요)","Câu trả lời đã lưu (mất khi đóng trang)")}</h3><ul class="keep">${s.keep.map((k,i)=>`<li><b>${esc(k.lab)}</b> <span class="mut">${esc(k.t)}</span><br>${esc(k.q)}<br><span class="sn" data-t="${esc(k.a)}">${esc(k.a)}</span> <button class="btn" data-keep="${i}">✎ ${T("입력칸으로","Chép vào ô nhập")}</button> <button class="btn" data-del="${i}">✕</button></li>`).join("")}</ul>`;
+ el.innerHTML=h;
+ $("pprev").onclick=()=>{s.pi--;PQ.v=0;PQ.f=-1;PQ.show=false;renderPractice()};$("pnext").onclick=()=>{s.pi++;PQ.v=0;PQ.f=-1;PQ.show=false;renderPractice()};
+ $("pq1").onclick=()=>say(curQ(x));$("pvar").onclick=()=>{PQ.f=-1;PQ.v++;renderPractice();say(curQ(x))};$("pfu").onclick=()=>{PQ.f=(PQ.f<0?0:PQ.f+1);renderPractice();say(curQ(x))};
+ $("recbtn").onclick=recStart;$("recstop").onclick=recStop;$("recplay").onclick=()=>{const a=$("recaudio");if(a&&a.src)a.play()};$("recagain").onclick=()=>{if(REC.url){URL.revokeObjectURL(REC.url);REC.url=null}renderPractice();recStart()};
+ $("pcmp").onclick=()=>{PQ.show=!PQ.show;$("pcmpbox").style.display=PQ.show?"":"none"};
+ el.querySelectorAll(".sn").forEach(n=>{n.onclick=()=>say(n.dataset.t)});
+ el.querySelectorAll("[data-keep]").forEach(b=>b.onclick=()=>{$("mine").value=s.keep[+b.dataset.keep].a});el.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{s.keep.splice(+b.dataset.del,1);renderPractice()})}
+/* ---- 첨삭: 규칙 기반 + 한계 표시 ---- */
+const IRR={go:"went",have:"had",make:"made",see:"saw",eat:"ate",take:"took",get:"got",come:"came",give:"gave",know:"knew",think:"thought",buy:"bought",meet:"met",run:"ran",write:"wrote",say:"said",tell:"told",feel:"felt",find:"found",leave:"left",bring:"brought",do:"did",sit:"sat",read:"read",win:"won",begin:"began",drink:"drank",sleep:"slept",speak:"spoke",swim:"swam",teach:"taught",wear:"wore"};
+const GVB="like love enjoy play go make have do want need take eat see work feel help live watch give get come know think use look study start bring call walk visit meet run write say tell find leave buy read win begin drink sleep speak swim teach wear cook sing talk try ask answer stay learn practice relax".split(" ");
+const THIRD={has:"have",does:"do",goes:"go"};
+const toPast=v=>IRR[v]||(/[^aeiou]y$/.test(v)?v.slice(0,-1)+"ied":/e$/.test(v)?v+"d":/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(v)&&v.length<=4?v+v.slice(-1)+"ed":v+"ed");
+const to3=v=>v==="have"?"has":v==="do"?"does":v==="go"?"goes":/[^aeiou]y$/.test(v)?v.slice(0,-1)+"ies":/(s|sh|ch|x|z)$/.test(v)?v+"es":v+"s";
+const base3=w=>THIRD[w]||(/ies$/.test(w)?w.slice(0,-3)+"y":/(ss|sh|ch|x|z)es$/.test(w)?w.slice(0,-2):/oes$/.test(w)?w.slice(0,-2):/s$/.test(w)?w.slice(0,-1):w);
+const NOPREV=new Set("can will would should could may might must to let do does did don't doesn't didn't not never".split(" "));
+const TMARK=/\b(yesterday|last (?:night|week|weekend|month|year|summer|time)|\d+ (?:days?|weeks?|months?|years?) ago|a (?:week|month|year) ago)\b/i;
+function grammarFindings(text){const out=[];const sents=text.match(/[^.!?]+[.!?]*/g)||[text];const fixedS=[];
+ sents.forEach(raw=>{let t=raw,sp=t.match(/^\s*/)[0];t=t.trim();if(!t){fixedS.push(raw);return}const o0=t;
+  const add=(w,fx,ko,vi,conf)=>out.push({orig:o0,bad:w,fix:fx,ko,vi,conf:conf||"high"});
+  /* 1) I/you/we/they + -s 동사 */
+  t=t.replace(/\b(I|you|we|they|You|We|They)\s+([A-Za-z]+s)\b/g,(m,sj,v)=>{const b=base3(v.toLowerCase());if(GVB.includes(b)&&b!==v.toLowerCase()){add(m,sj+" "+b,`주어가 ${sj}일 때는 동사에 -s를 붙이지 않아요. (${m} → ${sj} ${b})`,`Khi chủ ngữ là ${sj} thì động từ không thêm -s. (${m} → ${sj} ${b})`);return sj+" "+b}return m});
+  /* 2) he/she/it + 원형 */
+  t=t.replace(/\b(he|she|it|He|She|It)\s+([a-z]+)\b/g,(m,sj,v,off)=>{const before=t.slice(0,off).trim().split(/\s+/).pop().toLowerCase();if(NOPREV.has(before))return m;if(GVB.includes(v)){const f=to3(v);add(m,sj+" "+f,`주어가 ${sj}이면 현재형 동사에 -s를 붙여요. (${m} → ${sj} ${f})`,`Khi chủ ngữ là ${sj} thì động từ ở thì hiện tại thêm -s. (${m} → ${sj} ${f})`);return sj+" "+f}return m});
+  /* 3) 과거 시점 + 현재형 동사 */
+  if(TMARK.test(t)){t=t.replace(/\b(I|we|they|you|he|she|it|We|They|You|He|She|It)\s+((?:also |usually |often )?)([a-z]+)\b/,(m,sj,adv,v)=>{const b=base3(v);if(GVB.includes(b)&&!NOPREV.has(sj.toLowerCase())){const p=toPast(b);if(p!==v){add(m,sj+" "+adv+p,`‘${t.match(TMARK)[0]}’ 같은 과거 시점 표현이 있으면 동사를 과거형으로 써요. (${v} → ${p})`,`Khi có từ chỉ quá khứ như '${t.match(TMARK)[0]}' thì dùng thì quá khứ. (${v} → ${p})`);return sj+" "+adv+p}}return m})}
+  /* 4) did/didn't + 과거형 */
+  t=t.replace(/\b(did(?:n't| not))\s+([a-z]+)\b/gi,(m,d,v)=>{const b=Object.keys(IRR).find(k=>IRR[k]===v.toLowerCase())||(/ed$/.test(v)?v.replace(/ied$/,"y").replace(/ed$/,""):null);if(b&&b!==v&&GVB.includes(b)){add(m,d+" "+b,`did/didn't 뒤에는 동사원형을 써요. (${m} → ${d} ${b})`,`Sau did/didn't dùng động từ nguyên mẫu. (${m} → ${d} ${b})`);return d+" "+b}return m});
+  /* 5) a / an */
+  t=t.replace(/\ba\s+([aeiou][a-z]*)\b/gi,(m,w)=>/^(uni|use|usu|one|eu)/i.test(w)?m:(add(m,"an "+w,`모음 소리로 시작하는 단어 앞에는 an을 써요. (${m} → an ${w})`,`Trước từ bắt đầu bằng nguyên âm dùng an. (${m} → an ${w})`,"medium"),"an "+w));
+  t=t.replace(/\ban\s+([bcdfgjklmnpqrstvwxz][a-z]*)\b/gi,(m,w)=>/^(hour|honest|honor|heir)/i.test(w)?m:(add(m,"a "+w,`자음 소리로 시작하는 단어 앞에는 a를 써요. (${m} → a ${w})`,`Trước từ bắt đầu bằng phụ âm dùng a. (${m} → a ${w})`,"medium"),"a "+w));
+  fixedS.push(sp+t+(raw.match(/\s*$/)[0]===raw.trim()?"":" ").replace(/^ $/,"")+(raw.endsWith(" ")?" ":""))});
+ return{findings:out,fixed:fixedS.join("").replace(/\s{2,}/g," ").trim()}}
+function coachCheck(c,q){const L=s.lang,tips=[],vi=UI==="vi",n=(c.match(L==="en"?/[.!?]/g:/[。！？]/g)||[]).length||1;
+ const rx={en:{reason:/\b(because|since|so)\b/i,time:/\b(yesterday|last|when|ago|once|one day|at first|then|after)\b/i,cmp:/\b(than|compared|used to|before|now|in the past|back then)\b/i,seq:/\b(first|then|after|next|finally|usually)\b/i},zh:{reason:/因为|所以/,time:/昨天|上个月|有一次|一开始|后来|当时/,cmp:/以前|现在|比较|过去/,seq:/首先|然后|之后|通常/},ja:{reason:/から|ので/,time:/昨日|先月|ある時|最初|その後|そのとき/,cmp:/昔|今|比べ|以前/,seq:/まず|次に|そのあと|たいてい/}}[L];
+ const qq=s.pq;
+ if(n<2)tips.push(T("질문에는 답했습니다. 이유나 때를 한 문장만 더 말해 보세요.","Bạn đã trả lời câu hỏi. Hãy nói thêm một câu về lý do hoặc thời điểm."));
+ if(qq===0&&!rx.reason.test(c))tips.push(T("좋아하는(싫어하는) 이유를 because로 한 문장 더해 보세요.","Thêm một câu nêu lý do thích (không thích)."));
+ if(qq===1&&!rx.seq.test(c))tips.push(T("First, Then처럼 순서를 말하는 표현으로 단계를 나눠 보세요.","Chia các bước bằng từ chỉ thứ tự như First, Then."));
+ if(qq===2&&!rx.time.test(c))tips.push(T("언제 있었던 일인지 한 가지를 더 말해 보세요. (예: last week)","Hãy nói thêm việc đó xảy ra khi nào. (VD: last week)"));
+ if(qq===3&&!rx.cmp.test(c))tips.push(T("‘예전에는 … / 지금은 …’처럼 두 시점을 나란히 말해 보세요.","Hãy nói song song hai thời điểm: 'ngày trước … / bây giờ …'."));
+ if(qq===4&&(c.match(/[?？]/g)||[]).length<2)tips.push(T("질문이나 요청을 최소 두 개 던져 보세요. (예: What time works for you?)","Hãy đặt ít nhất hai câu hỏi hoặc lời nhờ. (VD: What time works for you?)"));
+ if(!tips.length)tips.push(T("질문에 답했고 이유·시점·흐름 중 확인한 항목이 보입니다. 이제 소리 내어 말하고 녹음해 비교해 보세요.","Bạn đã trả lời câu hỏi và các mục đã kiểm tra đều có. Hãy nói thành tiếng, ghi âm và so sánh."));
+ return tips}
+$("chk").onclick=()=>{const t=$("mine").value,vi=UI==="vi";if(!t.trim()){$("res").innerHTML=`<p class="mut">${LN[s.lang]} ${T("답변을 먼저 입력해 주세요.","Hãy nhập câu trả lời trước.")}</p>`;return}
+ const ja=s.lang==="ja",zh=s.lang!=="en";let orig=t.replace(/\s+/g," ").trim();if(zh)orig=orig.replace(/\s/g,"");let c=orig;const rows=[];
+ if(!zh){const g=grammarFindings(c);g.findings.forEach(f=>rows.push([f.orig,f.fix.length?f.orig.replace(f.bad,f.fix):f.orig,vi?f.vi:f.ko,f.conf]));c=g.fixed}
+ (ja?RJ:zh?RZ:R).forEach(([re,rep,msg])=>{const m=c.match(re);if(m){const nc=c.replace(re,rep);if(nc!==c){rows.push([m[0],typeof rep==="string"?rep:nc.slice(0,60),msg,"high"]);c=nc}}});
+ if(!(zh?/[。！？]$/:/[.!?]$/).test(c)){c+=zh?"。":".";rows.push([T("(문장 끝)","(cuối câu)"),T("마침표 추가","thêm dấu chấm"),T("문장 끝에는 마침표(. 。)를 써요.","Cuối câu dùng dấu chấm."),"high"])}
+ let h=`<h2 style="margin-top:14px">${T("수정 제안","Gợi ý chỉnh sửa")} <span class="mut">(<del>${T("삭제","xóa")}</del> / <ins>${T("추가·변경","thêm·đổi")}</ins>)</span></h2><p>${zh?diff(orig.split("").join(" "),c.split("").join(" ")).replace(/ /g,""):diff(orig,c)}</p>`;
+ if(rows.length)h+=`<h2>${T("찾은 항목","Mục tìm thấy")} (${rows.length})</h2><div class="tw"><table><tr><th>${T("원문","Nguyên văn")}</th><th>${T("제안 문장","Câu đề xuất")}</th><th>${T("쉬운 이유","Lý do dễ hiểu")}</th><th>${T("확신","Độ chắc")}</th></tr>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${r[3]==="high"?T("높음","cao"):T("보통 (직접 확인)","vừa (tự kiểm tra)")}</td></tr>`).join("")}</table></div>`;
+ h+=`<div class="warn">${rows.length?T("위 항목은 규칙 기반 검사(AI 아님)로 찾은 것이며, 이것이 전체 오류는 아닙니다.","Các mục trên do kiểm tra theo quy tắc (không phải AI) tìm ra và chưa phải toàn bộ lỗi."):T("검사한 항목에서는 오류를 찾지 못했습니다. 전체 문법 검사는 아닙니다.","Ở các mục đã kiểm tra, không tìm thấy lỗi. Đây không phải kiểm tra ngữ pháp toàn diện.")} ${T("검사 항목: 주어-동사 일치, 과거 시점 표현과 시제, did 뒤 동사원형, a/an, 흔한 철자·조사 패턴. 그 밖의 오류는 확인할 수 없습니다.","Mục đã kiểm tra: hòa hợp chủ–vị, từ chỉ quá khứ và thì, động từ nguyên mẫu sau did, a/an, một số mẫu chính tả·trợ từ phổ biến. Lỗi khác thì không thể xác nhận.")}</div>`;
+ h+=`<h2>${T("연습 피드백 (점수·등급 없음)","Phản hồi luyện tập (không có điểm·cấp)")}</h2><ul>${coachCheck(c,s.pq).map(z=>`<li>${esc(z)}</li>`).join("")}</ul><p class="mut">${T("참고: 분량(단어·글자 수)은 판정하지 않습니다. 필요하면 각 문제의 ‘상세 검증 보기’에서 계산 과정을 볼 수 있어요.","Lưu ý: không đánh giá độ dài (số từ·chữ). Cần thì xem cách tính ở 'Xem kiểm chứng chi tiết' của từng câu.")}</p>`;
+ window.LAST={orig,c,notes:rows.map(r=>r[2])};$("res").innerHTML=h};
+/* ---- AL 변환기 → 확장 연습 ---- */
+const EXT={en:[["비교","So sánh","Compared to ___, I like ___ more because ___."],["과거 경험","Trải nghiệm quá khứ","Last ___, I ___. At that time, I felt ___."],["이유 설명","Giải thích lý do","I do this because ___. For example, ___."],["문제 상황 대응","Xử lý tình huống","Sometimes ___ goes wrong. When that happens, I ___."]],
+ zh:[["비교","So sánh","和___相比，我更喜欢___，因为___。"],["과거 경험","Trải nghiệm quá khứ","上个___，我___。当时我觉得___。"],["이유 설명","Giải thích lý do","我这样做，是因为___。比如说，___。"],["문제 상황 대응","Xử lý tình huống","有时候___会出问题。这时候，我会___。"]],
+ ja:[["비교","So sánh","___より___のほうが好きです。なぜなら___からです。"],["과거 경험","Trải nghiệm quá khứ","先___、___ました。そのとき、___と感じました。"],["이유 설명","Giải thích lý do","___のは、___からです。たとえば、___。"],["문제 상황 대응","Xử lý tình huống","ときどき___がうまくいかないことがあります。そんなときは、___。"]]};
+function renderExt(){const e=$("alh");if(!e)return;e.textContent=T("🌱 확장 연습 (비교 · 과거 경험 · 이유 · 문제 상황 대응)","🌱 Luyện mở rộng (so sánh · trải nghiệm quá khứ · lý do · xử lý tình huống)");
+ $("alsub").textContent=T("내 문장 한 줄을 넣으면, 말하기 시험에서 요구되는 네 가지 말하기 기능의 문장 틀을 만들어 줍니다. 단어를 고급으로 바꾸는 기능이 아니라, 내용을 늘리는 연습입니다.","Nhập một câu của bạn để tạo khung câu cho bốn chức năng nói. Đây không phải đổi sang từ vựng cao cấp mà là luyện mở rộng nội dung.");
+ $("alin").placeholder=T("내 문장 (선택). 예: I like tennis.","Câu của bạn (tùy chọn). VD: I like tennis.");$("alrun").textContent=T("연습 틀 만들기","Tạo khung luyện tập");
+ $("alrun").onclick=()=>{const my=$("alin").value.trim();$("alout").innerHTML=(my?`<p><b>${T("내 문장","Câu của tôi")}</b>: <span class="sn" data-t="${esc(my)}">${esc(my)}</span></p>`:"")+EXT[s.lang].map(z=>`<div class="pat"><div class="pp">${UI==="vi"?z[1]:z[0]}</div><div class="en"><span class="sn" data-t="${esc(z[2].replace(/___/g,","))}">${esc(z[2])}</span></div><div class="mut">${T("___ 칸을 내 사실로 채워 소리 내어 말해 보세요. 사실이 아닌 내용은 넣지 마세요.","Điền ___ bằng sự thật của bạn rồi nói thành tiếng. Đừng điền nội dung không có thật.")}</div></div>`).join("")+`<p class="mut">${T("다음 행동: 한 가지 틀만 골라 30초 안에 말해 보고 녹음해 비교하세요.","Việc tiếp theo: chọn một khung, nói trong 30 giây rồi ghi âm và so sánh.")}</p>`;$("alout").querySelectorAll(".sn").forEach(n=>n.onclick=()=>say(n.dataset.t))}}
+/* ---- 시험 안내 · 푸터 ---- */
+function renderConsult(){const el=$("consult");if(!el)return;const vi=UI==="vi";
+ el.innerHTML=`<summary><b>${T("시험 안내 · 공식 정보와 2차 자료 구분","Giới thiệu kỳ thi · tách thông tin chính thức và tài liệu thứ cấp")}</b></summary>
+ <h3>${T("공식 자료 (ACTFL, 2026-10-30 확인)","Nguồn chính thức (ACTFL, kiểm tra 30-10-2026)")}</h3><ul>
+ <li>${T("OPIc은 컴퓨터 프로그램이 가상 진행자(아바타)로 질문을 제시하는 인터넷 기반 말하기 평가입니다. 실제 사람 시험관이 묻는 방식이 아닙니다.","OPIc là bài đánh giá nói qua internet, trong đó chương trình máy tính đưa câu hỏi qua nhân vật ảo (avatar). Không phải giám khảo người thật hỏi trực tiếp.")} <a href="https://www.actfl.org/assessments/postsecondary-assessments/oral-proficiency-interview-computer-opic" target="_blank" rel="noopener">ACTFL OPIc</a></li>
+ <li>${T("평균 20~40분이 걸린다고 안내합니다. 평가 요소는 기능(function)·정확성·내용/맥락·텍스트 유형입니다. 문항 수는 이 페이지에서 확인할 수 없습니다.","Trang này nêu trung bình 20~40 phút. Yếu tố đánh giá: chức năng (function), độ chính xác, nội dung/ngữ cảnh, loại văn bản. Số câu hỏi không được nêu trên trang này.")}</li>
+ <li>${T("ACTFL은 ‘암기한 답이나 연습한 말’을 평가하도록 설계된 시험이 아니며, 암기한 말이 많으면 초급(Novice) 이상의 평가가 어려울 수 있다고 안내합니다.","ACTFL nêu rằng bài thi không được thiết kế để đánh giá câu trả lời học thuộc hay diễn tập, và nói thuộc nhiều có thể khiến khó được đánh giá vượt mức Novice.")} <a href="https://www.actfl.org/assessments/postsecondary-assessments/opi/tips-for-opi-and-opic-test-takers" target="_blank" rel="noopener">ACTFL Tips</a></li></ul>
+ <h3>${T("2차 자료 (공식 확인 전 — 시험 시점에 직접 확인하세요)","Tài liệu thứ cấp (chưa được xác nhận chính thức — hãy tự kiểm tra khi thi)")}</h3><ul>
+ <li>${T("문항 수와 세트 구성(예: 12~15문항, 콤보 세트)은 학원·블로그 같은 2차 자료의 설명입니다. 공식 확인이 되지 않아 단정하지 않습니다.","Số câu và cấu trúc bộ đề (VD: 12~15 câu, bộ combo) là mô tả của tài liệu thứ cấp như trung tâm, blog. Chưa xác nhận chính thức nên không khẳng định.")}</li>
+ <li>${T("주제는 시험 전 설문(Background Survey) 선택에 영향을 받는다는 설명이 있습니다 (BYU Language Sciences Lab 등 2차 자료).","Có mô tả rằng chủ đề chịu ảnh hưởng từ khảo sát trước kỳ thi (Background Survey) (tài liệu thứ cấp như BYU Language Sciences Lab).")}</li>
+ <li>${T("롤플레이·돌발 주제의 출제 방식도 2차 자료 기반입니다. 이 앱의 롤플레이는 연습용 가상 상황입니다.","Cách ra đề nhập vai và chủ đề bất ngờ cũng dựa trên tài liệu thứ cấp. Nhập vai trong ứng dụng là tình huống giả định để luyện tập.")}</li>
+ <li>${T("중국어·일본어 시험의 구체적 구조는 확인하지 못해 영어 정보를 기준으로 같은 틀을 적용했습니다.","Chưa xác nhận được cấu trúc cụ thể của bài thi tiếng Trung/Nhật nên áp dụng khung của tiếng Anh.")}</li></ul>
+ <p class="mut">${T("이 앱은 독립적인 연습 도구이며 ACTFL 공식 앱·공식 채점기가 아닙니다. 분량·문체 목표는 자체 연습 기준이고 점수 향상 효과는 검증되지 않았습니다.","Ứng dụng này là công cụ luyện tập độc lập, không phải ứng dụng hay hệ thống chấm điểm chính thức của ACTFL. Mục tiêu độ dài · văn phong là chuẩn luyện tập tự đặt, hiệu quả tăng điểm chưa được kiểm chứng.")}</p>`}
+function DISC(){return T("독립적인 연습 도구입니다. ACTFL 공식 앱·공식 채점기가 아니며, 분량·문체 목표는 이 앱의 자체 연습 기준으로 점수 향상 효과는 검증되지 않았습니다.","Đây là công cụ luyện tập độc lập, không phải ứng dụng/máy chấm chính thức của ACTFL; mục tiêu độ dài·văn phong là tiêu chuẩn tự đặt và chưa được kiểm chứng về hiệu quả tăng điểm.")}
+function renderDisc(){const h=document.querySelector(".hdr");if(!h)return;let d=$("disc");if(!d){d=document.createElement("div");d.id="disc";d.className="mut";d.style.margin="2px 0 8px";h.parentNode.insertBefore(d,h.nextSibling)}d.textContent="ℹ "+DISC()}
+function renderFoot(){const e=$("footnote");if(!e)return;e.innerHTML=`<b>${T("이 앱의 성격","Tính chất ứng dụng")}</b>: ${DISC()}<br><b>${T("개인정보 · 비용","Quyền riêng tư · chi phí")}</b>: ${T("이 사이트는 서버나 유료 AI를 쓰지 않는 정적 페이지입니다(이용자가 늘어도 문장별 AI 비용이 없습니다). 입력한 답변·내 이야기·녹음은 이 기기의 브라우저 메모리에만 있고 전송·저장되지 않습니다. API 키는 코드에 없습니다. 자유 입력만으로 자연스러운 문장을 새로 만드는 AI 기능은 포함하지 않았습니다(만든다면 서버가 필요하고 비용이 발생합니다 — 현재 비용 0원). 첨삭은 규칙 기반(AI 아님)이라 잡지 못하는 오류가 있습니다. 한국어·베트남어 해석과 학습 노트는 AI(Claude)가 작성했고 원어민 검수 전입니다. 중국어 병음·일본어 읽기는 변환 도구로 만든 것이라 오류가 있을 수 있습니다.","Trang này là trang tĩnh, không dùng máy chủ hay AI trả phí (người dùng tăng cũng không phát sinh chi phí AI theo từng câu). Câu trả lời, câu chuyện và bản ghi âm chỉ nằm trong bộ nhớ trình duyệt của thiết bị, không gửi đi hay lưu. Không có khóa API trong mã. Chưa có tính năng AI tự tạo câu từ nhập tự do (nếu làm sẽ cần máy chủ và phát sinh chi phí — hiện chi phí 0 đồng). Chỉnh sửa theo quy tắc (không phải AI) nên có lỗi không bắt được. Bản dịch Hàn/Việt và ghi chú học do AI (Claude) viết, chưa được người bản ngữ kiểm duyệt. Pinyin và cách đọc tiếng Nhật do công cụ chuyển đổi tạo, có thể có sai sót.")}`}
+/* ---- 초기 DOM 구성 ---- */
+(function init(){const main=document.querySelector("main"),cat=$("cat").closest(".card");
+ const set=document.createElement("div");set.className="card";set.id="setcard";cat.parentNode.insertBefore(set,cat);
+ const pr=document.createElement("div");pr.className="card";pr.id="practice";const mc=$("model").closest(".card");mc.parentNode.insertBefore(pr,mc.nextSibling);
+ const cs=document.querySelector("details.card");cs.id="consult";main.appendChild(cs);
+ const foot=[...main.querySelectorAll(":scope > .mut")].pop();if(foot)foot.id="footnote";
+ const rd=document.createElement("div");rd.className="row";rd.id="rdrow";rd.style.margin="6px 0";$("model").parentNode.insertBefore(rd,$("model"))})();
+{const _d6=draw;draw=function(){renderSettings();chipsStatic();_d6();renderPractice();renderExt();renderConsult();renderFoot();renderDisc();
+ const rr=$("rdrow");if(rr){if(s.lang==="en")rr.innerHTML="";else chips(rr,[T("읽기 숨김","Ẩn cách đọc"),T("읽기 표시 ("+(s.lang==="zh"?"병음":"かな, 초급 기본")+")","Hiện cách đọc ("+(s.lang==="zh"?"pinyin":"kana")+")")],s.rdon?1:0,i=>{s.rdon=i===1;draw()})}}}
+draw();
 
 </script></body></html>
