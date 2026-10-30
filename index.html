@@ -732,6 +732,134 @@ const RIV=k=>["Hãy tưởng tượng bạn muốn thử "+k+" cùng một ngư�
 const RPAK={c:["먼저, ","두 번째로, ","그리고 "],x:"추가로, ",t1:"도와주셔서 감사합니다.",t2:"시간 내주셔서 정말 감사합니다.",f1:"도와줘서 고마워.",f2:"시간 내줘서 정말 고마워."};
 const RPAV={c:["Trước hết, ","Thứ hai, ","Ngoài ra, "],x:"Thêm nữa, ",t1:"Cảm ơn bạn đã giúp đỡ.",t2:"Cảm ơn bạn rất nhiều vì đã dành thời gian."};
 
+/* 한국어·베트남어(·영어) 입력 → 영어/중국어/일본어 문장 재료로 바꾸는 소형 사전 번역기 (AI 아님, 규칙+사전).
+   사전에 없는 말은 임의로 번역하지 않고 'unknown'으로 돌려준다(화면에서 안내). */
+const XN=t=>String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/gi,"d").toLowerCase().replace(/[\s.,，、。!?·'’"“”\-_/]+/g,"");
+const HASKV=/[가-힣]|[ăâđêôơưĂÂĐÊÔƠƯàáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũỳýỵỷỹ]/;
+const HASCJK=/[぀-ヿ一-鿿]/;
+/* 항목: [종류, "ko키/ko키", "vi키/vi키", en, zh, ja, enBase, jaVerb]
+   종류 J=직업 O=조직 H=장소 D=주거 I=관심사 T=성격 F=생활방식 R=이유절 */
+const XLX=[
+["J","영업사원/영업팀장/영업담당/영업","nhân viên kinh doanh/nhân viên bán hàng/kinh doanh","a salesperson","销售人员","営業担当"],
+["J","엔지니어/기술자","kỹ sư/kỹ thuật viên","an engineer","工程师","エンジニア"],
+["J","대표이사/대표/사장/ceo","giám đốc điều hành/tổng giám đốc/giám đốc/chủ tịch/ceo","a CEO","总经理","社長"],
+["J","회사원/직장인/사무직","nhân viên văn phòng/nhân viên công ty","an office worker","上班族","会社員"],
+["J","간호사","y tá","a nurse","护士","看護師"],["J","의사","bác sĩ","a doctor","医生","医者"],
+["J","교사/선생님","giáo viên/thầy giáo/cô giáo","a teacher","老师","教師"],
+["J","학생","học sinh/sinh viên","a student","学生","学生"],
+["J","개발자/프로그래머","lập trình viên/nhà phát triển","a software developer","软件开发人员","ソフトウェア開発者"],
+["J","디자이너","nhà thiết kế","a designer","设计师","デザイナー"],["J","회계사","kế toán","an accountant","会计","会計士"],
+["J","주부","nội trợ","a homemaker","家庭主妇","主婦"],["J","사업가/자영업자/자영업","chủ doanh nghiệp/doanh nhân/kinh doanh tự do","a business owner","企业主","経営者"],
+["J","공무원","công chức","a civil servant","公务员","公務員"],["J","연구원","nghiên cứu viên","a researcher","研究员","研究員"],
+["J","관리자/매니저/팀장","quản lý/trưởng nhóm","a manager","经理","マネージャー"],
+["O","유통회사/유통업체/유통","công ty phân phối/công ty thương mại","distribution company","流通公司","流通会社"],
+["O","제조업체/제조회사/공장","nhà máy/công ty sản xuất","manufacturing company","制造企业","製造会社"],
+["O","무역회사","công ty xuất nhập khẩu","trading company","贸易公司","貿易会社"],
+["O","병원","bệnh viện","hospital","医院","病院"],["O","학교","trường học","school","学校","学校"],["O","은행","ngân hàng","bank","银行","銀行"],
+["O","스타트업","công ty khởi nghiệp","startup","初创公司","スタートアップ"],["O","대기업","tập đoàn lớn","large company","大企业","大企業"],
+["O","회사","công ty","company","公司","会社"],
+["H","하노이","hà nội","Hanoi","河内","ハノイ"],["H","호치민","hồ chí minh/sài gòn","Ho Chi Minh City","胡志明市","ホーチミン市"],
+["H","다낭","đà nẵng","Da Nang","岘港","ダナン"],["H","하이퐁","hải phòng","Hai Phong","海防","ハイフォン"],["H","박닌","bắc ninh","Bac Ninh","北宁","バクニン"],
+["H","서울","seoul","Seoul","首尔","ソウル"],["H","부산","busan","Busan","釜山","釜山"],["H","용인","yongin","Yongin","龙仁","龍仁"],["H","수원","suwon","Suwon","水原","水原"],
+["H","인천","incheon","Incheon","仁川","仁川"],["H","대구","daegu","Daegu","大邱","大邱"],["H","도쿄","tokyo","Tokyo","东京","東京"],["H","베이징","bắc kinh","Beijing","北京","北京"],["H","상하이","thượng hải","Shanghai","上海","上海"],
+["H","한국","hàn quốc","Korea","韩国","韓国"],["H","베트남","việt nam","Vietnam","越南","ベトナム"],["H","시골","nông thôn/vùng quê","the countryside","乡下","田舎"],
+["D","아파트","chung cư/căn hộ","an apartment","公寓","マンション"],["D","주택/단독주택","nhà riêng/nhà phố","a house","房子","一軒家"],
+["I","테니스","quần vợt/tennis","playing tennis","打网球","テニス","play tennis","テニスをします"],
+["I","골프","golf","playing golf","打高尔夫","ゴルフ","play golf","ゴルフをします"],
+["I","독서/책읽기/책 읽기","đọc sách","reading","读书","読書","read","本を読みます"],
+["I","등산","leo núi","hiking","爬山","登山","go hiking","登山をします"],
+["I","요리/음식 만들기","nấu ăn","cooking","做饭","料理","cook","料理をします"],
+["I","영화","xem phim","watching movies","看电影","映画鑑賞","watch movies","映画を見ます"],
+["I","음악","nghe nhạc","listening to music","听音乐","音楽鑑賞","listen to music","音楽を聴きます"],
+["I","여행","du lịch","traveling","旅行","旅行","travel","旅行をします"],
+["I","낚시","câu cá","fishing","钓鱼","釣り","go fishing","釣りをします"],
+["I","게임","chơi game/game","playing games","玩游戏","ゲーム","play games","ゲームをします"],
+["I","조깅/달리기","chạy bộ","jogging","跑步","ジョギング","go jogging","ジョギングをします"],
+["I","사진","chụp ảnh/nhiếp ảnh","taking photos","拍照","写真撮影","take photos","写真を撮ります"],
+["I","커피","cà phê","drinking coffee","喝咖啡","コーヒー","drink coffee","コーヒーを飲みます"],
+["I","헬스/운동","tập gym/tập thể dục","working out","运动","運動","work out","運動をします"],
+["I","수영","bơi lội/bơi","swimming","游泳","水泳","swim","泳ぎます"],["I","자전거","đạp xe/xe đạp","cycling","骑自行车","サイクリング","ride a bike","自転車に乗ります"],
+["I","산책","đi dạo","taking walks","散步","散歩","take a walk","散歩をします"],
+["I","중국어 공부/중국어","học tiếng trung/tiếng trung","studying Chinese","学习中文","中国語の勉強","study Chinese","中国語を勉強します"],
+["I","영어 공부/영어","học tiếng anh/tiếng anh","studying English","学习英语","英語の勉強","study English","英語を勉強します"],
+["I","공부","học tập/học","studying","学习","勉強","study","勉強します"],
+["T","차분한/차분/침착한","điềm tĩnh/bình tĩnh","calm","冷静","穏やか"],["T","꼼꼼한/꼼꼼/세심한","tỉ mỉ/cẩn thận","careful","细心","几帳面"],
+["T","활발한/외향적인/외향적","hoạt bát/hướng ngoại","outgoing","外向","社交的"],["T","내성적인/내성적/조용한","hướng nội/trầm tính","quiet","内向","内向的"],
+["T","성실한/성실","chăm chỉ/siêng năng","hardworking","勤奋","まじめ"],["T","긍정적인/긍정적","tích cực/lạc quan","positive","积极","前向き"],
+["T","책임감 있는/책임감","có trách nhiệm","responsible","负责","責任感のある"],
+["F","바쁜/바쁘","bận rộn/bận","busy","忙碌","忙しい"],["F","규칙적인/규칙적","đều đặn/có quy củ","regular","规律","規則的"],
+["F","여유로운/여유","thong thả/thoải mái","relaxed","悠闲","ゆったりした"],["F","단순한/단순","đơn giản","simple","简单","シンプル"],
+["R","스트레스가 풀/스트레스 해소/스트레스를 풀/스트레스","giải tỏa căng thẳng/giảm căng thẳng/căng thẳng","it relieves my stress","它能缓解我的压力","ストレスが解消される"],
+["R","재미있/재밌/즐거","vui/thú vị/thích thú","it is fun","很有意思","楽しい"],
+["R","건강에 좋/건강","tốt cho sức khỏe/sức khỏe","it is good for my health","对健康有好处","健康にいい"],
+["R","마음이 편/편안/편해/릴렉스/긴장이 풀","thư giãn/thoải mái/nhẹ nhõm","it helps me relax","它让我放松","リラックスできる"],
+["R","집중","tập trung","it helps me focus","它帮助我集中注意力","集中できる"],
+["R","친구들과/친구와/친구","bạn bè","I can spend time with friends","我可以和朋友一起度过时间","友達と過ごせる"],
+["R","성취감","cảm giác thành tựu/thành tựu","it gives me a sense of achievement","它给我成就感","達成感が得られる"],
+["R","돈을 아낄/절약","tiết kiệm tiền/tiết kiệm","it saves me money","可以省钱","お金が節約できる"],
+["R","일에 도움/업무에 도움","giúp ích cho công việc/hữu ích cho công việc","it helps my work","对工作有帮助","仕事に役立つ"],
+["R","배울 수/배우","học hỏi/học được","I can learn new things","我可以学到新东西","新しいことが学べる"],
+["R","기분이 좋/기분 전환","tâm trạng tốt/tâm trạng thoải mái/vui vẻ","it lifts my mood","它让我心情变好","気分がよくなる"],
+["R","체력","thể lực/sức bền","it builds my stamina","它能增强体力","体力がつく"],
+["R","가족","gia đình","I can spend time with my family","我可以和家人一起度过时间","家族と過ごせる"]
+];
+/* 문장 전체 칸(생각·예전·지금)용 소형 문장표 — 이 표에 없으면 번역하지 않고 안내한다 */
+const XLS={
+th:[["계속 하고 싶/계속하고 싶/계속 할 거/계속할 거","tiếp tục","I want to keep doing it.","我想一直做下去。","これからも続けたいです。"],
+    ["더 잘하고 싶/더 잘 하고 싶","giỏi hơn/tốt hơn","I want to get better at it.","我想做得更好。","もっと上手になりたいです。"],
+    ["소중","trân trọng/quý","It is precious to me.","它对我很宝贵。","私にとって大切なことです。"]],
+past:[["자주 하지 않/잘 하지 않/별로 하지 않","ít khi/không thường","I did not do it often.","我以前不常做。","昔はあまりしませんでした。"],
+    ["전혀 하지 않/해 본 적이 없/해본 적이 없","chưa từng/hoàn toàn không","I had never done it.","我以前从来没做过。","昔は一度もしたことがありませんでした。"]],
+now:[["자주 해요/자주 한다/자주 하","thường xuyên/hay","I do it often.","我现在经常做。","今はよくしています。"],
+    ["매일/날마다","mỗi ngày/hằng ngày","I do it every day.","我现在每天都做。","今は毎日しています。"]]};
+const XLI=(()=>{const m=[];XLX.forEach((e,ei)=>{["ko","vi"].forEach((lg,li)=>String(e[1+li]).split("/").forEach(k=>{const n=XN(k);if(n.length>=2)m.push([n,ei])}))});return m.sort((a,b)=>b[0].length-a[0].length)})();
+/* 입력 문자열에서 사전 항목을 위치순으로 뽑는다. kinds = 허용 종류 문자열 */
+function xlScan(text,kinds){const n0=XN(text);let n=n0;const hits=[];
+ for(const [k,ei] of XLI){if(kinds.indexOf(XLX[ei][0])<0)continue;let p;while((p=n.indexOf(k))>=0){hits.push([p,ei]);n=n.slice(0,p)+"\u0001".repeat(k.length)+n.slice(p+k.length)}}
+ hits.sort((a,b)=>a[0]-b[0]);
+ let left=n.replace(/\u0001/g,"");
+ /* 한국어 조사·어미, 베트남어 연결어 제거 후 남는 글자만 '모르는 말' */
+ left=left.replace(/(에서|으로|에게|하고|이에요|예요|입니다|합니다|해요|하는|하며|살아요|일해요|에|의|은|는|이|가|을|를|도|와|과|랑|로|인|한|적인|서|및|그리고|입니다)/g,"").replace(/(la|o|tai|cua|va|lam|song|mot|nhung|nguoi|rat|hay|toi|minh|thich|viec|nghe|nghiep)/g,"");
+ const unk=left.replace(/[^a-z가-힣぀-ヿ一-鿿0-9]/g,"");
+ return{hits:hits.map(h=>XLX[h[1]]),unk,n0}}
+const XLJ={en:" and ",zh:"、",ja:"、"};
+/* 핵심: TR(text, 목표언어, 종류, 모르는 말 수집 배열) → 목표언어 문자열. 항상 문자열을 돌려주고, 모르는 말은 bag에 push */
+function TR(text,L,kind,bag){text=String(text||"").trim();if(!text)return"";
+ const ci=L==="en"?3:L==="zh"?4:5;
+ const kv=HASKV.test(text);
+ /* 목표 언어로 이미 쓴 글: 그대로 사용 */
+ if(L==="en"&&!kv&&!HASCJK.test(text))return text;
+ if(L!=="en"&&HASCJK.test(text))return text;
+ const kinds={job:"JOH",home:"HD",interest:"I",tn:"I",ta:"I",trait:"T",life:"F",rs:"R"}[kind]||"R";
+ if(kind==="th"||kind==="past"||kind==="now"){const nn=XN(text);const tab=XLS[kind]||[];
+   for(const r of tab){const ks=[...r[0].split("/"),...r[1].split("/")].map(XN).filter(k=>k.length>=2);if(ks.some(k=>nn.includes(k)))return r[2+(L==="en"?0:L==="zh"?1:2)]}
+   if(bag)bag.push(text);return L==="en"&&!kv?text:"";}
+ const sc=xlScan(text,kinds);
+ if(!sc.hits.length){ if(L!=="en"&&!kv)return text; /* 영어 고유명사 등 */ if(bag)bag.push(text); return L==="en"&&!kv?text:"「"+text+"」"}
+ if(sc.unk&&bag)bag.push(sc.unk);
+ const H=sc.hits;
+ if(kind==="job"){const role=H.find(h=>h[0]==="J"),org=H.filter(h=>h[0]==="O"),pl=H.filter(h=>h[0]==="H");
+   if(role||org.length){const r=role?role[ci]:"";const o=org.map(x=>x[ci]),p=pl.map(x=>x[ci]);
+     if(L==="en"){const loc=p.length?" in "+p[0]:"";const og=o.length?"a "+(p.length?p[0]+" ":"")+o[0]:"";return r?(o.length?r+" at "+og:r+loc):(og||"")+(o.length?"":loc)}
+     if(L==="zh")return p.join("")+o.join("")+r;
+     return (p.length?p[0]+"の":"")+(o.length?o[0]+"の":"")+r}}
+ if(kind==="home"){const dw=H.find(h=>h[0]==="D"),pl=H.filter(h=>h[0]==="H").map(x=>x[ci]);
+   if(dw&&pl.length){return L==="en"?dw[ci]+" in "+pl.join(", "):L==="zh"?pl.join("")+"的"+dw[ci]:pl.join("")+"の"+dw[ci]}
+   if(dw)return dw[ci];return pl.join(L==="en"?", ":"")}
+ let parts=H.map(h=>kind==="ta"?(L==="en"?h[6]:L==="ja"?h[7]:h[ci]):h[ci]);
+ if(kind==="rs"){return parts.join(L==="en"?" and ":L==="zh"?"，而且":"し、")}
+ if(kind==="trait"&&L==="ja")return parts.join("で");
+ if(kind==="trait"&&L==="en")return parts.join(", ");
+ if(kind==="life"&&L==="en")return parts.join(" and ");
+ return parts.join(XLJ[L])}
+/* 화면 안내용: 현재 입력 중 번역하지 못한 말을 모아서 돌려준다 */
+function xlReport(){const L=s.lang,bag=[],tr=[];const p=s.pers||{},m=s.me||{};
+ const one=(v,kind,lab)=>{v=(v||"").trim();if(!v)return;const b=[];const o=TR(v,L,kind,b);if(b.length)bag.push(lab+": "+b.join(", "));else if(o&&o!==v)tr.push(v+" → "+o)};
+ if(s.spk==="virt"){PERSK.forEach(k=>one(p[k],k,PERSL[k][UI==="vi"?1:0]))}
+ if(s.spk==="real"){one(m.tn,"tn",T("주제 이름","Tên chủ đề"));one(m.ta,"ta",T("하는 일","Việc làm"));one(m.rs,"rs",T("이유","Lý do"));one(m.th,"th",T("지금의 생각","Suy nghĩ"));one(m.past,"past",T("예전에는","Ngày trước"));one(m.now,"now",T("지금은","Bây giờ"));
+   const ev=(m.ev||"").trim();if(ev&&!(L==="en"?(!HASKV.test(ev)&&!HASCJK.test(ev)):HASCJK.test(ev)))bag.push(T("실제 있었던 일","Chuyện có thật")+": "+ev)}
+ return{unknown:bag,translated:tr}}
+
 /* 모범답안 분량·내용 확장 (영어/한국어/베트남어). 목표: 초급 70~90 / 중급 120~150 / 고급 170+ 단어 (연습용 자체 기준, 공식 아님).
    레벨 차이: 초급=한 장면+이유, 중급=과거→현재 + 연결어, 고급=현재·과거·미래 시간대 + 짧은 호흡 문장 + 여운 */
 const CP=x=>x?x.charAt(0).toUpperCase()+x.slice(1):x;
@@ -1414,8 +1542,9 @@ const SLOTS=[
 function fieldsFor(c,j){const it=D[c].i[j],key=c+":"+j;return{en:it,zh:Z[c][j],ja:J[c][j],ko:fK(it,key),vi:fV(it,key)}}
 /* 가상 인물 소개 문장 묶음 */
 function persSents(lv){const out=[],pe=s.pers||{};PERSK.forEach(k=>{const v=(pe[k]||"").trim();if(!v||out.length>=[1,2,3][lv])return;
- if(s.lang==="en"&&/[가-힯]/.test(v))return;
- const lab=PERSL[k];out.push({en:PERS[k][0].replace("${x}",v),zh:PERS[k][1].replace("${x}",v),ja:PERS[k][2].replace("${x}",v),ko:"가상 인물 설정 — "+lab[0]+": "+rawKV(v),vi:"Thiết lập nhân vật hư cấu — "+lab[1]+": "+rawKV(v),raw:1})});return out}
+ const b=[],t=["en","zh","ja"].map((l,i)=>{const x=TR(v,l,k,b);return x?PERS[k][i].replace("${x}",x):""});
+ if(b.length||t.some(z=>!z))return;
+ const lab=PERSL[k];out.push({en:t[0],zh:t[1],ja:t[2],ko:"가상 인물 설정 — "+lab[0]+": 「"+v+"」",vi:"Thiết lập nhân vật hư cấu — "+lab[1]+": 「"+v+"」",raw:1})});return out}
 function styleSents(kind,lv){const st=STYL[s.sty||"talk"];return (st[kind]||[]).map(a=>({en:a[0],zh:a[1],ja:a[2],ko:a[3],vi:a[4],sty:1}))}
 function composeVirt(c,j,q,lv){const P=fieldsFor(c,j),st=STYL[s.sty||"talk"],out=[];
  out.push(...styleSents("o",lv));out.push(...persSents(lv));
@@ -1427,13 +1556,13 @@ function composeVirt(c,j,q,lv){const P=fieldsFor(c,j),st=STYL[s.sty||"talk"],out
 function meTopic(c,j){const P=fieldsFor(c,j),me=s.me||{};let n=P,gen=false;
  if(c==="job"){gen=true;n={en:{n:"my job",a:"work"},zh:{n:"我的工作",a:"工作"},ja:{n:"私の仕事",a:"仕事をします"},ko:{n:"제 일",a:"일해요"},vi:{n:"công việc của tôi",a:"làm việc"}}}
  const tn=(me.tn||"").trim(),ta=(me.ta||"").trim();
- const L=s.lang;if(L==="en"||L==="zh"||L==="ja"){n=Object.assign({},n);n[L]=Object.assign({},n[L]);if(tn)n[L].n=tn;if(ta)n[L].a=ta}
+ const L=s.lang;if(L==="en"||L==="zh"||L==="ja"){n=Object.assign({},n);n[L]=Object.assign({},n[L]);{const a1=TR(tn,L,"tn",[]),a2=TR(ta,L,"ta",[]);if(tn&&a1&&!/^「/.test(a1))n[L].n=a1;if(ta&&a2&&!/^「/.test(a2))n[L].a=a2}}
  return{P:n,gen}}
 function chv(g,k,i){const v=CHO[g][k];return v?v[i]:""}
 function meSents(c,j,q,lv){const L=s.lang,li=LG5.indexOf(L),me=s.me||{},T0=meTopic(c,j),P=T0.P,out=[],st=STYL[s.sty||"talk"];
  const W=me.when,PL=me.place,CM=me.comp,FQ=me.freq,fe=FEEL[me.fn],ft=FEEL[me.ft],dis=me.pref==="dislike";
- const RS=(me.rs||"").trim(),EV=(me.ev||"").trim(),TH=(me.th||"").trim(),PA=(me.past||"").trim(),NO=(me.now||"").trim();
- const has=!!(W||PL||CM);
+ const RS0=(me.rs||"").trim(),EV=(me.ev||"").trim(),TH=(me.th||"").trim(),PA=(me.past||"").trim(),NO=(me.now||"").trim();
+ const RSb=[],RSE=TR(RS0,"en","rs",RSb),RSZ=TR(RS0,"zh","rs",RSb),RSJ=TR(RS0,"ja","rs",RSb),RS=(RS0&&!RSb.length&&RSE&&RSZ&&RSJ&&!/^「/.test(RSE+RSZ+RSJ))?RS0:"";const has=!!(W||PL||CM);
  const wh={},mk=(i)=>({when:chv("when",W,i),place:chv("place",PL,i),comp:chv("comp",CM,i)});
  const act=()=>{const o={};LG5.forEach((l,i)=>{const m=mk(i);let t;
   if(l==="en")t=`I ${P.en.a}${m.when?" "+m.when:""}${m.place?" "+m.place:""}${m.comp?" "+m.comp:""}.`;
@@ -1442,37 +1571,38 @@ function meSents(c,j,q,lv){const L=s.lang,li=LG5.indexOf(L),me=s.me||{},T0=meTop
   else if(l==="ko")t=`${[m.when,m.comp,m.place].filter(Boolean).join(" ")} ${P.ko.a}.`.trim().replace(/^ /,"");
   else t=`Tôi ${P.vi.a}${m.when?" "+m.when:""}${m.place?" "+m.place:""}${m.comp?" "+m.comp:""}.`;
   o[l]=t});return o};
- const raw=(txt)=>({en:dot(txt,"en"),zh:dot(txt,"zh"),ja:dot(txt,"ja"),ko:rawKV(txt),vi:rawKV(txt),raw:1});
- const rawL=(txt)=>{const o=raw(txt);return o};
+ const rawL=(txt,kind)=>{const b=[],t=["en","zh","ja"].map(l=>{if(kind==="ev")return l==="en"?((!HASKV.test(txt)&&!HASCJK.test(txt))?txt:""):(HASCJK.test(txt)?txt:"");return TR(txt,l,kind,b)});
+  if(b.length||t.some(z=>!z))return{skip:1,en:"",zh:"",ja:"",ko:"",vi:""};
+  return{en:dot(t[0],"en"),zh:dot(t[1],"zh"),ja:dot(t[2],"ja"),ko:"「"+txt+"」",vi:"「"+txt+"」",raw:1}};
  const fq=(i)=>chv("freq",FQ,i);
  const S=(en,zh,ja,ko,vi,pat)=>({en,zh,ja,ko,vi,pat});
  if(q===0){
   out.push(dis?S(`I don't like ${P.en.n} very much.`,`我不太喜欢${P.zh.n}。`,`私は${P.ja.n}があまり好きではありません。`,`저는 ${P.ko.n}${eul(P.ko.n)} 별로 좋아하지 않아요.`,`Tôi không thích ${P.vi.n} lắm.`,"like"):S(`I like ${P.en.n}.`,`我喜欢${P.zh.n}。`,`私は${P.ja.n}が好きです。`,`저는 ${P.ko.n}${eul(P.ko.n)} 좋아해요.`,`Tôi thích ${P.vi.n}.`,"like"));
   if(has){const a=act();out.push(S(a.en,a.zh,a.ja,a.ko,a.vi,"act"))}
   if(FQ)out.push(S(`I do it ${fq(0)}.`,`我${fq(1)}做。`,`${fq(2)}しています。`,`${fq(3)} 해요.`,`Tôi làm việc đó ${fq(4)}.`));
-  if(RS)out.push(S(`I ${dis?"don't like":"like"} it because ${RS}.`,`我${dis?"不太喜欢":"喜欢"}它，因为${RS}。`,`${RS}ので、${dis?"あまり好きではありません":"好きです"}。`,rawKV(RS),rawKV(RS),"bec"));
+  if(RS)out.push(S(`I ${dis?"don't like":"like"} it because ${RSE}.`,`我${dis?"不太喜欢":"喜欢"}它，因为${RSZ}。`,`${RSJ}ので、${dis?"あまり好きではありません":"好きです"}。`,"「"+RS0+"」","「"+RS0+"」","bec"));
   if(fe&&lv>=1&&!dis)out.push(S(`It makes me feel ${fe.en}.`,`它让我觉得${fe.zh}。`,`それをすると、${fe.jaA}気持ちになります。`,`하고 나면 ${fe.koP}.`,`Điều đó làm tôi thấy ${fe.vi}.`));
-  if(TH&&lv>=2)out.push(rawL(TH));
+  if(TH&&lv>=2)out.push(rawL(TH,"th"));
  }else if(q===1){
   if(has||FQ){if(has){const a=act();out.push(S(a.en.replace(/^I /,"I usually "),a.zh.replace(/^我/,"我通常"),"たいてい、"+a.ja,a.ko.replace(/^/,"보통 "),a.vi.replace(/^Tôi /,"Tôi thường "),"usu"))}
    if(FQ)out.push(S(`I do it ${fq(0)}.`,`我${fq(1)}做。`,`${fq(2)}しています。`,`${fq(3)} 해요.`,`Tôi làm việc đó ${fq(4)}.`))}
-  if(RS)out.push(S(`I keep doing it because ${RS}.`,`我坚持做，因为${RS}。`,`${RS}ので、続けています。`,rawKV(RS),rawKV(RS),"bec"));
+  if(RS)out.push(S(`I keep doing it because ${RSE}.`,`我坚持做，因为${RSZ}。`,`${RSJ}ので、続けています。`,"「"+RS0+"」","「"+RS0+"」","bec"));
   if(fe&&lv>=1)out.push(S(`Afterward, I feel ${fe.en}.`,`之后，我觉得${fe.zh}。`,`そのあと、${fe.jaA}気持ちになります。`,`끝나고 나면 ${fe.koP}.`,`Sau đó, tôi thấy ${fe.vi}.`,"feel"));
-  if(TH&&lv>=2)out.push(rawL(TH));
+  if(TH&&lv>=2)out.push(rawL(TH,"th"));
  }else if(q===2){
-  if(EV)out.push(Object.assign(rawL(EV),{pat:"onetime"}));
+  if(EV)out.push(Object.assign(rawL(EV,"ev"),{pat:"onetime"}));
   if(has){const m0=[0,1,2,3,4].map(mk);out.push(S(`It happened${m0[0].when?" "+m0[0].when:""}${m0[0].place?" "+m0[0].place:""}${m0[0].comp?" "+m0[0].comp:""}.`,`那是${m0[1].comp}${m0[1].when}${m0[1].place}发生的。`,`それは${m0[2].comp}${m0[2].when}${m0[2].place}のことでした。`,`${[m0[3].when,m0[3].comp,m0[3].place].filter(Boolean).join(" ")} 있었던 일이에요.`,`Chuyện xảy ra${m0[4].when?" "+m0[4].when:""}${m0[4].place?" "+m0[4].place:""}${m0[4].comp?" "+m0[4].comp:""}.`))}
   if(ft)out.push(S(`At that time, I felt ${ft.en}.`,`当时我很${ft.zh}。`,`そのときは、${ft.jaPast}。`,`그때는 ${ft.koPast}.`,`Lúc đó, tôi thấy ${ft.vi}.`,"atfirst"));
-  if(TH&&lv>=1)out.push(Object.assign(rawL(TH),{pat:"learned"}));
+  if(TH&&lv>=1)out.push(Object.assign(rawL(TH,"th"),{pat:"learned"}));
   if(fe&&lv>=2)out.push(S(`When I think about it now, I feel ${fe.en}.`,`现在想起来，我觉得${fe.zh}。`,`今思い出すと、${fe.jaA}気持ちになります。`,`지금 생각하면 ${fe.koP}.`,`Bây giờ nghĩ lại, tôi thấy ${fe.vi}.`));
  }else if(q===3){
-  if(PA)out.push(Object.assign(rawL(PA),{pat:"didnot"}));
-  if(NO)out.push(Object.assign(rawL(NO),{pat:"better"}));
+  if(PA)out.push(Object.assign(rawL(PA,"past"),{pat:"didnot"}));
+  if(NO)out.push(Object.assign(rawL(NO,"now"),{pat:"better"}));
   if(has&&!NO){const a=act();out.push(S(a.en.replace(/^I /,"Now I "),"现在"+a.zh,"今は、"+a.ja,"지금은 "+a.ko,a.vi.replace(/^Tôi /,"Bây giờ tôi "),"act"))}
-  if(RS&&lv>=1)out.push(S(`The reason is that ${RS}.`,`原因是${RS}。`,`理由は、${RS}ことです。`,rawKV(RS),rawKV(RS),"better"));
+  if(RS&&lv>=1)out.push(S(`The reason is that ${RSE}.`,`原因是${RSZ}。`,`理由は、${RSJ}ことです。`,"「"+RS0+"」","「"+RS0+"」","better"));
   if(fe&&lv>=2)out.push(S(`These days, it makes me feel ${fe.en}.`,`最近，它让我觉得${fe.zh}。`,`最近は、${fe.jaA}気持ちになります。`,`요즘은 ${fe.koP}.`,`Dạo này, tôi thấy ${fe.vi}.`));
  }
- const body=out;const res=[];
+ const body=out.filter(z=>!z.skip);const res=[];
  res.push(...styleSents("o",lv));res.push(...body);
  if(body.length&&(s.sty==="D"))res.push(...styleSents("m",lv));
  if(body.length&&(lv>=1||s.sty!=="talk"))res.push(...styleSents("c",lv));
@@ -2884,24 +3014,25 @@ const HANGUL=/[\uAC00-\uD7AF]/;
 function frmInput(id,lab,ph,val){return `<label class="fl">${lab}<input id="${id}" type="text" value="${esc(val||"")}" placeholder="${esc(ph||"")}" maxlength="120"></label>`}
 function frmSel(id,lab,arr,labs,val,vals){return `<label class="fl">${lab}<select id="${id}"><option value="">${T("(선택 안 함)","(không chọn)")}</option>${vals.map((v,i)=>`<option value="${v}"${val===v?" selected":""}>${esc(labs[i])}</option>`).join("")}</select></label>`}
 function renderSettings(){const el=$("setcard");if(!el)return;const sig=[s.spk,UI,s.lang].join("|");if(el.dataset.sig===sig)return;el.dataset.sig=sig;const vi=UI==="vi";
- const ex={en:["a distribution company CEO in Hanoi","Hanoi","reading and tennis","busy but regular","calm and careful"],zh:["河内一家流通公司的总经理","河内","读书和打网球","忙碌但很规律","冷静细心"],ja:["ハノイの流通会社のCEO","ハノイ","読書とテニス","忙しいが規則的","落ち着いて慎重"]}[s.lang];
+ const exKV=UI==="vi"?["giám đốc công ty phân phối ở Hà Nội","Hà Nội","đọc sách và quần vợt","bận rộn nhưng đều đặn","điềm tĩnh và tỉ mỉ"]:["하노이 유통회사 대표","하노이","독서와 테니스","바쁘지만 규칙적","차분하고 꼼꼼함"];
+ const ex0={en:["a distribution company CEO in Hanoi","Hanoi","reading and tennis","busy but regular","calm and careful"],zh:["河内一家流通公司的总经理","河内","读书和打网球","忙碌但很规律","冷静细心"],ja:["ハノイの流通会社のCEO","ハノイ","読書とテニス","忙しいが規則的","落ち着いて慎重"]}[s.lang];const ex=exKV;
  let h=`<h2>${T("화자와 문체","Người nói và văn phong")} <span class="mut">${T("(화자와 문체는 따로 고릅니다)","(chọn riêng người nói và văn phong)")}</span></h2><div class="mut">${T("① 화자","① Người nói")}</div><div class="row" id="spk"></div>`;
- if(s.spk==="virt"){h+=`<div class="mut">${T("가상 인물이 말하는 예시 답변입니다. 아래 칸은 모두 선택 사항이고, 비워 두면 일반 예시 인물이 말합니다. 선택한 언어로 입력하세요(앱은 번역하지 않습니다). 예시 입력일 뿐 기본 설정이 아닙니다.","Đây là câu trả lời mẫu của nhân vật hư cấu. Mọi ô đều tùy chọn; để trống thì dùng nhân vật mẫu chung. Hãy nhập bằng ngôn ngữ đã chọn (ứng dụng không dịch). Chỉ là ví dụ nhập, không phải mặc định.")}</div><div class="frm">`+PERSK.map((k,i)=>frmInput("pe_"+k,PERSL[k][vi?1:0],T("예: ","VD: ")+ex[i],s.pers[k])).join("")+`</div>`}
- else if(s.spk==="real"){const m=s.me;h+=`<div class="mut">${T("내가 입력하거나 고른 사실만 사용합니다. 입력하지 않은 직업·장소·사건·감정은 만들어 넣지 않아요. 자유 입력 칸은 선택한 언어로 쓰세요(앱은 번역하지 않습니다).","Chỉ dùng thông tin bạn nhập hoặc chọn. Nghề nghiệp, nơi chốn, sự việc, cảm xúc bạn không nhập sẽ không bị tự thêm. Ô nhập tự do hãy viết bằng ngôn ngữ đã chọn (ứng dụng không dịch).")}</div><div class="frm">`
-  +frmInput("me_tn",T("주제 이름 바꾸기 (선택)","Đổi tên chủ đề (tùy chọn)"),T("예: tennis","VD: tennis"),m.tn)+frmInput("me_ta",T("내가 하는 일 (동사구, 선택)","Việc tôi làm (cụm động từ, tùy chọn)"),T("예: play tennis","VD: play tennis"),m.ta)
+ if(s.spk==="virt"){h+=`<div class="mut">${T("가상 인물이 말하는 예시 답변입니다. 아래 칸은 모두 선택 사항이고, 비워 두면 일반 예시 인물이 말합니다. 한국어·베트남어·영어로 입력하면 되고, 앱이 내장 사전으로 선택한 언어에 맞춰 넣습니다(AI 번역 아님, 사전에 없는 말은 만들어 넣지 않고 아래에 알려 줍니다). 아래 예시는 입력 예일 뿐 기본 설정이 아닙니다.","Đây là câu trả lời mẫu của nhân vật hư cấu. Mọi ô đều tùy chọn; để trống thì dùng nhân vật mẫu chung. Bạn có thể nhập bằng tiếng Việt, tiếng Hàn hoặc tiếng Anh; ứng dụng dùng từ điển tích hợp để chuyển sang ngôn ngữ đã chọn (không phải dịch bằng AI; từ không có trong từ điển sẽ không bị tự bịa mà được báo bên dưới). Ví dụ bên dưới chỉ là gợi ý, không phải mặc định.")}</div><div class="frm">`+PERSK.map((k,i)=>frmInput("pe_"+k,PERSL[k][vi?1:0],T("예: ","VD: ")+ex[i],s.pers[k])).join("")+`</div><div class="mut" id="xlnote" aria-live="polite"></div>`}
+ else if(s.spk==="real"){const m=s.me;h+=`<div class="mut">${T("내가 입력하거나 고른 사실만 사용합니다. 입력하지 않은 직업·장소·사건·감정은 만들어 넣지 않아요. 자유 입력 칸은 한국어·베트남어·영어 모두 가능합니다. 짧은 단어·표현(취미, 이유 등)은 내장 사전으로 선택한 언어에 맞추고, 사전에 없는 문장은 번역하지 않고 아래에 알려 드려요.","Chỉ dùng thông tin bạn nhập hoặc chọn. Nghề nghiệp, nơi chốn, sự việc, cảm xúc bạn không nhập sẽ không bị tự thêm. Ô nhập tự do dùng được tiếng Việt, Hàn hoặc Anh. Từ/cụm ngắn (sở thích, lý do…) được chuyển bằng từ điển tích hợp; câu không có trong từ điển sẽ không được dịch và được báo bên dưới.")}</div><div class="frm">`
+  +frmInput("me_tn",T("주제 이름 바꾸기 (선택)","Đổi tên chủ đề (tùy chọn)"),T("예: 테니스","VD: quần vợt"),m.tn)+frmInput("me_ta",T("내가 하는 일 (동사구, 선택)","Việc tôi làm (cụm động từ, tùy chọn)"),T("예: 테니스","VD: quần vợt"),m.ta)
   +frmSel("me_pref",T("좋아함 / 싫어함","Thích / Không thích"),0,[T("좋아해요","Thích"),T("별로 안 좋아해요","Không thích lắm")],m.pref,["like","dislike"])
   +frmSel("me_when",T("언제","Khi nào"),0,vi?CHLV.when:CHL.when,m.when,Object.keys(CHO.when))+frmSel("me_place",T("어디서","Ở đâu"),0,vi?CHLV.place:CHL.place,m.place,Object.keys(CHO.place))+frmSel("me_comp",T("누구와","Với ai"),0,vi?CHLV.comp:CHL.comp,m.comp,Object.keys(CHO.comp))
   +frmSel("me_freq",T("얼마나 자주","Tần suất"),0,vi?CHLV.freq:CHL.freq,m.freq,Object.keys(CHO.freq))
-  +frmInput("me_rs",T("좋아하거나 싫어하는 이유","Lý do thích / không thích"),T("예: it helps me relax","VD: it helps me relax"),m.rs)+frmInput("me_ev",T("실제 있었던 일 (한 문장)","Chuyện có thật đã xảy ra (một câu)"),T("예: Last week I won a small match.","VD: Last week I won a small match."),m.ev)
+  +frmInput("me_rs",T("좋아하거나 싫어하는 이유","Lý do thích / không thích"),T("예: 스트레스가 풀려요","VD: giải tỏa căng thẳng"),m.rs)+frmInput("me_ev",T("실제 있었던 일 (한 문장, 선택한 언어로 — 자동 번역 안 됨)","Chuyện có thật (một câu, bằng ngôn ngữ đã chọn — không tự dịch)"),T("예: (선택한 언어로) Last week I won a small match.","VD: (bằng ngôn ngữ đã chọn) Last week I won a small match."),m.ev)
   +frmSel("me_ft",T("당시 감정","Cảm xúc lúc đó"),0,Object.values(FEEL).map(f=>f.label[vi?1:0]),m.ft,Object.keys(FEEL))+frmSel("me_fn",T("지금 느끼는 감정","Cảm xúc bây giờ"),0,Object.values(FEEL).map(f=>f.label[vi?1:0]),m.fn,Object.keys(FEEL))
-  +frmInput("me_th",T("지금의 생각 (한 문장)","Suy nghĩ hiện tại (một câu)"),T("예: I want to keep doing it.","VD: I want to keep doing it."),m.th)
-  +frmInput("me_past",T("예전에는 (비교용, 한 문장)","Ngày trước (để so sánh, một câu)"),T("예: I did not play often.","VD: I did not play often."),m.past)+frmInput("me_now",T("지금은 (비교용, 한 문장)","Bây giờ (để so sánh, một câu)"),T("예: I play every weekend.","VD: I play every weekend."),m.now)+`</div>`}
+  +frmInput("me_th",T("지금의 생각 (한 문장)","Suy nghĩ hiện tại (một câu)"),T("예: 계속 하고 싶어요","VD: tôi muốn tiếp tục"),m.th)
+  +frmInput("me_past",T("예전에는 (비교용, 한 문장)","Ngày trước (để so sánh, một câu)"),T("예: 자주 하지 않았어요","VD: ít khi làm"),m.past)+frmInput("me_now",T("지금은 (비교용, 한 문장)","Bây giờ (để so sánh, một câu)"),T("예: 매일 해요","VD: mỗi ngày"),m.now)+`</div>`}
  else{h+=`<div class="mut">${T("역할 연습입니다. 아래 ‘주제’에서 고른 항목의 상황(약속 잡기·서비스에 문의하기 등)으로 질문·요청·응답을 한 줄씩 연습합니다. 긴 독백은 만들지 않아요.","Luyện nhập vai. Tình huống (hẹn bạn, hỏi dịch vụ…) lấy từ mục bạn chọn ở 'Chủ đề'; luyện từng câu hỏi · lời nhờ · phản hồi. Không tạo độc thoại dài.")}</div><div class="frm">`+frmInput("ro_sit",T("상황 메모 (선택)","Ghi chú tình huống (tùy chọn)"),T("예: 주말에 친구와 약속 잡기","VD: hẹn bạn vào cuối tuần"),s.role.sit)+frmInput("ro_other",T("상대 (선택)","Đối tượng (tùy chọn)"),T("예: 친구 / 호텔 직원","VD: bạn / nhân viên khách sạn"),s.role.other)+`</div>`}
  h+=`<div class="mut" style="margin-top:10px">${T("② 문체","② Văn phong")}</div><div class="row" id="sty"></div><div class="mut" id="styinfo"></div>`;
  h+=`<div class="mut" style="margin-top:10px">${T("③ 분량","③ Độ dài")}</div><div class="row" id="lenc"></div><div class="mut" id="leninfo"></div>`;
  h+=`<div class="row" style="margin-top:12px"><button class="btn p" id="startp">▶ ${T("연습 시작","Bắt đầu luyện")}</button><span class="mut">${T("규칙 기반 문장 조합입니다(AI 아님). 문체 효과는 문장 추가·순서 방식이라 원어민 검수가 필요합니다.","Ghép câu theo quy tắc (không phải AI). Hiệu ứng văn phong chỉ thêm/sắp xếp câu nên cần người bản ngữ kiểm tra.")}</span></div>`;
  el.innerHTML=h;wireSettings()}
-function wireSettings(){const bind=(id,obj,key)=>{const e=$(id);if(!e)return;const f=()=>{obj[key]=e.value;if(s.lang==="en"&&HANGUL.test(e.value))e.style.outline="2px solid #c0392b";else e.style.outline="";redraw()};e.oninput=f;e.onchange=f};
+function wireSettings(){const bind=(id,obj,key)=>{const e=$(id);if(!e)return;const f=()=>{obj[key]=e.value;redraw()};e.oninput=f;e.onchange=f};
  PERSK.forEach(k=>bind("pe_"+k,s.pers,k));["tn","ta","pref","when","place","comp","freq","rs","ev","ft","fn","th","past","now"].forEach(k=>bind("me_"+k,s.me,k));bind("ro_sit",s.role,"sit");bind("ro_other",s.role,"other");
  $("startp").onclick=()=>{const p=$("practice");if(p)p.scrollIntoView({behavior:"smooth",block:"start"})}}
 function chipsStatic(){const vi=UI==="vi";chips($("spk"),SPKN.map(z=>z[vi?1:0]),SPKK.indexOf(s.spk),i=>{s.spk=SPKK[i];draw()});
@@ -3112,6 +3243,10 @@ function renderConsult(){const el=$("consult");if(!el)return;const vi=UI==="vi";
  <p class="mut">${T("이 앱은 독립적인 연습 도구이며 ACTFL 공식 앱·공식 채점기가 아닙니다. 분량·문체 목표는 자체 연습 기준이고 점수 향상 효과는 검증되지 않았습니다.","Ứng dụng này là công cụ luyện tập độc lập, không phải ứng dụng hay hệ thống chấm điểm chính thức của ACTFL. Mục tiêu độ dài · văn phong là chuẩn luyện tập tự đặt, hiệu quả tăng điểm chưa được kiểm chứng.")}</p>`}
 function DISC(){return T("독립적인 연습 도구입니다. ACTFL 공식 앱·공식 채점기가 아니며, 분량·문체 목표는 이 앱의 자체 연습 기준으로 점수 향상 효과는 검증되지 않았습니다.","Đây là công cụ luyện tập độc lập, không phải ứng dụng/máy chấm chính thức của ACTFL; mục tiêu độ dài·văn phong là tiêu chuẩn tự đặt và chưa được kiểm chứng về hiệu quả tăng điểm.")}
 function renderDisc(){const h=document.querySelector(".hdr");if(!h)return;let d=$("disc");if(!d){d=document.createElement("div");d.id="disc";d.className="mut";d.style.margin="2px 0 8px";h.parentNode.insertBefore(d,h.nextSibling)}d.textContent="ℹ "+DISC()}
+function updXl(){const e=$("xlnote");if(!e)return;const r=xlReport();let h="";
+ if(r.translated.length)h+="✅ "+T("사전으로 바꾼 말","Từ đã chuyển bằng từ điển")+": "+r.translated.map(esc).join(" · ");
+ if(r.unknown.length)h+=(h?"<br>":"")+"⚠ "+T("번역하지 못한 말(답변에 넣지 않았어요 — 선택한 언어로 직접 쓰거나 다른 말로 바꿔 보세요)","Chưa dịch được (chưa đưa vào bài mẫu — hãy tự viết bằng ngôn ngữ đã chọn hoặc đổi cách nói)")+": "+r.unknown.map(esc).join(" · ");
+ e.innerHTML=h}
 function renderFoot(){const e=$("footnote");if(!e)return;e.innerHTML=`<b>${T("이 앱의 성격","Tính chất ứng dụng")}</b>: ${DISC()}<br><b>${T("개인정보 · 비용","Quyền riêng tư · chi phí")}</b>: ${T("이 사이트는 서버나 유료 AI를 쓰지 않는 정적 페이지입니다(이용자가 늘어도 문장별 AI 비용이 없습니다). 입력한 답변·내 이야기·녹음은 이 기기의 브라우저 메모리에만 있고 전송·저장되지 않습니다. API 키는 코드에 없습니다. 자유 입력만으로 자연스러운 문장을 새로 만드는 AI 기능은 포함하지 않았습니다(만든다면 서버가 필요하고 비용이 발생합니다 — 현재 비용 0원). 첨삭은 규칙 기반(AI 아님)이라 잡지 못하는 오류가 있습니다. 한국어·베트남어 해석과 학습 노트는 AI(Claude)가 작성했고 원어민 검수 전입니다. 중국어 병음·일본어 읽기는 변환 도구로 만든 것이라 오류가 있을 수 있습니다.","Trang này là trang tĩnh, không dùng máy chủ hay AI trả phí (người dùng tăng cũng không phát sinh chi phí AI theo từng câu). Câu trả lời, câu chuyện và bản ghi âm chỉ nằm trong bộ nhớ trình duyệt của thiết bị, không gửi đi hay lưu. Không có khóa API trong mã. Chưa có tính năng AI tự tạo câu từ nhập tự do (nếu làm sẽ cần máy chủ và phát sinh chi phí — hiện chi phí 0 đồng). Chỉnh sửa theo quy tắc (không phải AI) nên có lỗi không bắt được. Bản dịch Hàn/Việt và ghi chú học do AI (Claude) viết, chưa được người bản ngữ kiểm duyệt. Pinyin và cách đọc tiếng Nhật do công cụ chuyển đổi tạo, có thể có sai sót.")}`}
 /* ---- 초기 DOM 구성 ---- */
 (function init(){const main=document.querySelector("main"),cat=$("cat").closest(".card");
@@ -3120,7 +3255,7 @@ function renderFoot(){const e=$("footnote");if(!e)return;e.innerHTML=`<b>${T("�
  const cs=document.querySelector("details.card");cs.id="consult";main.appendChild(cs);
  const foot=[...main.querySelectorAll(":scope > .mut")].pop();if(foot)foot.id="footnote";
  const rd=document.createElement("div");rd.className="row";rd.id="rdrow";rd.style.margin="6px 0";$("model").parentNode.insertBefore(rd,$("model"))})();
-{const _d6=draw;draw=function(){renderSettings();chipsStatic();_d6();renderPractice();renderExt();renderConsult();renderFoot();renderDisc();
+{const _d6=draw;draw=function(){renderSettings();chipsStatic();_d6();renderPractice();renderExt();renderConsult();renderFoot();renderDisc();updXl();
  const rr=$("rdrow");if(rr){if(s.lang==="en")rr.innerHTML="";else chips(rr,[T("읽기 숨김","Ẩn cách đọc"),T("읽기 표시 ("+(s.lang==="zh"?"병음":"かな, 초급 기본")+")","Hiện cách đọc ("+(s.lang==="zh"?"pinyin":"kana")+")")],s.rdon?1:0,i=>{s.rdon=i===1;draw()})}}}
 draw();
 
