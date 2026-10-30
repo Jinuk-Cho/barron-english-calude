@@ -839,13 +839,30 @@ const XLX=[
 ];
 /* 문장 전체 칸(생각·예전·지금)용 소형 문장표 — 이 표에 없으면 번역하지 않고 안내한다 */
 const XLS={
-th:[["계속 하고 싶/계속하고 싶/계속 할 거/계속할 거","tiếp tục","I want to keep doing it.","我想一直做下去。","これからも続けたいです。"],
-    ["더 잘하고 싶/더 잘 하고 싶","giỏi hơn/tốt hơn","I want to get better at it.","我想做得更好。","もっと上手になりたいです。"],
-    ["소중","trân trọng/quý","It is precious to me.","它对我很宝贵。","私にとって大切なことです。"]],
-past:[["자주 하지 않/잘 하지 않/별로 하지 않","ít khi/không thường","I did not do it often.","我以前不常做。","昔はあまりしませんでした。"],
-    ["전혀 하지 않/해 본 적이 없/해본 적이 없","chưa từng/hoàn toàn không","I had never done it.","我以前从来没做过。","昔は一度もしたことがありませんでした。"]],
-now:[["자주 해요/자주 한다/자주 하","thường xuyên/hay","I do it often.","我现在经常做。","今はよくしています。"],
-    ["매일/날마다","mỗi ngày/hằng ngày","I do it every day.","我现在每天都做。","今は毎日しています。"]]};
+th:[["계속 하고 싶/계속하고 싶/계속 할 거/계속할 거","tiếp tục","I want to keep doing it.","我想一直做下去。","これからも続けたいです。","계속 하고 싶어요.","Tôi muốn tiếp tục làm."],
+    ["더 잘하고 싶/더 잘 하고 싶","giỏi hơn/tốt hơn","I want to get better at it.","我想做得更好。","もっと上手になりたいです。","더 잘하고 싶어요.","Tôi muốn làm tốt hơn."],
+    ["소중","trân trọng/quý","It is precious to me.","它对我很宝贵。","私にとって大切なことです。","저에게 소중해요.","Nó rất quý giá với tôi."],
+    ["즐거/재미있","vui/thú vị","I find it really enjoyable.","我觉得很有意思。","とても楽しいと思います。","정말 즐거워요.","Tôi thấy rất thú vị."],
+    ["도움이 되/도움이 돼/도움 돼","có ích/giúp ích","It helps me a lot.","它对我帮助很大。","とても役に立っています。","많은 도움이 돼요.","Nó giúp ích cho tôi rất nhiều."],
+    ["건강에 좋","tốt cho sức khỏe","It is good for my health.","它对我的健康有好处。","健康にいいです。","건강에 좋아요.","Nó tốt cho sức khỏe của tôi."],
+    ["마음이 편/편안해","thoải mái/dễ chịu","It makes me feel relaxed.","它让我觉得很放松。","気持ちが楽になります。","마음이 편안해져요.","Nó làm tôi thấy thoải mái."],
+    ["추천하고 싶/추천","giới thiệu","I would recommend it to others.","我愿意把它推荐给别人。","ほかの人にもおすすめしたいです。","다른 사람에게도 추천하고 싶어요.","Tôi muốn giới thiệu nó cho người khác."],
+    ["시간 가는 줄","quên cả thời gian","I lose track of time when I do it.","做这件事时我会忘记时间。","やっていると時間を忘れます。","하다 보면 시간 가는 줄 몰라요.","Khi làm việc này tôi quên cả thời gian."],
+    ["새로운 걸 배우/새로운 것을 배우","học điều mới","I learn something new every time.","我每次都能学到新东西。","毎回新しいことを学べます。","할 때마다 새로운 걸 배워요.","Lần nào tôi cũng học được điều mới."]],
+past:[["자주 하지 않/잘 하지 않/별로 하지 않","ít khi/không thường","I did not do it often.","我以前不常做。","昔はあまりしませんでした。","예전에는 자주 하지 않았어요.","Trước đây tôi ít khi làm."],
+    ["전혀 하지 않/해 본 적이 없/해본 적이 없","chưa từng/hoàn toàn không","I had never done it.","我以前从来没做过。","昔は一度もしたことがありませんでした。","해 본 적이 없었어요.","Trước đây tôi chưa từng làm."],
+    ["어렸을 때/어릴 때","hồi nhỏ","I did it when I was a child.","我小时候做过。","子どものころにしていました。","어릴 때 했어요.","Hồi nhỏ tôi đã làm."],
+    ["학생 때/학창","thời đi học/hồi đi học","I did it when I was a student.","我上学的时候做过。","学生のころにしていました。","학생 때 했어요.","Hồi đi học tôi đã làm."],
+    ["시간이 없/바빠서","không có thời gian/bận","I did not have much time for it.","我以前没有太多时间做。","以前はあまり時間がありませんでした。","예전에는 시간이 없었어요.","Trước đây tôi không có nhiều thời gian."],
+    ["처음에는 어려/처음엔 어려/처음에는 서툴","lúc đầu khó/lúc đầu vụng","It was hard for me at first.","刚开始对我来说很难。","最初は難しかったです。","처음에는 어려웠어요.","Lúc đầu tôi thấy khó."]],
+now:[["자주 해요/자주 한다/자주 하","thường xuyên/hay","I do it often.","我现在经常做。","今はよくしています。","지금은 자주 해요.","Bây giờ tôi làm thường xuyên."],
+    ["매일/날마다","mỗi ngày/hằng ngày","I do it every day.","我现在每天都做。","今は毎日しています。","지금은 매일 해요.","Bây giờ tôi làm mỗi ngày."],
+    ["일주일에 한 번/일주일에 한번/주 1회","mỗi tuần một lần","I do it once a week.","我现在每周做一次。","今は週に一回しています。","일주일에 한 번 해요.","Mỗi tuần tôi làm một lần."],
+    ["주말마다","mỗi cuối tuần","I do it every weekend.","我现在每个周末都做。","今は毎週末にしています。","주말마다 해요.","Cuối tuần nào tôi cũng làm."],
+    ["시간이 날 때","khi có thời gian","I do it whenever I have time.","有时间的时候我就做。","時間があるときにしています。","시간이 날 때 해요.","Khi có thời gian tôi làm."],
+    ["훨씬 잘/많이 늘","giỏi hơn nhiều/tiến bộ nhiều","I am much better at it now.","我现在做得好多了。","今ははるかに上手になりました。","지금은 훨씬 잘해요.","Bây giờ tôi giỏi hơn nhiều."],
+    ["습관이 됐/습관이 되","thành thói quen","It has become a habit.","它已经成了我的习惯。","習慣になりました。","이제 습관이 됐어요.","Giờ nó đã thành thói quen."]]};
+function xlsGloss(kind,text){const tab=XLS[kind];if(!tab)return null;const nn=XN(text);for(const r of tab){const ks=[...r[0].split("/"),...r[1].split("/")].map(XN).filter(k=>k.length>=2);if(ks.some(k=>nn.includes(k)))return{ko:r[5],vi:r[6]}}return null}
 const XLI=(()=>{const m=[];XLX.forEach((e,ei)=>{["ko","vi"].forEach((lg,li)=>String(e[1+li]).split("/").forEach(k=>{const n=XN(k);if(n.length>=2)m.push([n,ei])}));
   const en=[e[3].replace(/^(a|an|the)\s+/i,"")];if(e[0]==="I"){en.push(e[6]);const w=e[3].split(" ").pop();if(w.length>=4)en.push(w)}
   en.forEach(k=>{const n=XN(k);if(n.length>=2)m.push([n,ei])})});return m.sort((a,b)=>b[0].length-a[0].length)})();
@@ -1565,7 +1582,7 @@ const SLOTS=[
  {e:[1,1,1],pat:"like",t:[P=>`I like ${P.en.n}.`,P=>`我喜欢${P.zh.n}。`,P=>`私は${P.ja.n}が好きです。`,P=>`저는 ${P.ko.n}${eul(P.ko.n)} 좋아해요.`,P=>`Tôi thích ${P.vi.n}.`]},
  {e:[1,1,1],pat:"act",t:[P=>`I ${P.en.a} ${P.en.w}.`,P=>`我${P.zh.w}${P.zh.a}。`,P=>`${P.ja.w}${P.ja.a}。`,P=>`${P.ko.w} ${P.ko.a}.`,P=>`Tôi ${P.vi.a} ${P.vi.w}.`]},
  {e:[0,1,1],t:[P=>`${CP2(P.en.d)}.`,P=>`${P.zh.d}。`,P=>`${P.ja.d}。`,P=>`${P.ko.d}.`,P=>`${CP2(P.vi.d)}.`]},
- {e:[1,1,1],pat:"bec",t:[P=>`I like it because ${P.en.y}.`,P=>`我喜欢它，因为${P.zh.y}。`,P=>`${P.ja.y}ので、好きです。`,P=>`좋아하는 이유는 이래요: ${P.ko.y}.`,P=>`Tôi thích nó vì ${P.vi.y}.`]},
+ {e:[1,1,1],pat:"bec",t:[P=>`I like it because ${P.en.y}.`,P=>`我喜欢它，因为${P.zh.y}。`,P=>`${P.ja.y}ので、好きです。`,P=>`${koCause(P.ko.y)} 좋아해요.`,P=>`Tôi thích nó vì ${P.vi.y}.`]},
  {e:[0,1,1],emo:1,t:[P=>`It makes my week better.`,P=>`它让我的一周变得更好。`,P=>`一週間が少しよくなります。`,P=>`한 주가 더 좋아져요.`,P=>`Nó làm cho tuần của tôi tốt hơn.`]},
  {e:[0,0,1],t:[P=>`I've come to believe that ${P.en.r}.`,P=>`我渐渐相信${P.zh.r}。`,P=>`${P.ja.r}と思うようになりました。`,P=>`${P.ko.r}는 걸 믿게 됐어요.`,P=>`Tôi dần tin rằng ${P.vi.r}.`]}],
 /* q1 루틴 */[
@@ -1574,7 +1591,7 @@ const SLOTS=[
  {e:[1,1,1],pat:"seq",t:[P=>`Then I start and focus.`,P=>`然后，我开始专心做。`,P=>`次に、集中して始めます。`,P=>`그다음에 시작해서 집중해요.`,P=>`Rồi tôi bắt đầu và tập trung.`]},
  {e:[0,1,1],t:[P=>`${CP2(P.en.d)}.`,P=>`${P.zh.d}。`,P=>`${P.ja.d}。`,P=>`${P.ko.d}.`,P=>`${CP2(P.vi.d)}.`]},
  {e:[1,1,1],pat:"feel",emo:1,t:[P=>`Afterward, I feel good.`,P=>`之后，我觉得心情很好。`,P=>`そのあと、気分がよくなります。`,P=>`끝나고 나면 기분이 좋아요.`,P=>`Sau đó, tôi thấy dễ chịu.`]},
- {e:[0,1,1],pat:"bec",t:[P=>`I like this routine because ${P.en.y}.`,P=>`我喜欢这个习惯，因为${P.zh.y}。`,P=>`${P.ja.y}ので、この習慣が好きです。`,P=>`이 루틴이 좋은 이유는 이래요: ${P.ko.y}.`,P=>`Tôi thích thói quen này vì ${P.vi.y}.`]},
+ {e:[0,1,1],pat:"bec",t:[P=>`I like this routine because ${P.en.y}.`,P=>`我喜欢这个习惯，因为${P.zh.y}。`,P=>`${P.ja.y}ので、この習慣が好きです。`,P=>`${koCause(P.ko.y)} 이 루틴을 좋아해요.`,P=>`Tôi thích thói quen này vì ${P.vi.y}.`]},
  {e:[0,0,1],t:[P=>`It is a small habit, but it keeps me steady.`,P=>`这是个小习惯，但它让我保持稳定。`,P=>`小さな習慣ですが、私を安定させてくれます。`,P=>`작은 습관이지만 저를 꾸준하게 해 줘요.`,P=>`Đó là một thói quen nhỏ, nhưng nó giúp tôi đều đặn.`]}],
 /* q2 경험 */[
  {e:[1,1,1],pat:"onetime",t:[P=>`One time, ${P.en.p}.`,P=>`有一次，${P.zh.p}。`,P=>`ある時、${P.ja.p}。`,P=>`한번은 ${P.ko.p}.`,P=>`Có một lần, ${subjV(P.vi.p)}.`]},
@@ -1586,7 +1603,7 @@ const SLOTS=[
 /* q3 비교 */[
  {e:[1,1,1],pat:"didnot",t:[P=>`In the past, I did not ${P.en.a} very often.`,P=>`以前我不常${P.zh.a}。`,P=>`昔は、今ほど頻繁ではありませんでした。`,P=>`예전에는 ${P.ko.an}.`,P=>`Ngày trước tôi không hay ${P.vi.a}.`]},
  {e:[1,1,1],pat:"act",t:[P=>`Now I ${P.en.a} ${P.en.w}.`,P=>`现在我${P.zh.w}${P.zh.a}。`,P=>`今は、${P.ja.w}${P.ja.a}。`,P=>`지금은 ${P.ko.w} ${P.ko.a}.`,P=>`Bây giờ tôi ${P.vi.a} ${P.vi.w}.`]},
- {e:[1,1,1],pat:"better",t:[P=>`I think it is better now because ${P.en.y}.`,P=>`我觉得现在更好，因为${P.zh.y}。`,P=>`${P.ja.y}ので、今のほうがいいと思います。`,P=>`지금이 더 좋다고 생각해요: ${P.ko.y}.`,P=>`Tôi nghĩ bây giờ tốt hơn vì ${P.vi.y}.`]},
+ {e:[1,1,1],pat:"better",t:[P=>`I think it is better now because ${P.en.y}.`,P=>`我觉得现在更好，因为${P.zh.y}。`,P=>`${P.ja.y}ので、今のほうがいいと思います。`,P=>`${koCause(P.ko.y)} 지금이 더 좋다고 생각해요.`,P=>`Tôi nghĩ bây giờ tốt hơn vì ${P.vi.y}.`]},
  {e:[0,1,1],emo:1,pat:"compared",t:[P=>`Back then it felt like a duty, but now it feels like a reward.`,P=>`以前我把它当成责任，现在我把它当成奖励。`,P=>`昔は義務のように感じていましたが、今はご褒美のように感じています。`,P=>`예전에는 의무처럼 느꼈지만 지금은 보상처럼 느껴요.`,P=>`Trước đây tôi thấy nó như một nghĩa vụ, còn bây giờ như một phần thưởng.`]},
  {e:[0,0,1],t:[P=>`${CP2(P.en.d)}.`,P=>`${P.zh.d}。`,P=>`${P.ja.d}。`,P=>`${P.ko.d}.`,P=>`${CP2(P.vi.d)}.`]},
  {e:[0,0,1],t:[P=>`Looking ahead, I will keep doing it.`,P=>`展望未来，我会一直做下去。`,P=>`これからも続けていくつもりです。`,P=>`앞으로도 계속할 거예요.`,P=>`Sắp tới, tôi sẽ tiếp tục làm.`]}]
@@ -1624,7 +1641,7 @@ function meSents(c,j,q,lv){const L=s.lang,li=LG5.indexOf(L),me=s.me||{},T0=meTop
   else if(l==="ko")t=`${[m.when,m.comp,m.place].filter(Boolean).join(" ")} ${P.ko.a}.`.trim().replace(/^ /,"");
   else t=`Tôi ${P.vi.a}${m.when?" "+m.when:""}${m.place?" "+m.place:""}${m.comp?" "+m.comp:""}.`;
   o[l]=t});return o};
- const rawL=(txt,kind)=>{const kv=kvCells(txt),x=txGet(kind);let tl;
+ const rawL=(txt,kind)=>{const kv=glossCells(txt,kind),x=txGet(kind);let tl;
   if(x)tl=x;else if(kind==="ev")tl=L==="en"?((!HASKV.test(txt)&&!HASCJK.test(txt))?txt:""):(HASCJK.test(txt)?txt:"");else{const b=[];tl=TR(txt,L,kind,b);if(b.length)tl=""}
   if(!tl||/^「/.test(tl))return{skip:1,en:"",zh:"",ja:"",ko:"",vi:""};
   const o={en:"",zh:"",ja:"",ko:kv.ko,vi:kv.vi,raw:1};o[L]=dot(tl,L);return o};
@@ -2687,6 +2704,7 @@ IDI.trim().split("\n").forEach(l=>{const x=l.split("|");(IDD[x[0]]=IDD[x[0]]||[]
 const fK=(it,key)=>({...KO[key],y:YDK[it.y],d:YDK[it.d]});
 const fV=(it,key)=>({...VI[key],y:YDV[it.y],d:YDV[it.d]});
 const lcv=t=>t.charAt(0).toLowerCase()+t.slice(1);
+function koCause(y){y=String(y||"").trim();if(/이에요$/.test(y))return y.replace(/이에요$/,"이라서");if(/예요$/.test(y))return y.replace(/예요$/,"라서");if(/요$/.test(y))return y.replace(/요$/,"서");return y+"서"}
 /* --- 번역 엔진 (UI 문자열 ko→vi) --- */
 const VM2=Object.assign({},VIM);
 CK.forEach(c=>D[c].i.forEach((x,j)=>{const v=VI[c+":"+j];if(v)VM2[x.ko]=v.vn}));
@@ -3390,9 +3408,10 @@ function profHTML(){const d=profData(),vi=UI==="vi";const T2=(a,b)=>vi?b:a;
 function updProfile(){const e=$("abprof");if(e)e.innerHTML=profHTML()}
 
 /* ---- 원문 표기 칸(한/베): 입력한 언어의 칸에만 원문, 반대 칸은 '해석 없음' 표시 ---- */
+function glossCells(txt,kind){const kv=kvCells(txt),g=(kind==="th"||kind==="past"||kind==="now")?xlsGloss(kind,txt):null;if(!g)return kv;const hg=/[가-힣]/.test(txt),vv=!hg&&/[ăâđêôơưàáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũỳýỵỷỹ]/i.test(txt);return hg?{ko:txt,vi:g.vi}:vv?{ko:g.ko,vi:txt}:kv}
 function kvCells(txt){txt=String(txt||"");const hg=/[가-힣]/.test(txt),vv=!hg&&/[ăâđêôơưàáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũỳýỵỷỹ]/i.test(txt);
  const koN="(한국어 해석 없음)",viN="(chưa có bản dịch tiếng Việt)";
- return hg?{ko:"「"+txt+"」",vi:viN}:vv?{ko:koN,vi:"「"+txt+"」"}:{ko:koN,vi:viN}}
+ return hg?{ko:txt,vi:viN}:vv?{ko:koN,vi:txt}:{ko:koN,vi:viN}}
 /* ---- 선택 기능: 사용자가 직접 복사·붙여넣기로 받은 번역(AI 서비스는 사용자가 따로 선택, 앱은 아무것도 전송하지 않음) ---- */
 const TXK=["ev","th","past","now","rs"];
 function txOK(t,L){t=String(t||"").trim();if(!t||/_{2,}/.test(t))return false;if(L==="en")return!HASKV.test(t)&&!HASCJK.test(t);return HASCJK.test(t)&&!/[가-힣]/.test(t)}
