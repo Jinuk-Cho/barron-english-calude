@@ -1315,6 +1315,515 @@ Tôi không nghĩ ta nên bỏ các nền tảng này. Chúng giúp tôi giữ l
  inv:["젊은 동료의 말은 지어낸 예시예요. 연락처 수·새벽 세 시는 수사적 표현이에요.","Lời đồng nghiệp trẻ là ví dụ tự dựng; số liên lạc và ba giờ sáng chỉ là cách nói tu từ."]}
 ];
 
+/* 중국어·일본어 학습 노트 ① 필수 표현 ② 주고받는 질문. 각 패턴: p(제목), mk/mv(뜻 ko/vi), wk/wv(구조 설명 ko/vi), ex(f,rp)=이 항목의 단어로 만든 예문. rp=롤플레이 항목 */
+const ZPAT={
+zlike:{p:"我喜欢 + 名词 (wǒ xǐhuan)",mk:"저는 ~을 좋아해요",mv:"Tôi thích ~",
+ wk:"喜欢(xǐhuan)는 '좋아하다'예요. 중국어 동사는 주어(我·他)나 시제가 바뀌어도 모양이 변하지 않아요. 목적어는 동사 바로 뒤에 놓고, 영어처럼 -s를 붙이거나 전치사를 넣을 필요가 없어요.",
+ wv:"喜欢 (xǐhuan) nghĩa là 'thích'. Động từ tiếng Trung không đổi hình thức theo chủ ngữ (我, 他) hay thì. Tân ngữ đặt ngay sau động từ, không cần thêm -s hay giới từ như tiếng Anh.",
+ ex:z=>`我喜欢${z.n}。`},
+zact:{p:"我 + 时间 + 地点 + 动词 (wǒ shíjiān dìdiǎn dòngcí)",mk:"저는 ~할 때·~에서 ~해요",mv:"Tôi + thời gian + nơi chốn + động từ",
+ wk:"중국어는 '시간 → 장소 → 동사' 순서예요. 周末(시간)나 在公司(장소)가 동사(打)보다 앞에 와요. 영어처럼 시간·장소를 동사 뒤에 두면 어색해요(✗ 我打网球周末). 아래 '단어 선택 이유'에서 이 항목의 동사와 시간·장소 표현을 풀어 둡니다.",
+ wv:"Tiếng Trung theo thứ tự 'thời gian → nơi chốn → động từ'. 周末 (thời gian) hay 在公司 (nơi chốn) đứng trước động từ (打). Đặt sau động từ như tiếng Anh thì gượng (✗ 我打网球周末). Mục 'Vì sao chọn từ này' bên dưới giải thích động từ và cách nói thời gian/nơi chốn của chính mục này.",
+ ex:z=>`我${z.w}${z.a}。`},
+zbec:{p:"因为 + 原因 (yīnwèi)",mk:"~하기 때문에",mv:"Vì ~",
+ wk:"因为(yīnwèi)는 '왜냐하면·때문에'예요. 말할 때는 '我喜欢它，因为…'처럼 결과를 먼저 말하고 이유를 뒤에 붙일 수 있어요. 글에서는 因为…所以…를 짝으로 쓰기도 하지만, 말할 때는 하나만 써도 자연스러워요.",
+ wv:"因为 (yīnwèi) nghĩa là 'vì'. Khi nói có thể nêu kết quả trước rồi thêm lý do: '我喜欢它，因为…'. Trong văn viết hay dùng cặp 因为…所以…, nhưng khi nói chỉ dùng một vế vẫn tự nhiên.",
+ ex:z=>`我喜欢它，因为${z.y}。`},
+zfav:{p:"我最喜欢的事情之一是… (zhī yī)",mk:"제가 가장 좋아하는 것 중 하나는 ~예요",mv:"Một trong những điều tôi thích nhất là ~",
+ wk:"…之一(zhī yī)는 '~중 하나'예요. 的(de)는 앞의 수식어(我最喜欢)를 뒤의 명사(事情)에 이어 줘요. 중국어는 수식어가 명사 앞에 오고, 是(shì)가 'A는 B이다'를 연결해요.",
+ wv:"…之一 (zhī yī) nghĩa là 'một trong'. 的 (de) nối phần bổ nghĩa (我最喜欢) với danh từ (事情). Tiếng Trung đặt phần bổ nghĩa trước danh từ, và 是 (shì) nối 'A là B'.",
+ ex:z=>`我最喜欢的事情之一是${z.n}。`},
+zreason:{p:"我喜欢它的主要原因是… (zhǔyào yuányīn)",mk:"제가 그걸 좋아하는 가장 큰 이유는 ~예요",mv:"Lý do chính khiến tôi thích nó là ~",
+ wk:"主要原因(주된 이유)이 주어, 是가 동사, 뒤의 문장이 이유의 내용이에요. 영어의 'The main reason … is that'과 같은 틀인데, that에 해당하는 말이 따로 필요 없어요.",
+ wv:"主要原因 (lý do chính) là chủ ngữ, 是 là động từ, vế sau là nội dung lý do. Giống khung 'The main reason … is that' trong tiếng Anh nhưng không cần từ tương đương 'that'.",
+ ex:z=>`我喜欢它的主要原因是${z.y}。`},
+zback:{p:"回想起来，… (huíxiǎng qǐlái)",mk:"돌이켜 보면 ~",mv:"Nhìn lại thì ~",
+ wk:"回想起来는 '돌이켜 보면'이에요. 문장 맨 앞에 두고 쉼표를 찍은 뒤 지난 일을 말하면, 과거를 되돌아보는 말투가 돼요.",
+ wv:"回想起来 nghĩa là 'nhìn lại thì'. Đặt đầu câu, thêm dấu phẩy rồi kể chuyện đã qua để có giọng nhìn lại quá khứ.",
+ ex:z=>`回想起来，${z.p}。`},
+zifhad:{p:"如果…，那就是… (rúguǒ … nà jiù shì)",mk:"만약 ~라면, 그건 바로 ~예요",mv:"Nếu ~ thì đó chính là ~",
+ wk:"如果(rúguǒ)는 가정, 那就是(nà jiù shì)는 '그렇다면 그건 바로 ~이다'예요. 如果로 조건을 말하고 那就是로 결론을 말하는 짝이에요.",
+ wv:"如果 (rúguǒ) là giả định, 那就是 (nà jiù shì) là 'vậy thì đó chính là'. Một vế nêu điều kiện bằng 如果, vế kia kết luận bằng 那就是.",
+ ex:z=>`如果让我选一件最能代表我的事情，那就是${z.n}。`},
+zusu:{p:"我通常 + 动词 (wǒ tōngcháng)",mk:"저는 보통 ~해요",mv:"Tôi thường ~",
+ wk:"通常(tōngcháng, 보통)은 빈도부사라서 동사 앞에 와요. 주어 바로 뒤에 두는 것이 가장 자연스러워요(我通常…). 시간·장소가 있으면 通常 뒤, 동사 앞에 놓아요.",
+ wv:"通常 (tōngcháng, thường) là trạng từ tần suất nên đứng trước động từ, tự nhiên nhất là ngay sau chủ ngữ (我通常…). Nếu có thời gian/nơi chốn thì đặt sau 通常 và trước động từ.",
+ ex:z=>`我通常${z.w}${z.a}。`},
+zseq:{p:"首先…然后…之后… (shǒuxiān … ránhòu … zhīhòu)",mk:"먼저 ~, 그다음 ~, 그 뒤에 ~",mv:"Trước hết ~, sau đó ~, rồi ~",
+ wk:"순서를 말하는 연결어예요. 首先(먼저), 然后(그다음), 之后(그 뒤에). 각 연결어 뒤에 쉼표를 찍고 짧은 문장을 이어 가면 이야기의 순서가 또렷해져요.",
+ wv:"Các từ nối chỉ thứ tự: 首先 (trước hết), 然后 (sau đó), 之后 (rồi). Sau mỗi từ nối thêm dấu phẩy và một câu ngắn để trình tự rõ ràng.",
+ ex:()=>"首先，我做好准备。然后，我开始专心做。之后，我感觉很好。"},
+zfeel:{p:"我觉得很… (wǒ juéde hěn)",mk:"저는 ~하다고 느껴요",mv:"Tôi thấy ~",
+ wk:"觉得(juéde)는 '느끼다·생각하다'예요. 감정 형용사를 말할 때는 앞에 정도부사 很(hěn)을 붙여 我觉得很满足처럼 써요. 很 없이 형용사만 쓰면 '다른 것과 비교하는' 느낌이 날 수 있어요.",
+ wv:"觉得 (juéde) nghĩa là 'cảm thấy/nghĩ'. Với tính từ chỉ cảm xúc, thêm 很 (hěn) phía trước: 我觉得很满足. Nếu bỏ 很 mà chỉ để tính từ, câu có thể nghe như đang so sánh.",
+ ex:z=>`结束后，我觉得很满足，因为${z.y}。`},
+zfinal:{p:"到最后，我总会想起… (dào zuìhòu)",mk:"결국에는 늘 ~가 떠올라요",mv:"Cuối cùng tôi luôn nhớ ra ~",
+ wk:"到最后(마지막에는) + 总会(늘 ~하게 된다) + 想起(떠올리다). 总会는 '반복되는 결과'를 말할 때 써요. 想起는 동사 + 결과보어(起)로 '생각이 떠오르다'가 돼요.",
+ wv:"到最后 (cuối cùng) + 总会 (luôn luôn sẽ) + 想起 (nhớ ra). 总会 nói về kết quả lặp lại. 想起 là động từ + bổ ngữ kết quả (起) nghĩa là 'chợt nhớ ra'.",
+ ex:z=>`到最后，我总会想起${z.r}。`},
+zlast:{p:"上个月，… (shàng ge yuè)",mk:"지난달에 ~했어요",mv:"Tháng trước ~",
+ wk:"시간어(上个月)는 문장 맨 앞이나 주어 뒤에 놓아요. 중국어 동사는 과거형으로 변하지 않고, 시간어와 문맥(그리고 了 같은 조사)으로 과거를 나타내요.",
+ wv:"Từ chỉ thời gian (上个月) đặt đầu câu hoặc sau chủ ngữ. Động từ tiếng Trung không đổi sang thì quá khứ; quá khứ được thể hiện bằng từ chỉ thời gian, ngữ cảnh và trợ từ như 了.",
+ ex:z=>`上个月，${z.p}。`},
+zhappy:{p:"我很开心 (wǒ hěn kāixīn)",mk:"저는 기뻤어요",mv:"Tôi rất vui",
+ wk:"형용사 술어는 앞에 정도부사 很을 붙여요(我很开心). 중국어에는 '~이다(is)'에 해당하는 是를 형용사 앞에 쓰지 않아요(✗ 我是开心).",
+ wv:"Vị ngữ là tính từ thì thêm trạng từ mức độ 很 phía trước (我很开心). Tiếng Trung không dùng 是 trước tính từ (✗ 我是开心).",
+ ex:()=>"那是一次不错的经历。我很开心。"},
+zonetime:{p:"我记得有一次，… (wǒ jìde yǒu yí cì)",mk:"한 번은 이런 일이 있었어요",mv:"Tôi nhớ có một lần ~",
+ wk:"记得(jìde, 기억하다) + 有一次(yǒu yí cì, 한 번은)로 지난 일을 꺼내는 틀이에요. 有一次 뒤에는 쉼표를 찍고 사건을 말해요.",
+ wv:"记得 (jìde, nhớ) + 有一次 (yǒu yí cì, có một lần) là khung để mở chuyện đã qua. Sau 有一次 thêm dấu phẩy rồi kể sự việc.",
+ ex:z=>`我记得有一次，${z.p}。`},
+zatfirst:{p:"一开始…，但是… (yì kāishǐ … dànshì)",mk:"처음에는 ~했지만, ~했어요",mv:"Lúc đầu ~ nhưng ~",
+ wk:"一开始(처음에는)와 但是(하지만)를 한 문장에 써서 '처음엔 불안했지만 잘 풀렸다'는 반전을 만들어요. 但是 앞에는 쉼표를 찍어요. 进行得很顺利처럼 得는 동작의 결과·정도를 이어 줘요.",
+ wv:"一开始 (lúc đầu) và 但是 (nhưng) trong cùng một câu tạo sự đảo chiều 'lúc đầu lo nhưng rồi suôn sẻ'. Trước 但是 có dấu phẩy. Trong 进行得很顺利, 得 nối động từ với kết quả/mức độ.",
+ ex:()=>"一开始我不确定会怎样，但是进行得很顺利。"},
+zlearned:{p:"我明白了… (wǒ míngbai le)",mk:"~라는 걸 알게 됐어요",mv:"Tôi hiểu ra rằng ~",
+ wk:"明白(míngbai, 이해하다) + 了(le). 了는 '이해하게 되었다'는 변화·완료를 알려요. 뒤에는 이해한 내용을 문장 그대로 이어요(that 같은 접속어는 필요 없어요).",
+ wv:"明白 (míngbai, hiểu) + 了 (le). 了 báo sự thay đổi/hoàn thành: 'đã hiểu ra'. Nội dung hiểu ra nối thẳng sau đó, không cần từ nối như 'that'.",
+ ex:z=>`后来我明白了${z.r}。`},
+zstand:{p:"让我印象最深的一次经历是… (yìnxiàng zuì shēn)",mk:"가장 인상 깊었던 경험은 ~예요",mv:"Trải nghiệm để lại ấn tượng sâu nhất là ~",
+ wk:"印象最深(인상이 가장 깊다)이 经历(경험)를 꾸미고, 让我는 '나에게 ~하게 하다'예요. 的 없이 让我…最深으로 짧게 이어 쓰는 자주 쓰는 틀이에요.",
+ wv:"印象最深 (ấn tượng sâu nhất) bổ nghĩa cho 经历 (trải nghiệm), 让我 nghĩa là 'khiến tôi'. Đây là khung quen dùng để mở câu chuyện đáng nhớ.",
+ ex:z=>`让我印象最深的一次经历是，${z.p}。`},
+zdidnot:{p:"以前我不常… (yǐqián wǒ bù cháng)",mk:"예전에는 자주 ~하지 않았어요",mv:"Trước đây tôi không hay ~",
+ wk:"不常(bù cháng)은 '자주 ~하지 않다'예요. 습관·빈도의 부정에는 不를 써요. 没有(méiyǒu)는 '한 번도 안 했다·아직 안 했다' 같은 완료의 부정에 써서 둘을 구분해요.",
+ wv:"不常 (bù cháng) nghĩa là 'không hay'. Phủ định thói quen/tần suất dùng 不. 没有 (méiyǒu) dùng để phủ định hoàn thành như 'chưa từng/chưa làm', nên hai từ khác nhau.",
+ ex:z=>`以前我不常${z.a}。`},
+zbetter:{p:"我觉得现在更好 (gèng hǎo)",mk:"지금이 더 좋다고 생각해요",mv:"Tôi thấy bây giờ tốt hơn",
+ wk:"更(gèng)은 '더'예요. 중국어는 영어의 -er·more처럼 형용사 모양을 바꾸지 않고, 好 앞에 更만 붙이면 비교급이 돼요(更好 = better).",
+ wv:"更 (gèng) nghĩa là 'hơn'. Tiếng Trung không đổi dạng tính từ như -er/more của tiếng Anh; chỉ cần thêm 更 trước 好 là thành so sánh hơn (更好 = tốt hơn).",
+ ex:z=>`我觉得现在更好，因为${z.y}。`},
+zcompare:{p:"和以前相比，我现在更… (hé yǐqián xiāngbǐ)",mk:"예전과 비교하면 지금은 더 ~해요",mv:"So với trước đây, bây giờ tôi ~ hơn",
+ wk:"和A相比(xiāngbǐ)는 'A와 비교하면'이에요. 뒤에 更(더)를 붙여 차이를 말해요. 비교 대상(以前)은 和 뒤에 놓아요.",
+ wv:"和A相比 (xiāngbǐ) nghĩa là 'so với A'. Sau đó thêm 更 (hơn) để nói sự khác biệt. Đối tượng so sánh (以前) đặt sau 和.",
+ ex:z=>`和以前相比，我现在更常${z.a}。`},
+zbig:{p:"最大的不同是… (zuì dà de bùtóng)",mk:"가장 큰 차이는 ~예요",mv:"Điểm khác biệt lớn nhất là ~",
+ wk:"最(가장) + 大(큰) + 的 + 不同(차이) = 가장 큰 차이. 的가 앞의 수식어를 명사에 연결하고, 是 뒤에 차이의 내용을 말해요.",
+ wv:"最 (nhất) + 大 (lớn) + 的 + 不同 (khác biệt) = điểm khác biệt lớn nhất. 的 nối phần bổ nghĩa với danh từ; sau 是 nêu nội dung khác biệt.",
+ ex:z=>`最大的不同是${z.y}。`},
+zwould:{p:"你好，我想… (nǐ hǎo, wǒ xiǎng)",mk:"안녕하세요, ~하고 싶어서요",mv:"Xin chào, tôi muốn ~",
+ wk:"想(xiǎng, ~하고 싶다)은 조동사처럼 동사 앞에 와요. 전화에서는 먼저 你好로 인사하고 用건을 我想…로 말해요. 더 정중하게 하려면 我想请问…(여쭤보고 싶어요)를 써요.",
+ wv:"想 (xiǎng, muốn) đứng trước động từ như trợ động từ. Khi gọi điện, chào 你好 trước rồi nêu việc bằng 我想…. Lịch sự hơn có thể dùng 我想请问… (tôi muốn hỏi).",
+ ex:(z,rp)=>rp?rp.i:`你好，我想了解一下${z.n}。`},
+zseq2:{p:"首先…其次…另外… (shǒuxiān … qícì … lìngwài)",mk:"먼저 ~, 다음으로 ~, 또한 ~",mv:"Trước hết ~, tiếp theo ~, ngoài ra ~",
+ wk:"질문이 여러 개일 때 首先(먼저), 其次(다음으로), 另外(또한)로 이어요. 한 번에 한 질문씩 말하고 각 연결어 뒤에 쉼표를 찍어요.",
+ wv:"Khi có nhiều câu hỏi, nối bằng 首先 (trước hết), 其次 (tiếp theo), 另外 (ngoài ra). Hỏi mỗi lần một câu và thêm dấu phẩy sau từ nối.",
+ ex:()=>"首先，请问你们几点开门？其次，有套餐吗？另外，每人大概多少钱？"},
+zqform:{p:"疑问词 + ？ (jǐ diǎn, duōshao qián, nǎlǐ)",mk:"의문사로 묻기(몇 시, 얼마, 어디)",mv:"Hỏi bằng từ nghi vấn (mấy giờ, bao nhiêu tiền, ở đâu)",
+ wk:"중국어 의문문은 의문사(几点·多少钱·哪里)를 답이 들어갈 자리에 그대로 넣어요. 어순을 바꾸지 않아요. 예/아니오로 답하는 질문은 문장 끝에 吗(ma)를 붙여요.",
+ wv:"Câu hỏi tiếng Trung đặt từ nghi vấn (几点, 多少钱, 哪里) ngay vị trí của câu trả lời, không đổi trật tự. Câu hỏi có/không thì thêm 吗 (ma) cuối câu.",
+ ex:(z,rp)=>rp?rp.q[0]:"你们几点开门？"},
+zifcond:{p:"如果…怎么办？ (rúguǒ … zěnme bàn)",mk:"만약 ~하면 어떻게 하죠?",mv:"Nếu ~ thì làm sao?",
+ wk:"如果(만약) + 상황 + 怎么办(어떻게 하죠)로 돌발 상황을 묻는 틀이에요. 롤플레이의 마지막 돌발 질문에 잘 맞아요.",
+ wv:"如果 (nếu) + tình huống + 怎么办 (làm sao) là khung hỏi tình huống bất ngờ, hợp với câu hỏi bất ngờ ở cuối phần nhập vai.",
+ ex:(z,rp)=>rp?rp.x:"如果天气不好，我们怎么办？"},
+zthanks:{p:"谢谢你的帮助 (xièxie nǐ de bāngzhù)",mk:"도와주셔서 감사해요",mv:"Cảm ơn bạn đã giúp đỡ",
+ wk:"谢谢(xièxie, 고마워요) + 你的帮助(당신의 도움). 你的의 的는 소유를 나타내요. 전화나 문의 마지막에 붙이면 정중하게 끝나요. 더 공손하게는 您(nín)을 써요.",
+ wv:"谢谢 (xièxie) + 你的帮助 (sự giúp đỡ của bạn). 的 trong 你的 chỉ sở hữu. Thêm vào cuối cuộc gọi/hỏi thăm để kết lịch sự; trang trọng hơn dùng 您 (nín).",
+ ex:()=>"谢谢你的帮助。"}
+};
+const PMAPZ=[
+ [["zlike","zact","zbec"],["zfav","zact","zreason"],["zifhad","zact","zback"]],
+ [["zusu","zseq","zfeel"],["zusu","zseq","zfeel"],["zusu","zseq","zfinal"]],
+ [["zlast","zhappy"],["zonetime","zatfirst","zlearned"],["zstand","zatfirst","zlearned"]],
+ [["zdidnot","zbetter"],["zcompare","zbig"],["zcompare","zback","zlearned"]],
+ [["zwould","zqform"],["zwould","zseq2","zqform","zthanks"],["zwould","zseq2","zqform","zifcond","zthanks"]]];
+const JPAT={
+jlike:{p:"Nが好きです (すきです)",mk:"저는 ~을 좋아해요",mv:"Tôi thích ~",
+ wk:"「好きです」는 な형용사라서 좋아하는 대상 뒤에 を가 아니라 が를 써요(テニスが好きです ✓, テニスを好きです ✗). 한국어는 '~을/를 좋아하다'라서 を를 쓰기 쉬우니 주의하세요.",
+ wv:"「好きです」 là tính từ đuôi な nên đối tượng được thích đi với が chứ không phải を (テニスが好きです ✓, テニスを好きです ✗). Tiếng Hàn/Việt dễ khiến dùng を nên cần chú ý.",
+ ex:j=>`私は${j.n}が好きです。`},
+jact:{p:"時・場所 + 〜ます (じ・ばしょ)",mk:"~할 때·~에서 ~해요",mv:"Thời gian · nơi chốn + động từ ます",
+ wk:"일본어는 동사가 문장 맨 끝에 와요. 때(週末に)와 장소(クラブで)가 동사 앞에 오고, に는 때, で는 동작이 이루어지는 장소를 나타내요. 아래 '단어 선택 이유'에서 이 항목의 동사와 조사를 풀어 둡니다.",
+ wv:"Tiếng Nhật đặt động từ cuối câu. Thời gian (週末に) và nơi chốn (クラブで) đứng trước động từ; に chỉ thời điểm, で chỉ nơi diễn ra hành động. Mục 'Vì sao chọn từ này' bên dưới giải thích động từ và trợ từ của mục này.",
+ ex:j=>`${j.w}${j.a}。`},
+jbec:{p:"〜ので／〜から",mk:"~하기 때문에",mv:"Vì ~",
+ wk:"ので는 이유를 부드럽고 객관적으로, から는 말하는 사람의 판단을 좀 더 직접적으로 말해요. 문장 끝에 「〜からです」로 이유를 덧붙일 수도 있어요. 앞의 말은 보통체로 이어 쓰는 경우가 많아요.",
+ wv:"ので nêu lý do một cách mềm mại, khách quan; から nói trực tiếp hơn theo phán đoán của người nói. Cuối câu có thể thêm 「〜からです」 để nêu lý do. Vế trước thường dùng thể thông thường.",
+ ex:j=>`${j.y}ので、好きです。`},
+jfav:{p:"特に好きなことの一つは〜です",mk:"제가 특히 좋아하는 것 중 하나는 ~예요",mv:"Một trong những điều tôi đặc biệt thích là ~",
+ wk:"〜の一つ는 '~중 하나'예요. 好きなこと(좋아하는 것)는 な형용사 + な + 명사 형태이고, は로 주제를 제시한 뒤 です로 끝내요.",
+ wv:"〜の一つ nghĩa là 'một trong'. 好きなこと (điều thích) là tính từ な + な + danh từ; nêu chủ đề bằng は rồi kết bằng です.",
+ ex:j=>`私が特に好きなことの一つは${j.n}です。`},
+jreason:{p:"好きな主な理由は、〜からです",mk:"좋아하는 주된 이유는 ~때문이에요",mv:"Lý do chính khiến tôi thích là vì ~",
+ wk:"主な理由(주된 이유) + は(주제) + 이유절 + からです. 이유절 끝을 から로 닫아야 '~라서입니다'가 돼요. 이유절 안은 보통체를 써요.",
+ wv:"主な理由 (lý do chính) + は (chủ đề) + vế lý do + からです. Kết vế lý do bằng から mới thành 'vì…'. Trong vế lý do dùng thể thông thường.",
+ ex:j=>`好きな主な理由は、${j.y}からです。`},
+jback:{p:"振り返ると、〜 (ふりかえると)",mk:"돌아보면 ~",mv:"Nhìn lại thì ~",
+ wk:"振り返る(돌아보다) + と(~하면). 「〜と」는 '그렇게 하면 자연히 ~이 된다'는 조건이에요. 문장 맨 앞에서 과거를 되돌아보는 말투를 만들어요.",
+ wv:"振り返る (nhìn lại) + と (nếu/khi). Mẫu 「〜と」 diễn tả 'hễ làm vậy thì tự nhiên ra ~'. Đặt đầu câu để có giọng nhìn lại quá khứ.",
+ ex:j=>`振り返ると、${j.p}。`},
+jifhad:{p:"〜としたら、〜です",mk:"~를 고른다면 ~예요",mv:"Nếu chọn ~ thì là ~",
+ wk:"〜としたら는 '~라고 가정한다면'이에요. 選ぶとしたら(고른다고 하면)로 가정을 말한 뒤 です로 답을 말해요.",
+ wv:"〜としたら nghĩa là 'giả sử ~'. 選ぶとしたら (nếu phải chọn) nêu giả định, rồi trả lời bằng です.",
+ ex:j=>`自分を表すものを一つ選ぶとしたら、${j.n}です。`},
+jusu:{p:"たいてい／普段 (ふだん)",mk:"보통·평소에 ~해요",mv:"Thường/thông thường ~",
+ wk:"たいてい(대개)·普段(평소)는 빈도를 나타내는 부사라서 동사 앞, 보통 문장 앞쪽에 와요. 뒤에 読点(、)을 찍어 호흡을 만들어요.",
+ wv:"たいてい (đại khái) và 普段 (thường ngày) là trạng từ tần suất, đứng trước động từ, thường ở đầu câu. Thêm dấu 、 phía sau để ngắt hơi.",
+ ex:j=>`私はたいてい、${j.w}${j.a}。`},
+jseq:{p:"まず、次に、そのあと (つぎに)",mk:"먼저, 다음에, 그 뒤에",mv:"Trước hết, tiếp theo, sau đó",
+ wk:"순서를 말하는 연결어예요. 각 연결어 뒤에 読点(、)을 찍고 짧은 문장(〜ます)을 이어요. 순서가 또렷해지고 말하기도 쉬워요.",
+ wv:"Các từ nối chỉ thứ tự. Sau mỗi từ nối thêm 、 và một câu ngắn dạng 〜ます. Trình tự rõ ràng và dễ nói.",
+ ex:()=>"まず、準備をします。次に、集中して始めます。そのあと、気分がよくなります。"},
+jfeel:{p:"〜ので、満足した気持ちになります",mk:"~해서 만족스러운 기분이 돼요",mv:"Vì ~ nên tôi thấy hài lòng",
+ wk:"気持ちになる는 '~한 기분이 되다'예요. 감정은 「〜という気持ちになる」「満足した気持ちになる」처럼 변화로 말하면 자연스러워요. 이유(ので) 뒤에 이어 써요.",
+ wv:"気持ちになる nghĩa là 'trở nên có cảm giác ~'. Cảm xúc nói tự nhiên bằng 「満足した気持ちになる」 (thấy hài lòng). Nối sau vế lý do (ので).",
+ ex:j=>`終わると、${j.y}ので、満足した気持ちになります。`},
+jfinal:{p:"最後には、いつも〜 (さいごには)",mk:"마지막에는 항상 ~가 떠올라요",mv:"Cuối cùng tôi luôn nhớ ra ~",
+ wk:"いつも(항상) + 〜ということを(~라는 것을) + 思い出します(떠올립니다). 〜ということ는 앞의 문장을 하나의 명사처럼 만들어 줘요.",
+ wv:"いつも (luôn luôn) + 〜ということを (rằng ~) + 思い出します (nhớ lại). 〜ということ biến cả câu phía trước thành một danh từ.",
+ ex:j=>`最後には、いつも${j.r}ということを思い出します。`},
+jlast:{p:"先月、〜ました (せんげつ)",mk:"지난달에 ~했어요",mv:"Tháng trước ~",
+ wk:"과거는 ます → ました로 바꿔요. 때를 나타내는 말(先月)은 문장 맨 앞에 와요. 「先月に」처럼 に를 붙이지 않는 것이 자연스러워요(先月, 今日 같은 상대적 시간어는 に 없이).",
+ wv:"Quá khứ đổi ます → ました. Từ chỉ thời gian (先月) đặt đầu câu. Tự nhiên là không thêm に (từ thời gian tương đối như 先月, 今日 thường không có に).",
+ ex:j=>`先月、${j.p}。`},
+jhappy:{p:"いい経験でした／うれしかったです",mk:"좋은 경험이었어요. 기뻤어요",mv:"Đó là trải nghiệm tốt. Tôi đã vui",
+ wk:"명사 + でした(~였어요), い형용사의 과거는 い를 かった로 바꿔요(うれしい → うれしかったです). です 앞에서 활용이 달라지니 두 형태를 구분해요.",
+ wv:"Danh từ + でした (đã là ~); quá khứ của tính từ い đổi い → かった (うれしい → うれしかったです). Hai dạng này khác nhau trước です nên cần phân biệt.",
+ ex:()=>"いい経験でした。うれしかったです。"},
+jonetime:{p:"ある時のことを覚えています (おぼえています)",mk:"어느 때 일을 기억해요",mv:"Tôi nhớ chuyện một lần nọ",
+ wk:"覚えています의 〜ている는 '기억하고 있는 상태'를 나타내요. 〜のこと는 '~에 관한 일'이에요. 이야기를 꺼내는 첫마디로 자주 써요.",
+ wv:"〜ている trong 覚えています diễn tả trạng thái 'đang nhớ'. 〜のこと nghĩa là 'chuyện về ~'. Hay dùng làm câu mở đầu để kể chuyện.",
+ ex:j=>`ある時のことを覚えています。${j.p}。`},
+jatfirst:{p:"最初は〜でしたが、〜 (さいしょは)",mk:"처음에는 ~했지만, ~했어요",mv:"Lúc đầu ~ nhưng ~",
+ wk:"が는 '하지만(역접)'이에요. 〜でしたが로 처음의 불안을 말한 뒤 뒤에 반전을 이어요. 〜ませんでした가 '~하지 못했다/몰랐다'의 과거 부정이에요.",
+ wv:"が nghĩa là 'nhưng'. Nêu lo lắng ban đầu bằng 〜でしたが rồi nối vế đảo chiều. 〜ませんでした là phủ định quá khứ ('đã không ~').",
+ ex:()=>"最初はどうなるか分かりませんでしたが、うまくいきました。"},
+jlearned:{p:"〜と学びました／〜と気づきました (まなびました・きづきました)",mk:"~라고 배웠어요·깨달았어요",mv:"Tôi đã học được/nhận ra rằng ~",
+ wk:"と는 생각·말·깨달음의 내용을 이어 주는 조사예요. 앞은 보통체로 써요(〜と学びました). 学ぶ는 배움을 얻다, 気づく는 알아차리다예요.",
+ wv:"と là trợ từ nối nội dung của suy nghĩ/lời nói/nhận ra. Vế trước dùng thể thông thường (〜と学びました). 学ぶ là học được, 気づく là nhận ra.",
+ ex:j=>`${j.r}と学びました。`},
+jstand:{p:"特に印象に残っているのは〜です (いんしょうにのこっている)",mk:"특히 인상에 남은 것은 ~예요",mv:"Điều để lại ấn tượng đặc biệt là ~",
+ wk:"印象に残る(인상에 남다)의 〜ている 형태 + のは(~한 것은) + です. 「〜のは〜です」는 강조하는 틀이에요. 뒤에 구체적인 경험을 이어요.",
+ wv:"印象に残る (đọng lại ấn tượng) ở dạng 〜ている + のは (điều mà) + です. Khung 「〜のは〜です」 dùng để nhấn mạnh. Sau đó kể trải nghiệm cụ thể.",
+ ex:j=>`特に印象に残っているのは、次の経験です。${j.p}。`},
+jdidnot:{p:"〜ではありませんでした／〜ほど〜ない",mk:"~하지 않았어요 / ~만큼 ~하지 않아요",mv:"Đã không ~ / không ~ bằng ~",
+ wk:"では ありません의 과거는 ではありませんでした예요. 〜ほど〜ない는 '~만큼 ~하지 않다'로, 昔は今ほど頻繁ではない처럼 과거와 현재를 비교해요.",
+ wv:"Quá khứ của ではありません là ではありませんでした. 〜ほど〜ない nghĩa là 'không ~ bằng', ví dụ 昔は今ほど頻繁ではない để so sánh quá khứ và hiện tại.",
+ ex:()=>"昔は、今ほど頻繁ではありませんでした。"},
+jbetter:{p:"今のほうがいいと思います",mk:"지금이 더 좋다고 생각해요",mv:"Tôi nghĩ bây giờ tốt hơn",
+ wk:"AよりBのほうが는 'A보다 B가 더'예요. 비교 대상(昔より)을 생략해도 되고, 〜のほうがいい는 '~쪽이 더 좋다'가 돼요. 끝의 と思います는 의견을 부드럽게 말해요.",
+ wv:"AよりBのほうが nghĩa là 'B hơn A'. Có thể bỏ đối tượng so sánh (昔より); 〜のほうがいい là 'phía ~ tốt hơn'. と思います ở cuối làm ý kiến nhẹ nhàng hơn.",
+ ex:j=>`今のほうがいいと思います。${j.y}からです。`},
+jcompare:{p:"昔と比べると、〜 (むかしとくらべると)",mk:"예전과 비교하면 ~",mv:"So với ngày xưa thì ~",
+ wk:"〜と比べると는 '~와 비교하면'이에요. 비교 대상 뒤에 と를 붙이고 比べると로 이어요. 뒤에 今のほうが…(지금이 더 ~)를 이어 차이를 말해요.",
+ wv:"〜と比べると nghĩa là 'so với ~'. Gắn と sau đối tượng so sánh rồi 比べると. Sau đó nối 今のほうが… (bây giờ ~ hơn) để nói sự khác biệt.",
+ ex:()=>"昔と比べると、今のほうが頻繁にしています。"},
+jbig:{p:"一番の違いは〜ことです (いちばんのちがいは)",mk:"가장 큰 차이는 ~라는 점이에요",mv:"Khác biệt lớn nhất là ~",
+ wk:"一番の違い(가장 큰 차이) + は + 내용 + ことです. 〜こと는 앞 문장을 명사처럼 만들어 '~라는 점'이 돼요. 이유절은 보통체로 써요.",
+ wv:"一番の違い (khác biệt lớn nhất) + は + nội dung + ことです. 〜こと biến vế trước thành danh từ, nghĩa 'điều là ~'. Vế nội dung dùng thể thông thường.",
+ ex:j=>`一番の違いは、${j.y}ことです。`},
+jwould:{p:"もしもし。〜に興味があります (きょうみ)",mk:"여보세요. ~에 관심이 있어요",mv:"Alo. Tôi quan tâm đến ~",
+ wk:"もしもし는 전화를 걸 때의 첫인사예요. 興味がある(관심이 있다)는 관심의 대상 뒤에 に를 써요(〜に興味があります). が가 아니라 に예요. 정중하게는 〜たいのですが(~하고 싶은데요)도 써요.",
+ wv:"もしもし là lời chào đầu khi gọi điện. Với 興味がある (quan tâm), đối tượng đi với に (〜に興味があります), không phải が. Lịch sự có thể dùng 〜たいのですが (tôi muốn ~).",
+ ex:(j,rp)=>rp?rp.i:`もしもし。${j.l}に興味があります。`},
+jqform:{p:"疑問詞 + ですか (いつ・いくら・どこ)",mk:"의문사로 묻기(언제, 얼마, 어디)",mv:"Hỏi bằng từ nghi vấn (bao giờ, bao nhiêu, ở đâu)",
+ wk:"의문사(いつ·いくら·どこ)를 답이 들어갈 자리에 넣고 끝에 か를 붙이면 의문문이 돼요. 어순은 평서문과 같아요. か 하나로 의문문이 되므로 물음표가 없어도 돼요.",
+ wv:"Đặt từ nghi vấn (いつ, いくら, どこ) vào chỗ của câu trả lời rồi thêm か cuối câu là thành câu hỏi. Trật tự giống câu trần thuật. Chỉ cần か, không cần dấu hỏi.",
+ ex:(j,rp)=>rp?rp.q[0]:"いつ始められますか。"},
+jseq2:{p:"まず、次に、それから (つぎに)",mk:"먼저, 다음으로, 그리고",mv:"Trước hết, tiếp theo, sau đó",
+ wk:"질문이 여러 개일 때 まず(먼저), 次に(다음으로), それから(그리고)로 이어요. 한 번에 한 질문씩 말하고 각 연결어 뒤에 読点(、)을 찍어요.",
+ wv:"Khi có nhiều câu hỏi, nối bằng まず (trước hết), 次に (tiếp theo), それから (và rồi). Hỏi mỗi lần một câu và thêm 、 sau từ nối.",
+ ex:()=>"まず、どのように進めるのか教えていただけますか。次に、始めるのに一番いい時期はいつですか。それから、費用はいくらですか。"},
+jifcond:{p:"〜たらどうしましょうか",mk:"만약 ~하면 어떻게 할까요?",mv:"Nếu ~ thì làm thế nào?",
+ wk:"〜たら는 '~하면'이라는 조건이에요. 어떻게 할지 묻는 どうしましょうか와 함께 써서 돌발 상황을 질문해요.",
+ wv:"〜たら là điều kiện 'nếu ~'. Dùng cùng どうしましょうか (làm thế nào) để hỏi tình huống bất ngờ.",
+ ex:(j,rp)=>rp?rp.x:"天気が悪かったらどうしましょうか。"},
+jthanks:{p:"ご協力ありがとうございます (ごきょうりょく)",mk:"도와주셔서 감사합니다",mv:"Cảm ơn sự giúp đỡ của bạn",
+ wk:"ご + 한자어(協力)는 상대의 행동을 높이는 접두 표현이에요. ありがとうございます로 정중하게 마무리해요. 「ありがとございます」처럼 う를 빠뜨리지 않도록 주의하세요.",
+ wv:"ご + từ Hán (協力) là tiền tố kính ngữ nâng hành động của đối phương. Kết bằng ありがとうございます cho lịch sự. Đừng bỏ chữ う như 「ありがとございます」.",
+ ex:()=>"ご協力ありがとうございます。"}
+};
+const PMAPJ=[
+ [["jlike","jact","jbec"],["jfav","jact","jreason"],["jifhad","jact","jback"]],
+ [["jusu","jseq","jfeel"],["jusu","jseq","jfeel"],["jusu","jseq","jfinal"]],
+ [["jlast","jhappy"],["jonetime","jatfirst","jlearned"],["jstand","jatfirst","jlearned"]],
+ [["jdidnot","jbetter"],["jcompare","jbig"],["jcompare","jback","jlearned"]],
+ [["jwould","jqform"],["jwould","jseq2","jqform","jthanks"],["jwould","jseq2","jqform","jifcond","jthanks"]]];
+/* 단어 선택 이유 규칙: [동사 정규식, ko, vi] / [시간·장소 정규식, ko, vi] */
+const ZVR=[
+[/^打/,"打(dǎ) + 구기·타구 종목: 손·라켓·채로 치는 운동은 打를 써요(打网球·打篮球·打羽毛球·打乒乓球·打棒球·打排球·打高尔夫). 발로 차는 축구는 踢를 써요.","打 (dǎ) + môn bóng/đánh: môn dùng tay, vợt, gậy thì dùng 打 (打网球, 打篮球, 打羽毛球…). Bóng đá đá bằng chân dùng 踢."],
+[/^踢/,"踢(tī)는 '발로 차다'예요. 발로 하는 구기(踢足球)에 써요.","踢 (tī) nghĩa là 'đá bằng chân', dùng cho môn dùng chân (踢足球)."],
+[/^去/,"去(qù) + 활동: '그 활동을 하러 가다'예요. 去露营·去钓鱼·去游泳처럼 장소로 이동해서 하는 활동에 써요.","去 (qù) + hoạt động: 'đi làm hoạt động đó'. Dùng cho hoạt động phải di chuyển đến nơi, như 去露营, 去钓鱼, 去游泳."],
+[/^做/,"做(zuò)는 '만들다·하다'예요. 做晚饭(저녁을 하다)·做瑜伽·做伸展运动처럼 음식이나 신체 활동에 널리 써요.","做 (zuò) nghĩa là 'làm, nấu'. Dùng rộng cho nấu ăn và hoạt động thể chất: 做晚饭, 做瑜伽, 做伸展运动."],
+[/^看/,"看(kàn)은 '보다'예요. 看电影·看视频처럼 눈으로 보는 것에 써요. 음악은 听(듣다)을 써요.","看 (kàn) nghĩa là 'xem' (bằng mắt): 看电影, 看视频. Âm nhạc dùng 听 (nghe)."],
+[/^听/,"听(tīng)은 '듣다'예요. 听音乐처럼 귀로 듣는 것에 써요.","听 (tīng) nghĩa là 'nghe', như 听音乐."],
+[/^读/,"读(dú)는 '읽다'예요. 读一本书에서 一本(한 권)이 수량이고, 本은 책을 세는 양사예요.","读 (dú) nghĩa là 'đọc'. Trong 读一本书, 一本 là số lượng và 本 là lượng từ đếm sách."],
+[/^玩/,"玩(wán)은 '놀다·(게임을) 하다'예요. 玩游戏·玩桌游처럼 게임·오락에 써요.","玩 (wán) nghĩa là 'chơi'. Dùng cho trò chơi, giải trí: 玩游戏, 玩桌游."],
+[/^拍/,"拍(pāi)는 '찍다·치다'예요. 拍照는 '사진을 찍다'라는 고정 표현이에요.","拍 (pāi) nghĩa là 'chụp, vỗ'. 拍照 là cụm cố định 'chụp ảnh'."],
+[/^画/,"画(huà)는 '그리다'예요. 画画는 동사+명사 형태의 '그림을 그리다'로, 같은 글자를 두 번 써요.","画 (huà) nghĩa là 'vẽ'. 画画 là 'vẽ tranh' dạng động từ + danh từ, dùng hai lần cùng một chữ."],
+[/^弹/,"弹(tán)은 '(현을) 튕기다'예요. 弹吉他·弹钢琴처럼 현·건반 악기를 연주할 때 써요.","弹 (tán) nghĩa là 'gảy, đàn'. Dùng khi chơi nhạc cụ dây/phím: 弹吉他, 弹钢琴."],
+[/^骑/,"骑(qí)는 '(올라타서) 타다'예요. 骑自行车·骑马처럼 다리를 벌려 타는 것에 써요.","骑 (qí) nghĩa là 'cưỡi, đạp' như 骑自行车, 骑马."],
+[/游泳/,"游泳(yóuyǒng)는 '수영하다'예요. 去游泳처럼 去와 함께 '수영하러 가다'로 써요.","游泳 (yóuyǒng) nghĩa là 'bơi'. Dùng với 去: 去游泳 (đi bơi)."],
+[/^滑/,"滑(huá)는 '미끄러지다·(스키·스케이트를) 타다'예요. 滑雪·滑冰처럼 미끄러지며 타는 운동에 써요.","滑 (huá) nghĩa là 'trượt'. Dùng cho môn trượt: 滑雪, 滑冰."],
+[/^学习/,"学习(xuéxí)는 '공부하다'예요. 一门外语의 门(mén)은 과목·학문을 세는 양사예요.","学习 (xuéxí) nghĩa là 'học'. Trong 一门外语, 门 (mén) là lượng từ đếm môn học/ngoại ngữ."],
+[/^吃/,"吃(chī)는 '먹다'예요. 吃韩国菜·吃家常菜처럼 음식 이름 앞에 써요.","吃 (chī) nghĩa là 'ăn', đứng trước tên món: 吃韩国菜, 吃家常菜."],
+[/^用|^使用/,"用/使用(yòng/shǐyòng)은 '사용하다'예요. 使用이 더 격식 있는 말이에요.","用/使用 (yòng/shǐyòng) nghĩa là 'sử dụng'; 使用 trang trọng hơn."],
+[/^上网/,"上网(shàngwǎng)은 '인터넷에 접속하다'예요. 上网购物는 '온라인 쇼핑'이에요.","上网 (shàngwǎng) nghĩa là 'lên mạng'. 上网购物 là 'mua sắm online'."]];
+const ZWR=[
+[/^每(天|个|周|年|月)/,"每(měi) + 단위는 '매 ~'예요. 每天早上·每个月처럼 시간 부사어라서 동사 앞에 둬요.","每 (měi) + đơn vị nghĩa là 'mỗi'. 每天早上, 每个月 là trạng ngữ thời gian nên đứng trước động từ."],
+[/^周[一二三四五六日末]|^星期|^周末/,"周末·周五 같은 요일·시간어는 동사 앞에 둬요(我周末打网球 ✓).","Từ chỉ thứ/thời gian như 周末, 周五 đứng trước động từ (我周末打网球 ✓)."],
+[/在/,"在(zài) + 장소는 동사 앞에 놓아요. 영어(play tennis at the club)와 어순이 반대예요.","在 (zài) + nơi chốn đứng trước động từ, ngược trật tự với tiếng Anh (play tennis at the club)."],
+[/的时候$/,"~的时候(de shíhou)는 '~할 때'예요. 앞의 동사구를 때를 나타내는 말로 바꿔 줘요.","~的时候 (de shíhou) nghĩa là 'khi ~', biến cụm động từ phía trước thành mốc thời gian."],
+[/(前|后|之后|以后)/,"~前(전)·~后(후)는 기준 뒤에 붙여요(睡觉前 = 자기 전, 晚饭后 = 저녁 식사 후).","~前 (trước) và ~后 (sau) gắn sau mốc (睡觉前 = trước khi ngủ, 晚饭后 = sau bữa tối)."],
+[/沿着/,"沿着(yánzhe) + 장소는 '~을 따라서'예요.","沿着 (yánzhe) + nơi chốn nghĩa là 'dọc theo'."],
+[/^和.+(一起)?|和[朋友家人同事]/,"和(hé) + 사람은 '~와 함께'예요. 一起(yìqǐ)가 있으면 '같이'를 강조해요. 동사 앞에 놓아요.","和 (hé) + người nghĩa là 'cùng với'. 一起 (yìqǐ) nhấn mạnh 'cùng nhau'. Đặt trước động từ."],
+[/(一|两|三|几)(次|年)|一年/,"횟수는 次(cì, ~번), 年(nián, 해)처럼 양사를 붙여 말해요. 每周两次처럼 기간 뒤에 횟수를 붙여요.","Số lần dùng lượng từ như 次 (cì, lần), 年 (nián, năm). Nói 每周两次 bằng cách thêm số lần sau khoảng thời gian."],
+[/空闲|早上|晚上|下午|中午|午休|午饭/,"早上·晚上·午休는 하루 중의 때를 나타내는 시간어라서 동사 앞에 와요.","早上, 晚上, 午休 là từ chỉ buổi trong ngày nên đứng trước động từ."]];
+const JVR=[
+[/をします$/,"「N + をします」는 スポーツ·ゲーム 같은 활동을 말하는 する동사 틀이에요(テニスをします). を는 목적어 표시예요.","Khung 「N + をします」 dùng cho hoạt động như thể thao, trò chơi (テニスをします). を đánh dấu tân ngữ."],
+[/に行きます$/,"「N + に行きます」는 '~하러 가다'예요. に는 목적을 나타내요(キャンプに行きます = 캠핑하러 가요).","「N + に行きます」 nghĩa là 'đi để làm ~'. に chỉ mục đích (キャンプに行きます = đi cắm trại)."],
+[/を見ます$/,"を見ます(を + 見る)는 '~을 보다'예요. 영화·동영상처럼 눈으로 보는 것에 써요.","を見ます (を + 見る) nghĩa là 'xem ~', dùng cho thứ xem bằng mắt như phim, video."],
+[/を聴きます$/,"聴く는 '귀 기울여 듣다'예요. 音楽を聴く처럼 음악을 즐겨 들을 때 써요. 소리가 그냥 들리는 것은 聞く예요.","聴く là 'lắng nghe'. Dùng khi nghe nhạc có chủ ý như 音楽を聴く. Nghe tự nhiên thì dùng 聞く."],
+[/を読みます$/,"を読みます(を + 読む)는 '~을 읽다'예요. 本を読む처럼 책·글에 써요.","を読みます (を + 読む) nghĩa là 'đọc ~', như 本を読む."],
+[/を撮ります$/,"撮る는 '(사진·영상을) 찍다'예요. 写真を撮る처럼 쓰고, 한자가 撮이에요.","撮る nghĩa là 'chụp/quay', như 写真を撮る."],
+[/を描きます$/,"描く는 '(그림을) 그리다'예요. 絵を描く처럼 쓰고, 글씨를 쓰는 書く와 구분해요.","描く nghĩa là 'vẽ', như 絵を描く. Khác với 書く (viết chữ)."],
+[/を弾きます$/,"弾く는 '(현·건반 악기를) 연주하다'예요. ギターを弾く처럼 쓰고, 관악기는 吹く예요.","弾く nghĩa là 'chơi nhạc cụ dây/phím', như ギターを弾く. Nhạc cụ hơi dùng 吹く."],
+[/を作ります$|を焼きます$/,"作る(만들다)·焼く(굽다)는 を와 함께 쓰는 타동사예요. 夕食を作る처럼 만드는 대상에 を를 써요.","作る (làm) và 焼く (nướng) là tha động từ đi với を. Đối tượng được làm đi với を, như 夕食を作る."],
+[/を食べます$/,"食べる(먹다)는 を와 함께 쓰는 타동사예요. 韓国料理を食べる처럼 음식에 を를 써요.","食べる (ăn) là tha động từ đi với を, như 韓国料理を食べる."],
+[/に乗ります$/,"乗る(타다)는 に를 써요(自転車に乗る). 한국어 '~을 타다'와 달리 を가 아니라 に예요.","乗る (đi, cưỡi) đi với に (自転車に乗る). Khác tiếng Hàn '~을 타다', không dùng を."],
+[/で歌います$/,"で는 동작이 이루어지는 장소를 나타내요(カラオケで歌う). 歌う는 노래하다예요.","で chỉ nơi diễn ra hành động (カラオケで歌う). 歌う nghĩa là hát."],
+[/に水をやります$/,"〜に水をやる는 '~에 물을 주다'예요. 물을 주는 대상에는 に를 써요.","〜に水をやる nghĩa là 'tưới nước cho ~'. Đối tượng được tưới đi với に."],
+[/を使います$/,"使う(사용하다)는 を와 함께 쓰는 타동사예요. スマートフォンを使う처럼 도구에 を를 써요.","使う (sử dụng) là tha động từ đi với を, như スマートフォンを使う."],
+[/散歩します$|旅行します$/,"散歩する·旅行する는 명사 + する 동사예요. 장소는 を로 말해요(地域を散歩する = 지역을 거닐다).","散歩する, 旅行する là danh từ + する. Nơi đi qua đi với を (地域を散歩する)."],
+[/働きます$|くつろぎます$/,"働く(일하다)·くつろぐ(편히 쉬다)는 목적어 없이 쓰는 자동사예요. 장소는 で로 말해요(自宅で働く).","働く (làm việc) và くつろぐ (thư giãn) là tự động từ không có tân ngữ. Nơi chốn dùng で (自宅で働く)."]];
+const JWR=[
+[/^毎(朝|日|週|晩)/,"毎朝·毎日·毎週는 に 없이 써요(毎朝 ✓, 毎朝に ✗). 반복을 나타내는 말에는 に를 붙이지 않아요.","毎朝, 毎日, 毎週 không đi với に (毎朝 ✓, 毎朝に ✗). Từ chỉ sự lặp lại không thêm に."],
+[/(曜日|週末|夜|朝|夕方|午後|休日|季節ごと|冬|夏|秋|春)に$/,"때를 나타내는 말 뒤에는 に를 써요(日曜日の夜に, 週末に). 정해진 시점에 '~에'라는 뜻이에요.","Sau từ chỉ thời điểm cụ thể dùng に (日曜日の夜に, 週末に), nghĩa 'vào lúc ~'."],
+[/で$/,"で는 동작이 이루어지는 장소(クラブで, 川沿いで, 工場で)를 나타내요. 이동하는 방향의 に와 구분해요.","で chỉ nơi diễn ra hành động (クラブで, 川沿いで, 工場で). Khác với に chỉ hướng di chuyển."],
+[/のあとに$|の前に$|の途中で$|の前後に$/,"〜のあとに(~한 뒤에)·〜の前に(~하기 전에)는 기준이 되는 일 뒤에 붙여요(夕食のあとに).","〜のあとに (sau khi ~), 〜の前に (trước khi ~) gắn sau sự việc làm mốc (夕食のあとに)."],
+[/(友達|家族|同僚)と/,"〜と + 사람은 '~와 함께'예요(友達と, 家族と). 한국어 '~와'에 해당하는 조사예요.","〜と + người nghĩa là 'cùng với' (友達と, 家族と), tương ứng '~와' trong tiếng Hàn."],
+[/(一|二|三|数)(回|度)/,"回(かい)는 횟수를 세는 단위예요. 週に二回(주 2회)처럼 기간 + に + 횟수로 말해요.","回 (かい) là đơn vị đếm số lần. Nói 週に二回 (hai lần một tuần) theo cấu trúc khoảng thời gian + に + số lần."]];
+/* ② 주고받는 질문: zh/ja 버전(QAT의 영어 문장과 같은 뜻 → ko/vi 번역은 QAT 것을 재사용) */
+const QATZ=[
+ z=>{const n=z.n.replace(/我/g,"你");return[[`你为什么喜欢${n}？`,`因为${z.y}。`],[`你多久${z.a}一次？`,`我${z.w}${z.a}。`],["能再多说一个细节吗？",`${z.d}。`]]},
+ z=>[[`你通常什么时候${z.a}？`,`我通常${z.w}${z.a}。`],["开始之前你会做什么？","我会准备好需要的东西。"],["结束后你感觉怎么样？",`我觉得很满足，因为${z.y}。`]],
+ z=>[["发生了什么事？",`${z.p}。`],["你一开始感觉怎么样？","一开始我不太确定会怎样。"],["你从中学到了什么？",`我明白了${z.r}。`]],
+ z=>[[`以前你多久${z.a}一次？`,`以前我不常${z.a}。`],["那现在呢？",`现在我${z.w}${z.a}。`],["过去和现在，你更喜欢哪一个？",`我更喜欢现在，因为${z.y}。`]]];
+const QATJ=[
+ j=>{const n=j.n.replace(/私の/g,"あなたの").replace(/私/g,"あなた");return[[`なぜ${n}が好きですか。`,`${j.y}からです。`],["どのくらいの頻度でしますか。",`${j.w}${j.a}。`],["もう一つ、詳しく教えてもらえますか。",`${j.d}。`]]},
+ j=>[["普段、いつごろしますか。",`たいてい、${j.w}${j.a}。`],["始める前に何をしますか。","必要なものを準備します。"],["終わったあと、どんな気持ちですか。",`${j.y}ので、満足した気持ちになります。`]],
+ j=>[["何がありましたか。",`${j.p}。`],["最初はどう感じましたか。","最初はどうなるか分かりませんでした。"],["そこから何を学びましたか。",`${j.r}と学びました。`]],
+ j=>[["昔はどのくらいしていましたか。","昔は、今ほど頻繁ではありませんでした。"],["今はどうですか。",`今は、${j.w}${j.a}。`],["昔と今、どちらが好きですか。",`今のほうが好きです。${j.y}からです。`]]];
+/* 롤플레이 연습용 예시 응답(가상 대화). 영어 RPR과 같은 뜻 */
+const RPRZ={
+events:["下一场是本周五晚上七点。","票价从五十美元起。","有，中间区域还剩几个座位。"],
+food:["我们五点开门。","有，我们有三道菜的套餐。","每人大约三十美元。"],
+shopping:["有，我们有几款漂亮的围巾和包。","这个四十美元。","可以，有收据的话三十天内可以退货。"],
+tech:["当然可以。我先问您几个问题。","请重启手机并检查更新。","大概需要十分钟。"],
+job:["有，午饭后我有空。","请带上最新的日程表和问题清单。","我们也请项目经理参加吧。"],
+home:["大约六十平方米。","月租是一千美元。","您可以本周六上午来看。"],
+travel:["我推荐海边地区，这个季节很美。","套餐大约五百美元。","请带好护照和舒适的鞋子。"],
+friends:["七点我可以。","车站附近的咖啡馆怎么样？","也许带点零食吧，我不太饿。"],
+item:["七点我可以。","我家附近的地方怎么样？","不用，我会把所有东西都带来。"]};
+const RPRJ={
+events:["次の公演は今週の金曜日の夜七時です。","チケットは五十ドルからです。","はい、中央の席がまだ数席残っています。"],
+food:["五時に開店します。","はい、三品のコースメニューがあります。","一人三十ドルぐらいです。"],
+shopping:["はい、すてきなスカーフやバッグがいくつかあります。","こちらは四十ドルです。","はい、レシートがあれば三十日以内に返品できます。"],
+tech:["もちろんです。まず、いくつか質問させてください。","携帯電話を再起動して、アップデートを確認してください。","十分ほどかかります。"],
+job:["はい、昼食のあとなら空いています。","最新のスケジュールと問題リストを持ってきてください。","プロジェクトマネージャーも呼びましょう。"],
+home:["約六十平方メートルです。","家賃は月千ドルです。","今週の土曜日の午前中に見られます。"],
+travel:["海沿いの地域をおすすめします。この季節はとてもすてきです。","パッケージは約五百ドルです。","パスポートと歩きやすい靴をお持ちください。"],
+friends:["七時でいいよ。","駅の近くのカフェはどう？","軽いおやつぐらいかな。あまりお腹は空いてないよ。"],
+item:["七時でいいよ。","私の家の近くはどう？","ううん、全部私が持っていくよ。"]};
+
+/* 중국어·일본어 학습 노트 ③ 숙어 ④ 단어. 형식 [분류, 표현, 읽기, ko뜻, vi뜻, ko설명, vi설명, 예문] */
+const IDZ=[
+["hobby","乐在其中","lè zài qí zhōng","그 안에서 즐거움을 느끼다","vui trong đó, tìm thấy niềm vui trong việc đang làm","乐(즐거움) + 在(~에 있다) + 其中(그 안). 좋아하는 일에 푹 빠져 즐기는 사람을 말할 때 써요. 성어(四字成语)라서 글자 하나를 바꾸지 않고 통째로 외워요.","乐 (niềm vui) + 在 (ở) + 其中 (trong đó). Dùng cho người say mê và vui với việc mình thích. Là thành ngữ bốn chữ nên học thuộc nguyên cụm, không đổi chữ.","做这件事的时候，我总是乐在其中。"],
+["hobby","得心应手","dé xīn yìng shǒu","마음먹은 대로 능숙하게 되다","làm việc thuần thục, thuận tay","得(얻다) + 心(마음) + 应(응하다) + 手(손). 마음이 생각한 대로 손이 따라 주는 상태, 즉 숙달된 모습을 말해요. 보통 '练了很久之后'(오래 연습한 뒤) 같은 말과 함께 써요.","得 (được) + 心 (tâm) + 应 (đáp ứng) + 手 (tay). Chỉ trạng thái tay làm theo ý nghĩ, tức đã thành thạo. Thường đi với 'sau khi luyện lâu'.","练了一年以后，我做起来得心应手了。"],
+["hobby","打发时间","dǎfa shíjiān","시간을 보내다","giết thời gian, làm gì đó cho qua thời gian","打发(dǎfa)는 '처리하다·보내다'이고 时间은 시간이에요. 할 일이 없을 때 시간을 보낸다는 가벼운 구어체 표현이에요.","打发 (dǎfa) nghĩa là 'giải quyết, làm cho qua' và 时间 là thời gian. Cách nói khẩu ngữ nhẹ nhàng khi rảnh rỗi.","周末没事的时候，我喜欢看书打发时间。"],
+["exercise","持之以恒","chí zhī yǐ héng","꾸준히 계속하다","kiên trì bền bỉ","持(지니다) + 之(그것) + 以恒(변함없이). 한 가지 일을 변함없이 꾸준히 하는 모습이에요. 운동·공부 같은 습관 이야기에 자주 써요.","持 (giữ) + 之 (nó) + 以恒 (bền bỉ). Chỉ việc kiên trì làm một việc không thay đổi. Hay dùng cho thói quen như tập luyện, học tập.","只要持之以恒，每个人都能进步。"],
+["exercise","事半功倍","shì bàn gōng bèi","적은 노력으로 두 배의 효과를 얻다","làm ít được nhiều","事半(일은 절반) + 功倍(성과는 두 배). 요령을 알면 노력은 반만 들여도 효과는 두 배가 된다는 뜻이에요. 올바른 방법을 칭찬할 때 써요.","事半 (việc một nửa) + 功倍 (hiệu quả gấp đôi). Nghĩa là có phương pháp đúng thì tốn nửa công mà hiệu quả gấp đôi. Dùng khi khen cách làm đúng.","先热身再运动，效果会事半功倍。"],
+["exercise","汗流浃背","hàn liú jiā bèi","땀이 등을 흠뻑 적시다","mồ hôi ướt đẫm lưng","汗(땀) + 流(흐르다) + 浃(젖다) + 背(등). 땀이 등 전체를 적실 정도로 격하게 움직였다는 뜻이에요. 운동 후 상태를 생생하게 말할 때 써요.","汗 (mồ hôi) + 流 (chảy) + 浃 (thấm ướt) + 背 (lưng). Nghĩa là vận động đến mức mồ hôi ướt cả lưng. Dùng để miêu tả sinh động sau khi tập.","跑完十公里，我已经汗流浃背了。"],
+["events","热闹非凡","rè'nao fēifán","매우 떠들썩하고 활기차다","vô cùng náo nhiệt","热闹(rènao, 북적이고 활기차다) + 非凡(평범하지 않다). 행사 분위기가 아주 활기찰 때 써요. 분위기를 묘사하는 서술어로 쓰여요.","热闹 (rènao, náo nhiệt) + 非凡 (phi thường). Dùng khi không khí sự kiện rất sôi động, làm vị ngữ miêu tả không khí.","那天的庆典热闹非凡。"],
+["events","大饱眼福","dà bǎo yǎnfú","눈이 즐거울 만큼 실컷 보다","được thỏa mắt, được xem thỏa thích","大(크게) + 饱(배부르다) + 眼福(눈의 복). 멋진 것을 실컷 보아 눈이 호강했다는 뜻이에요. 공연·불꽃놀이 같은 볼거리에 써요.","大 (rất) + 饱 (no) + 眼福 (phúc cho mắt). Nghĩa là được xem thứ đẹp đến thỏa mắt. Dùng cho buổi biểu diễn, pháo hoa.","看了烟花表演，我们大饱眼福。"],
+["events","回味无穷","huíwèi wúqióng","여운이 오래 남다","dư vị vô tận","回味(되새기다) + 无穷(끝이 없다). 끝난 뒤에도 좋은 기억이 오래 남는다는 뜻이에요. 공연·음식·경험 모두에 쓸 수 있어요.","回味 (nhớ lại, nếm lại) + 无穷 (vô tận). Nghĩa là sau khi kết thúc vẫn còn nhớ mãi. Dùng được cho buổi diễn, món ăn, trải nghiệm.","演出结束了，但那种感觉让我回味无穷。"],
+["food","色香味俱全","sè xiāng wèi jù quán","색·향·맛이 모두 갖춰지다","đủ sắc, hương, vị","色(색) + 香(향) + 味(맛) + 俱全(모두 갖추다). 음식이 보기에도 향도 맛도 훌륭할 때 써요. 요리를 칭찬하는 대표적인 표현이에요.","色 (màu) + 香 (hương) + 味 (vị) + 俱全 (đầy đủ). Khi món ăn đẹp mắt, thơm, ngon. Là cách khen món ăn tiêu biểu.","这道菜色香味俱全，让我很惊喜。"],
+["food","家常便饭","jiācháng biànfàn","집에서 먹는 평범한 밥","bữa cơm nhà bình thường","家常(집에서 늘 먹는) + 便饭(소박한 밥). 소박한 집밥을 뜻하고, 일이 흔하다는 비유로도 써요. 여기서는 집밥의 정겨움을 말할 때 써요.","家常 (thường ngày ở nhà) + 便饭 (bữa cơm giản dị). Chỉ bữa cơm nhà bình dị, cũng dùng ẩn dụ cho việc quen thuộc. Ở đây dùng để nói sự ấm áp của cơm nhà.","对我来说，妈妈做的家常便饭最好吃。"],
+["food","大快朵颐","dà kuài duǒ yí","맛있게 마음껏 먹다","ăn uống thỏa thích","大快(크게 상쾌하다) + 朵颐(턱을 움직여 먹다). 맛있는 음식을 즐겁게 먹는 모습이에요. 글이나 격식 있는 말에 어울려요.","大快 (rất sảng khoái) + 朵颐 (động hàm nhai). Hình ảnh ăn món ngon một cách vui vẻ. Hợp với văn viết hoặc lời nói trang trọng.","我们坐下来，大快朵颐了一顿。"],
+["shopping","物美价廉","wù měi jià lián","품질은 좋고 값은 싸다","hàng tốt giá rẻ","物(물건) + 美(좋다) + 价(가격) + 廉(싸다). 값은 싸고 품질이 좋은 물건을 칭찬하는 표현이에요. 4글자가 대구를 이뤄요.","物 (hàng) + 美 (tốt) + 价 (giá) + 廉 (rẻ). Khen món hàng giá rẻ mà chất lượng tốt. Bốn chữ tạo thành hai vế đối.","这个市场的水果物美价廉。"],
+["shopping","货比三家","huò bǐ sān jiā","여러 가게를 비교해 보고 사다","so sánh nhiều nơi rồi mới mua","货(물건) + 比(비교하다) + 三家(세 가게). 한 곳에서 바로 사지 않고 여러 곳을 비교한다는 뜻이에요. 三은 '여러 곳'을 뜻하는 수예요.","货 (hàng) + 比 (so sánh) + 三家 (ba nhà). Không mua ngay ở một chỗ mà so sánh nhiều nơi. 三 ở đây chỉ 'nhiều'.","买东西之前，我习惯货比三家。"],
+["shopping","物有所值","wù yǒu suǒ zhí","값어치를 한다","đáng đồng tiền","物(물건) + 有(있다) + 所值(그만한 가치). 낸 돈만큼 가치가 있다는 뜻이에요. 비싼 물건에도, 싼 물건에도 써요.","物 (hàng) + 有 (có) + 所值 (giá trị tương xứng). Nghĩa là xứng đáng với số tiền bỏ ra, dùng được cho cả hàng đắt lẫn rẻ.","虽然有点贵，但我觉得物有所值。"],
+["tech","日新月异","rì xīn yuè yì","나날이 새로워지다","thay đổi từng ngày","日(날)마다 新(새롭고) 月(달)마다 异(달라진다). 기술이 빠르게 바뀔 때 써요. 기술·사회 변화를 말하는 표현이에요.","Mỗi 日 (ngày) một 新 (mới), mỗi 月 (tháng) một 异 (khác). Dùng khi công nghệ thay đổi nhanh, nói về biến đổi công nghệ và xã hội.","科技日新月异，手机的功能越来越多。"],
+["tech","一举两得","yì jǔ liǎng dé","한 번에 두 가지를 얻다","một công đôi việc","一举(한 번의 행동) + 两得(두 가지를 얻다). 한 가지 일로 두 가지 이익을 얻을 때 써요. 영어의 'kill two birds with one stone'과 비슷한 뜻이에요.","一举 (một hành động) + 两得 (được hai). Dùng khi một việc mang lại hai lợi ích, gần với 'kill two birds with one stone' tiếng Anh.","用这个应用，既能学习又能放松，一举两得。"],
+["tech","与时俱进","yǔ shí jù jìn","시대와 함께 나아가다","bắt kịp thời đại","与(와) + 时(시대) + 俱(함께) + 进(나아가다). 변화하는 시대에 맞춰 계속 배우고 바꾼다는 뜻이에요. 새 기술을 받아들이는 태도를 말할 때 써요.","与 (cùng) + 时 (thời đại) + 俱 (cùng) + 进 (tiến). Nghĩa là luôn học hỏi, thay đổi theo thời đại. Dùng khi nói thái độ đón nhận công nghệ mới.","工作中我也要与时俱进，学习新工具。"],
+["job","熟能生巧","shú néng shēng qiǎo","익숙해지면 요령이 생긴다","quen tay hay việc","熟(익숙하다) + 能(~할 수 있다) + 生(낳다) + 巧(요령). 반복하면 기술이 는다는 뜻이에요. 현장 숙련을 이야기할 때 잘 맞아요.","熟 (quen) + 能 (có thể) + 生 (sinh ra) + 巧 (khéo). Nghĩa là làm lặp đi lặp lại thì tay nghề lên. Hợp khi nói về thạo việc ngoài hiện trường.","调试这种设备，真是熟能生巧。"],
+["job","精益求精","jīng yì qiú jīng","더 나은 것을 계속 추구하다","làm tốt rồi vẫn muốn tốt hơn","精(정밀하다) + 益(더욱) + 求(구하다) + 精(정밀함). 이미 좋아도 더 좋게 만들려는 자세예요. 품질에 신경 쓰는 사람을 칭찬할 때 써요.","精 (tinh xảo) + 益 (càng) + 求 (cầu) + 精 (tinh xảo). Thái độ đã tốt vẫn muốn tốt hơn. Dùng khi khen người coi trọng chất lượng.","我们对每个零件都精益求精。"],
+["job","脚踏实地","jiǎo tà shí dì","착실하게 한 걸음씩 하다","làm việc chắc chắn, thực tế","脚(발) + 踏(밟다) + 实地(단단한 땅). 발이 땅을 단단히 딛듯이 허황되지 않고 착실하게 일한다는 뜻이에요.","脚 (chân) + 踏 (giẫm) + 实地 (mặt đất vững). Như chân đứng vững trên đất: làm việc chắc chắn, không viển vông.","做生意要脚踏实地，一步一步来。"],
+["home","家和万事兴","jiā hé wàn shì xīng","집안이 화목하면 모든 일이 잘 된다","gia đình hòa thuận thì vạn sự hưng thịnh","家(집) + 和(화목) + 万事(모든 일) + 兴(흥하다). 널리 쓰는 속담으로, 집이 평안해야 일도 잘 풀린다는 뜻이에요. 집 이야기의 마무리로 좋아요.","家 (nhà) + 和 (hòa) + 万事 (vạn sự) + 兴 (hưng). Tục ngữ quen thuộc: nhà yên ấm thì việc gì cũng thuận. Hợp để kết bài nói về nhà.","我常说家和万事兴，所以我很重视家里的气氛。"],
+["home","井井有条","jǐng jǐng yǒu tiáo","질서 정연하다","ngăn nắp có trật tự","井井(정연한 모양) + 有条(조리가 있다). 물건이나 일이 잘 정돈된 상태를 말해요. 정리된 방이나 책상을 묘사할 때 써요.","井井 (gọn gàng) + 有条 (có thứ tự). Chỉ đồ đạc hay công việc được sắp xếp tốt. Dùng khi miêu tả phòng hoặc bàn làm việc ngăn nắp.","我把书桌整理得井井有条。"],
+["home","宾至如归","bīn zhì rú guī","손님이 집에 온 것처럼 편안하다","khách đến như về nhà","宾(손님) + 至(이르다) + 如(~같다) + 归(돌아오다). 손님이 자기 집에 돌아온 듯 편안하다는 뜻이에요. 아늑한 공간을 말할 때 써요.","宾 (khách) + 至 (đến) + 如 (như) + 归 (về). Nghĩa là khách đến mà thấy thoải mái như ở nhà. Dùng khi nói về không gian ấm cúng.","我想让每一位朋友来我家都宾至如归。"],
+["travel","流连忘返","liú lián wàng fǎn","즐거워서 떠나기 싫다","lưu luyến không muốn về","流连(머물며 아쉬워하다) + 忘返(돌아가는 것을 잊다). 경치가 좋아 돌아가는 것도 잊을 만큼 머물고 싶다는 뜻이에요.","流连 (lưu luyến) + 忘返 (quên cả về). Nghĩa là cảnh đẹp đến mức không muốn ra về.","海边的景色美极了，我流连忘返。"],
+["travel","开阔眼界","kāikuò yǎnjiè","시야를 넓히다","mở rộng tầm mắt","开阔(넓히다) + 眼界(시야). 여행으로 새로운 문화를 보며 생각이 넓어질 때 써요. 동사+목적어 구조라서 '让我开阔了眼界'처럼 써요.","开阔 (mở rộng) + 眼界 (tầm nhìn). Dùng khi đi du lịch, thấy văn hóa mới và suy nghĩ rộng hơn. Là cấu trúc động từ + tân ngữ, ví dụ '让我开阔了眼界'.","这次旅行让我开阔了眼界。"],
+["travel","说走就走","shuō zǒu jiù zǒu","생각나면 바로 떠나다","nói đi là đi","说(말하다) + 走(가다) + 就(곧) + 走(가다). 오래 고민하지 않고 바로 떠나는 모습이에요. 즉흥 여행을 말할 때 자주 써요.","说 (nói) + 走 (đi) + 就 (liền) + 走 (đi). Đi ngay không nghĩ ngợi lâu. Hay dùng khi nói về chuyến đi ngẫu hứng.","有时候我会说走就走，去海边看看。"],
+["friends","志同道合","zhì tóng dào hé","뜻과 길이 같다","cùng chí hướng","志(뜻) + 同(같다) + 道(길) + 合(맞다). 생각과 방향이 같은 친구를 말해요. 오래 이어지는 친구 관계를 설명할 때 좋아요.","志 (chí) + 同 (giống) + 道 (đường) + 合 (hợp). Chỉ người bạn có cùng suy nghĩ, hướng đi. Hay dùng khi giải thích tình bạn bền lâu.","我们是志同道合的好朋友。"],
+["friends","无话不谈","wú huà bù tán","못 할 말이 없을 만큼 가깝다","không có gì không nói","无话(말이 없는) + 不谈(이야기하지 않다)의 이중 부정으로 '뭐든 말한다'는 뜻이에요. 아주 가까운 사이를 나타내요.","无话不谈 là phủ định kép: 'không có chuyện gì không nói', tức nói được mọi chuyện. Chỉ mối quan hệ rất thân.","他是我的老朋友，我们无话不谈。"],
+["friends","久别重逢","jiǔ bié chóng féng","오랜 이별 끝에 다시 만나다","xa cách lâu ngày gặp lại","久别(오래 헤어지다) + 重逢(다시 만나다). 오랜만에 만나 반가운 상황에 써요. 보통 '久别重逢的朋友'처럼 명사를 꾸며요.","久别 (xa cách lâu) + 重逢 (gặp lại). Dùng khi lâu ngày mới gặp mừng rỡ, thường bổ nghĩa danh từ như '久别重逢的朋友'.","和久别重逢的朋友聊天，我觉得很开心。"]];
+const IDJ=[
+["hobby","時間をつぶす","じかんをつぶす","시간을 때우다","giết thời gian","つぶす(찌그러뜨리다)가 '(남는 시간을) 없애다'로 쓰인 관용 표현이에요. 할 일이 없을 때 쓰고, 〜て時間をつぶす 형태로 방법을 붙여요.","つぶす (nghiền nát) ở đây nghĩa là 'làm cho thời gian trôi đi'. Dùng khi rảnh; nói cách làm bằng dạng 〜て時間をつぶす.","暇な時は、本を読んで時間をつぶします。"],
+["hobby","夢中になる","むちゅうになる","푹 빠지다","say mê, mải mê","夢中(무아지경) + になる(~이 되다). 〜に夢中になる로 대상을 말해요. 대상에는 に를 붙이니 を가 아니에요(ゲームに夢中になる).","夢中 (say sưa) + になる (trở nên). Nói đối tượng bằng 〜に夢中になる, dùng に chứ không phải を (ゲームに夢中になる).","いつの間にか、ゲームに夢中になっていました。"],
+["hobby","気分転換","きぶんてんかん","기분 전환","đổi không khí, thay đổi tâm trạng","気分(기분) + 転換(전환). 명사라서 気分転換になる(기분 전환이 되다), 気分転換をする(기분 전환을 하다)처럼 써요.","気分 (tâm trạng) + 転換 (chuyển đổi). Là danh từ nên dùng 気分転換になる (giúp đổi không khí) hoặc 気分転換をする (đổi không khí).","散歩は、いい気分転換になります。"],
+["exercise","汗を流す","あせをながす","땀을 흘리다","đổ mồ hôi (tập luyện)","汗(땀) + を + 流す(흘리다). 운동으로 땀을 흘린다는 뜻이고, 마라톤·헬스 등 열심히 몸을 움직일 때 써요.","汗 (mồ hôi) + を + 流す (đổ). Nghĩa là tập đến đổ mồ hôi; dùng khi vận động hăng hái như chạy, gym.","週末は、ジムで汗を流します。"],
+["exercise","継続は力なり","けいぞくはちからなり","계속하는 것이 힘이다","kiên trì là sức mạnh","継続(계속) + は(주제) + 力(힘) + なり(~이다, 문어체). なり는 옛 말투의 〜である예요. 꾸준히 하는 것이 실력이 된다는 격언이에요.","継続 (tiếp tục) + は + 力 (sức mạnh) + なり (là, văn ngữ cổ). Châm ngôn: kiên trì sẽ thành thực lực.","「継続は力なり」と思って、毎日走っています。"],
+["exercise","体を動かす","からだをうごかす","몸을 움직이다","vận động cơ thể","体(몸) + を + 動かす(움직이다). 가벼운 운동에서 본격 운동까지 폭넓게 쓰는 말이에요. 運動する보다 부드러운 표현이에요.","体 (cơ thể) + を + 動かす (cử động). Dùng rộng từ vận động nhẹ đến tập nặng, mềm hơn 運動する.","体を動かすと、気持ちがすっきりします。"],
+["events","盛り上がる","もりあがる","분위기가 달아오르다","sôi nổi, náo nhiệt lên","盛り(솟다) + 上がる(오르다). 행사·대화의 분위기가 점점 고조될 때 써요. 주어는 コンサート, 会場, 話 등이에요.","盛り (dâng lên) + 上がる (lên). Dùng khi không khí sự kiện hoặc câu chuyện càng lúc càng sôi nổi. Chủ ngữ thường là コンサート, 会場, 話.","最後の曲で、会場が大いに盛り上がりました。"],
+["events","心に残る","こころにのこる","마음에 남다","đọng lại trong lòng","心(마음) + に + 残る(남다). 오래 기억에 남는 경험을 말해요. 남는 장소에는 に를 써요.","心 (lòng) + に + 残る (còn lại). Nói về trải nghiệm ghi nhớ lâu. Nơi còn lại đi với に.","あの花火は、今でも心に残っています。"],
+["events","胸が熱くなる","むねがあつくなる","가슴이 뜨거워지다","lòng nóng lên, xúc động","胸(가슴) + が + 熱くなる(뜨거워지다). 감동했을 때 가슴이 달아오르는 느낌이에요. 주어를 が로 받아요.","胸 (ngực) + が + 熱くなる (nóng lên). Cảm giác lòng bồi hồi khi xúc động. Chủ ngữ đi với が.","最後の場面で、胸が熱くなりました。"],
+["food","舌鼓を打つ","したつづみをうつ","맛있어서 입맛을 다시다","tấm tắc khen ngon","舌鼓(혀로 내는 소리)를 打つ(치다). 맛있는 음식을 먹고 입으로 소리를 낼 만큼 즐긴다는 표현이에요. 약간 문어적이에요.","舌鼓 (tiếng chép lưỡi) + 打つ (đánh). Nghĩa là thưởng thức món ngon đến mức chép miệng. Hơi mang tính văn viết.","地元の料理に舌鼓を打ちました。"],
+["food","腹八分目","はらはちぶんめ","배를 80%만 채우다","ăn tám phần no","腹(배) + 八分目(8할). 배가 가득 차기 전에 그만 먹는 것이 몸에 좋다는 생활 지혜예요. 〜が体にいい로 이어 써요.","腹 (bụng) + 八分目 (tám phần). Lời khuyên sống: ăn khi chưa no hẳn thì tốt cho cơ thể. Nối bằng 〜が体にいい.","私は、腹八分目を心がけています。"],
+["food","食わず嫌い","くわずぎらい","먹어 보지도 않고 싫어함","chưa ăn đã ghét","食わず(먹지 않고) + 嫌い(싫어하다). 한 번도 해 보지 않은 채 싫어하는 것을 가리켜요. 음식 외의 일에도 비유로 쓰여요.","食わず (chưa ăn) + 嫌い (ghét). Chỉ việc chưa thử đã ghét, cũng dùng ẩn dụ cho việc ngoài ăn uống.","食わず嫌いをやめたら、新しい味に出会えました。"],
+["shopping","掘り出し物","ほりだしもの","뜻밖의 좋은 물건","món hời bất ngờ","掘り出す(파내다) + 物(물건). 숨은 곳에서 우연히 찾은 값진 물건을 말해요. 시장·중고 가게에서 잘 쓰는 말이에요.","掘り出す (đào ra) + 物 (đồ). Chỉ món đồ giá trị tình cờ tìm được ở chỗ ít người biết. Hay dùng ở chợ, cửa hàng đồ cũ.","市場で、いい掘り出し物を見つけました。"],
+["shopping","値が張る","ねがはる","값이 꽤 나가다","giá khá đắt","値(값) + が + 張る(팽팽해지다→꽤 나가다). 예상보다 비쌀 때 써요. 高い보다 부드럽고 품질이 좋아 비싸다는 느낌이 있어요.","値 (giá) + が + 張る (căng → khá cao). Dùng khi đắt hơn dự tính. Mềm hơn 高い, hàm ý chất lượng tốt nên giá cao.","少し値が張りますが、品質は確かです。"],
+["shopping","安物買いの銭失い","やすものがいのぜにうしない","싼 걸 사다 오히려 손해","của rẻ là của ôi","安物(싼 물건) + 買い(사기) + の + 銭(돈) + 失い(잃음). 값만 보고 싼 것을 사면 결국 돈을 잃는다는 속담이에요.","安物 (hàng rẻ) + 買い (mua) + の + 銭 (tiền) + 失い (mất). Tục ngữ: chỉ nhìn giá rẻ mà mua thì cuối cùng mất tiền.","安物買いの銭失いにならないよう、よく比べます。"],
+["tech","使いこなす","つかいこなす","능숙하게 다루다","sử dụng thành thạo","使う(쓰다) + こなす(소화하다). 도구를 자기 것으로 능숙하게 쓴다는 뜻이에요. 機能を使いこなす처럼 を와 함께 써요.","使う (dùng) + こなす (làm chủ). Nghĩa là dùng công cụ một cách thuần thục, đi với を: 機能を使いこなす.","最新の機能を使いこなしたいです。"],
+["tech","手間が省ける","てまがはぶける","수고가 줄다","đỡ công sức","手間(수고) + が + 省ける(줄일 수 있다). 자동화·도구로 일이 줄 때 써요. 省ける는 자동사처럼 が로 받아요.","手間 (công sức) + が + 省ける (tiết kiệm được). Dùng khi công cụ, tự động hóa giúp bớt việc. 省ける đi với が như tự động từ.","このアプリで、報告書を作る手間が省けます。"],
+["tech","日進月歩","にっしんげっぽ","나날이 발전하다","tiến bộ từng ngày","日(날)마다 進み 月(달)마다 歩む. 기술이 빠르게 발전할 때 쓰는 사자성어예요. 〜の技術は日進月歩だ처럼 써요.","Mỗi 日 (ngày) tiến, mỗi 月 (tháng) bước. Thành ngữ bốn chữ khi kỹ thuật phát triển nhanh, dùng như 〜の技術は日進月歩だ.","技術は日進月歩なので、常に勉強が必要です。"],
+["job","腕を磨く","うでをみがく","실력을 갈고닦다","mài giũa tay nghề","腕(실력) + を + 磨く(닦다). 기술을 계속 갈고닦아 높인다는 뜻이에요. 腕은 팔이지만 '기술·솜씨'를 뜻해요.","腕 (tay nghề) + を + 磨く (mài). Nghĩa là rèn luyện nâng cao kỹ năng. 腕 là cánh tay nhưng ở đây chỉ 'tay nghề'.","現場で腕を磨いてきました。"],
+["job","石の上にも三年","いしのうえにもさんねん","참고 계속하면 이루어진다","kiên nhẫn ba năm trên đá cũng ấm","차가운 돌 위도 3년 앉아 있으면 따뜻해진다는 속담이에요. 어려운 일도 꾸준히 참으면 성과가 난다는 뜻으로 씁니다.","Tục ngữ: ngồi trên đá lạnh ba năm cũng thành ấm. Nghĩa là việc khó nếu kiên nhẫn thì sẽ có kết quả.","石の上にも三年と言いますが、本当にその通りでした。"],
+["job","段取りを組む","だんどりをくむ","진행 순서를 짜다","lên trình tự công việc","段取り(순서·준비) + を + 組む(짜다). 일의 순서와 준비를 미리 계획한다는 현장 용어예요. 〜が上手い와 잘 이어져요.","段取り (trình tự, chuẩn bị) + を + 組む (sắp xếp). Thuật ngữ hiện trường: lên kế hoạch trình tự và chuẩn bị trước. Hay đi với 〜が上手い.","朝、まず一日の段取りを組みます。"],
+["home","居心地がいい","いごこちがいい","있기에 편안하다","ở thấy dễ chịu","居心地(앉아 있는 기분) + が + いい. 장소의 편안함을 말해요. 좋아하는 공간을 칭찬할 때 써요. 주어는 が로 받아요.","居心地 (cảm giác khi ở) + が + いい. Nói về sự dễ chịu của một nơi, dùng khen không gian yêu thích; chủ ngữ đi với が.","この部屋は、とても居心地がいいです。"],
+["home","住めば都","すめばみやこ","살면 정이 들어 고향이 된다","ở rồi thì đâu cũng là kinh đô","住めば(살면) + 都(수도). 어디든 살다 보면 정이 들어 가장 좋은 곳이 된다는 속담이에요. 동네 이야기를 마무리할 때 좋아요.","住めば (nếu ở) + 都 (kinh đô). Tục ngữ: ở đâu rồi cũng quen và thấy tốt nhất. Hợp để kết khi nói về khu mình sống.","最初は不安でしたが、住めば都ですね。"],
+["home","整理整頓","せいりせいとん","정리 정돈","gọn gàng, ngăn nắp","整理(정리) + 整頓(정돈). 물건을 분류하고 제자리에 놓는 것이에요. 整理整頓をする·整理整頓された部屋 같은 형태로 써요.","整理 (sắp xếp) + 整頓 (chỉnh đốn). Phân loại đồ rồi để đúng chỗ. Dùng dạng 整理整頓をする, 整理整頓された部屋.","机を整理整頓すると、集中できます。"],
+["travel","羽を伸ばす","はねをのばす","마음껏 쉬며 즐기다","thư giãn thoải mái","羽(날개) + を + 伸ばす(펴다). 날개를 펴듯이 일상의 긴장을 풀고 자유롭게 쉰다는 뜻이에요. 여행·휴가에 잘 어울려요.","羽 (cánh) + を + 伸ばす (duỗi). Như duỗi cánh: bỏ căng thẳng thường ngày, nghỉ ngơi tự do. Hợp với du lịch, nghỉ phép.","旅行では、のんびり羽を伸ばしたいです。"],
+["travel","見聞を広げる","けんぶんをひろげる","견문을 넓히다","mở rộng kiến thức","見聞(보고 들은 것) + を + 広げる(넓히다). 여행으로 새로운 것을 보고 듣고 시야가 넓어진다는 뜻이에요.","見聞 (điều thấy nghe) + を + 広げる (mở rộng). Nghĩa là qua du lịch thấy nghe điều mới nên tầm nhìn rộng ra.","この旅行で、見聞を広げることができました。"],
+["travel","百聞は一見にしかず","ひゃくぶんはいっけんにしかず","백 번 듣는 것보다 한 번 보는 게 낫다","trăm nghe không bằng một thấy","百聞(백 번 듣기) + は + 一見(한 번 보기) + にしかず(~에 미치지 못한다). 직접 가서 보는 가치를 말하는 속담이에요.","百聞 (nghe trăm lần) + は + 一見 (thấy một lần) + にしかず (không bằng). Tục ngữ nói giá trị của việc tận mắt thấy.","百聞は一見にしかずで、実際に行ってよく分かりました。"],
+["friends","気が合う","きがあう","마음이 맞다","hợp tính","気(마음) + が + 合う(맞다). 서로 성격·생각이 잘 맞는 사이를 말해요. 주어를 が가 아니라 と로 상대를 말해요(友達と気が合う).","気 (tâm) + が + 合う (hợp). Chỉ hai người hợp tính, hợp ý. Đối phương nói bằng と (友達と気が合う).","彼とは、昔から気が合います。"],
+["friends","打ち解ける","うちとける","마음을 터놓다","cởi mở, thân thiết","打ち(접두) + 解ける(풀리다). 어색함이 풀려 마음을 터놓는 사이가 된다는 뜻이에요. 〜と打ち解ける로 상대를 말해요.","打ち (tiền tố) + 解ける (tan). Nghĩa là hết ngượng, trở nên thân thiết. Đối phương nói bằng 〜と打ち解ける.","会ってすぐ、みんなと打ち解けました。"],
+["friends","持つべきものは友","もつべきものはとも","가져야 할 것은 친구","điều đáng có là bạn bè","持つべき(가져야 할) + もの(것) + は + 友(친구). 힘들 때 도와주는 친구의 가치를 말하는 속담이에요. 친구에게 감사할 때 써요.","持つべき (đáng có) + もの (thứ) + は + 友 (bạn). Tục ngữ nói giá trị của người bạn giúp lúc khó khăn, dùng để cảm ơn bạn.","困った時、持つべきものは友だと感じました。"]];
+/* ④ 단어: 영어 단어장(VOC) 순서와 같은 뜻을 4개씩 대응시킴. 형식 id|단어,읽기;... (ko/vi 뜻은 VOC 항목에서 재사용) */
+const ZVOC=`
+hobby:0|反手,fǎnshǒu;比赛,bǐsài;俱乐部,jùlèbù;稳定,wěndìng
+hobby:1|食谱,shípǔ;放松,fàngsōng;准备,zhǔnbèi;忙,máng
+hobby:2|电影院,diànyǐngyuàn;电影,diànyǐng;心情,xīnqíng;故事,gùshi
+hobby:3|长篇小说,chángpiān xiǎoshuō;充电,chōngdiàn;周末,zhōumò;全新的世界,quánxīn de shìjiè
+hobby:4|发现,fāxiàn;歌手,gēshǒu;通勤,tōngqín;一整天,yì zhěng tiān
+hobby:5|关卡,guānkǎ;打败,dǎbài;耐心,nàixīn;挑战,tiǎozhàn
+hobby:6|照片,zhàopiàn;自豪,zìháo;细节,xìjié;注意力,zhùyìlì
+hobby:7|露营,lùyíng;湖,hú;大自然,dàzìrán;重新整理,chóngxīn zhěnglǐ
+hobby:8|钓到,diàodào;安静,ānjìng;耐心,nàixīn;回报,huíbào
+hobby:9|分数,fēnshù;冷静,lěngjìng;技术,jìshù;隔一个,gé yí gè
+hobby:10|画,huà;完成,wánchéng;礼物,lǐwù;用心,yòngxīn
+hobby:11|植物,zhíwù;种,zhòng;西红柿,xīhóngshì;照顾,zhàogù
+hobby:12|烤,kǎo;饼干,bǐnggān;生日,shēngrì;快乐,kuàilè
+hobby:13|桌游,zhuōyóu;势均力敌的比赛,shìjūn lìdí de bǐsài;赢,yíng;轻松获胜,qīngsōng huòshèng
+hobby:14|外语,wàiyǔ;对话,duìhuà;最快,zuì kuài;保持好奇,bǎochí hàoqí
+hobby:15|演奏,yǎnzòu;勇气,yǒngqì;在…面前,zài…miànqián;歌,gē
+hobby:16|舞蹈课,wǔdǎo kè;舞台,wǔtái;相信,xiāngxìn;表演,biǎoyǎn
+hobby:17|技能,jìnéng;视频,shìpín;有用,yǒuyòng;好奇,hàoqí
+hobby:18|温馨,wēnxīn;咖啡馆,kāfēiguǎn;下午,xiàwǔ;特别,tèbié
+hobby:19|练歌房,liàngēfáng;同事,tóngshì;完美地,wánměi de;友谊,yǒuyì
+exercise:0|慢跑,mànpǎo;公里,gōnglǐ;有规律,yǒu guīlǜ;目标,mùbiāo
+exercise:1|徒步,túbù;山顶,shāndǐng;风景,fēngjǐng;攀登,pāndēng
+exercise:2|游泳,yóuyǒng;不停地,bù tíng de;调整节奏,tiáozhěng jiézòu;每周两次,měi zhōu liǎng cì
+exercise:3|健身,jiànshēn;个人纪录,gèrén jìlù;进展,jìnzhǎn;有动力,yǒu dònglì
+exercise:4|骑,qí;河边,hébiān;自信,zìxìn;计划,jìhuà
+exercise:5|得分,défēn;制胜一球,zhìshèng yì qiú;团队合作,tuánduì hézuò;重要,zhòngyào
+exercise:6|全垒打,quánlěidǎ;错过,cuòguò;有回报,yǒu huíbào;再试一次,zài shì yí cì
+exercise:7|进球,jìnqiú;势均力敌的比赛,shìjūn lìdí de bǐsài;激发,jīfā;队友,duìyǒu
+exercise:8|决赛,juésài;相信,xiāngxìn;队友,duìyǒu;更强,gèng qiáng
+exercise:9|更强的选手,gèng qiáng de xuǎnshǒu;冷静,lěngjìng;压力,yālì;势均力敌的比赛,shìjūn lìdí de bǐsài
+exercise:10|比赛,bǐsài;午休,wǔxiū;充电,chōngdiàn;短暂休息,duǎnzàn xiūxi
+exercise:11|雪道,xuědào;摔倒,shuāidǎo;可怕,kěpà;一步一步地,yí bù yí bù de
+exercise:12|姿势,zīshì;呼吸,hūxī;保持,bǎochí;平静,píngjìng
+exercise:13|步数,bùshù;让头脑清醒,ràng tóunǎo qīngxǐng;简单,jiǎndān;甚至,shènzhì
+exercise:14|水肺潜水,shuǐfèi qiánshuǐ;海龟,hǎiguī;水下,shuǐxià;太神奇了,tài shénqí le
+exercise:15|滑冰,huábīng;平衡,pínghéng;信任,xìnrèn;墙,qiáng
+exercise:16|疾驰,jíchí;马背,mǎbèi;动物,dòngwù;耐心,nàixīn
+exercise:17|武术,wǔshù;升级考试,shēngjí kǎoshì;持续努力,chíxù nǔlì;进步,jìnbù
+exercise:18|伸展,shēnzhǎn;更轻松,gèng qīngsōng;之后,zhīhòu;照顾,zhàogù
+exercise:19|驾驶,jiàshǐ;船,chuán;独自,dúzì;掌控,zhǎngkòng
+events:0|现场的,xiànchǎng de;气氛,qìfēn;票,piào;艺术家,yìshùjiā
+events:1|音乐剧,yīnyuèjù;特别的日子,tèbié de rìzi;结局,jiéjú;感动,gǎndòng
+events:2|节日,jiérì;烟花,yānhuā;秋天,qiūtiān;瞬间,shùnjiān
+food:0|炖菜,dùncài;菜肴,càiyáo;愉快,yúkuài;惊喜,jīngxǐ
+food:1|隐藏的美食店,yǐncáng de měishí diàn;探索,tànsuǒ;发现,fāxiàn;附近,fùjìn
+food:2|家常的,jiācháng de;特别,tèbié;在意,zàiyì;父母,fùmǔ
+shopping:0|优惠,yōuhuì;比较,bǐjiào;夹克,jiākè;节省,jiéshěng
+shopping:1|市场,shìchǎng;新鲜,xīnxiān;水果,shuǐguǒ;最便宜,zuì piányi
+shopping:2|购物中心,gòuwù zhōngxīn;礼物,lǐwù;体贴,tǐtiē;昂贵,ángguì
+tech:0|智能手机,zhìnéng shǒujī;功能,gōngnéng;解决,jiějué;应用程序,yìngyòng chéngxù
+tech:1|调查,diàochá;报告,bàogào;一半的时间,yíbàn de shíjiān;工具,gōngjù
+tech:2|社交媒体,shèjiāo méitǐ;重新联系,chóngxīn liánxì;保持联系,bǎochí liánxì;休息,xiūxi
+job:0|调试,tiáoshì;刀具补偿,dāojù bǔcháng;循环时间,xúnhuán shíjiān;轮班,lúnbān
+job:1|客户,kèhù;谈判,tánpàn;长期的,chángqī de;信任,xìnrèn
+job:2|审查,shěnchá;做决定,zuò juédìng;责任,zérèn;结果,jiéguǒ
+home:0|重新布置,chóngxīn bùzhì;家具,jiājù;安静,ānjìng;舒适,shūshì
+home:1|社区,shèqū;当地的,dāngdì de;安全,ānquán;难忘,nánwàng
+home:2|专心,zhuānxīn;干扰,gānrǎo;整洁,zhěngjié;书桌,shūzhuō
+travel:0|海岸,hǎi'àn;平静,píngjìng;让人焕然一新,ràng rén huànrán yì xīn;旅行,lǚxíng
+travel:1|文化,wénhuà;当地的,dāngdì de;迷路,mílù;意想不到,yìxiǎng bú dào
+travel:2|出差,chūchāi;延误,yánwù;备用计划,bèiyòng jìhuà;合作伙伴,hézuò huǒbàn
+friends:0|支持,zhīchí;保持联系,bǎochí liánxì;定期,dìngqī;老朋友,lǎo péngyou
+friends:1|节日,jiérì;家人,jiārén;一起,yìqǐ;最美好的部分,zuì měihǎo de bùfen
+friends:2|同事,tóngshì;庆祝,qìngzhù;项目,xiàngmù;更亲近,gèng qīnjìn
+`;
+const JVOC=`
+hobby:0|バックハンド,ばっくはんど;大会,たいかい;クラブ,くらぶ;着実な,ちゃくじつな
+hobby:1|レシピ,れしぴ;くつろぐ,くつろぐ;準備,じゅんび;忙しい,いそがしい
+hobby:2|映画館,えいがかん;映画,えいが;気分,きぶん;物語,ものがたり
+hobby:3|長編小説,ちょうへんしょうせつ;充電する,じゅうでんする;週末,しゅうまつ;まったく新しい世界,まったくあたらしいせかい
+hobby:4|見つける,みつける;歌手,かしゅ;通勤する,つうきんする;一日中,いちにちじゅう
+hobby:5|ステージ,すてーじ;倒す,たおす;忍耐,にんたい;挑戦,ちょうせん
+hobby:6|写真,しゃしん;誇らしい,ほこらしい;細部,さいぶ;注意,ちゅうい
+hobby:7|キャンプする,きゃんぷする;湖,みずうみ;自然,しぜん;整え直す,ととのえなおす
+hobby:8|釣る,つる;静かな,しずかな;忍耐,にんたい;報われる,むくわれる
+hobby:9|点数,てんすう;落ち着いた,おちついた;技術,ぎじゅつ;一つおきに,ひとつおきに
+hobby:10|描く,えがく;仕上げる,しあげる;贈り物,おくりもの;心づかい,こころづかい
+hobby:11|植物,しょくぶつ;育てる,そだてる;トマト,とまと;世話をする,せわをする
+hobby:12|焼く,やく;クッキー,くっきー;誕生日,たんじょうび;喜び,よろこび
+hobby:13|ボードゲーム,ぼーどげーむ;接戦,せっせん;勝つ,かつ;楽な勝利,らくなしょうり
+hobby:14|外国語,がいこくご;会話,かいわ;一番早い,いちばんはやい;好奇心を保つ,こうきしんをたもつ
+hobby:15|演奏する,えんそうする;勇気,ゆうき;〜の前で,〜のまえで;歌,うた
+hobby:16|ダンス教室,だんすきょうしつ;舞台,ぶたい;信じる,しんじる;公演する,こうえんする
+hobby:17|技術,ぎじゅつ;動画,どうが;役に立つ,やくにたつ;好奇心旺盛な,こうきしんおうせいな
+hobby:18|居心地のいい,いごこちのいい;喫茶店,きっさてん;午後,ごご;特別な,とくべつな
+hobby:19|カラオケボックス,からおけぼっくす;同僚,どうりょう;完璧に,かんぺきに;友情,ゆうじょう
+exercise:0|ジョギングする,じょぎんぐする;キロメートル,きろめーとる;規則的な,きそくてきな;目標,もくひょう
+exercise:1|ハイキングする,はいきんぐする;頂上,ちょうじょう;景色,けしき;登ること,のぼること
+exercise:2|泳ぐ,およぐ;止まらずに,とまらずに;ペースを調整する,ぺーすをちょうせいする;週に二回,しゅうににかい
+exercise:3|運動する,うんどうする;自己ベスト,じこべすと;進み具合,すすみぐあい;やる気がある,やるきがある
+exercise:4|乗る,のる;川沿い,かわぞい;自信,じしん;計画する,けいかくする
+exercise:5|得点する,とくてんする;決勝シュート,けっしょうしゅーと;チームワーク,ちーむわーく;大切だ,たいせつだ
+exercise:6|ホームラン,ほーむらん;逃す,のがす;実を結ぶ,みをむすぶ;もう一度やってみる,もういちどやってみる
+exercise:7|ゴール,ごーる;接戦,せっせん;引き出す,ひきだす;チームメイト,ちーむめいと
+exercise:8|決勝戦,けっしょうせん;信頼する,しんらいする;チームメイト,ちーむめいと;より強い,よりつよい
+exercise:9|より強い選手,よりつよいせんしゅ;落ち着いた,おちついた;プレッシャー,ぷれっしゃー;接戦,せっせん
+exercise:10|大会,たいかい;昼休み,ひるやすみ;充電する,じゅうでんする;短い休憩,みじかいきゅうけい
+exercise:11|ゲレンデ,げれんで;転ぶ,ころぶ;怖い,こわい;一歩ずつ,いっぽずつ
+exercise:12|ポーズ,ぽーず;呼吸,こきゅう;保つ,たもつ;穏やかな,おだやかな
+exercise:13|歩数,ほすう;頭をすっきりさせる,あたまをすっきりさせる;シンプルな,しんぷるな;〜さえ,〜さえ
+exercise:14|スキューバダイビング,すきゅーばだいびんぐ;ウミガメ,うみがめ;水中で,すいちゅうで;すばらしい,すばらしい
+exercise:15|スケートをする,すけーとをする;バランス,ばらんす;信頼,しんらい;壁,かべ
+exercise:16|駆け足,かけあし;馬の背,うまのせ;動物,どうぶつ;忍耐,にんたい
+exercise:17|武道,ぶどう;昇級審査,しょうきゅうしんさ;地道な努力,じみちなどりょく;上達,じょうたつ
+exercise:18|ストレッチ,すとれっち;より軽い,よりかるい;そのあと,そのあと;世話をする,せわをする
+exercise:19|操縦する,そうじゅうする;ボート,ぼーと;自力で,じりきで;主導権を握る,しゅどうけんをにぎる
+events:0|ライブの,らいぶの;雰囲気,ふんいき;チケット,ちけっと;アーティスト,あーてぃすと
+events:1|ミュージカル,みゅーじかる;特別な日,とくべつなひ;結末,けつまつ;感動させる,かんどうさせる
+events:2|祭り,まつり;花火,はなび;秋,あき;瞬間,しゅんかん
+food:0|鍋料理,なべりょうり;料理,りょうり;心地よい,ここちよい;驚き,おどろき
+food:1|隠れた名店,かくれためいてん;探検する,たんけんする;発見,はっけん;近くに,ちかくに
+food:2|家庭料理の,かていりょうりの;特別な,とくべつな;気を配る,きをくばる;両親,りょうしん
+shopping:0|お得な買い物,おとくなかいもの;比べる,くらべる;ジャケット,じゃけっと;節約する,せつやくする
+shopping:1|市場,いちば;新鮮な,しんせんな;果物,くだもの;一番安い,いちばんやすい
+shopping:2|ショッピングモール,しょっぴんぐもーる;贈り物,おくりもの;思いやりのある,おもいやりのある;高価な,こうかな
+tech:0|スマートフォン,すまーとふぉん;機能,きのう;解決する,かいけつする;アプリ,あぷり
+tech:1|調査,ちょうさ;報告書,ほうこくしょ;半分の時間,はんぶんのじかん;道具,どうぐ
+tech:2|SNS,えすえぬえす;再び連絡を取る,ふたたびれんらくをとる;連絡を取り合う,れんらくをとりあう;休み,やすみ
+job:0|段取りする,だんどりする;工具オフセット,こうぐおふせっと;サイクルタイム,さいくるたいむ;交代勤務,こうたいきんむ
+job:1|顧客,こきゃく;交渉,こうしょう;長期的な,ちょうきてきな;信頼,しんらい
+job:2|確認する,かくにんする;決断を下す,けつだんをくだす;責任,せきにん;結果,けっか
+home:0|模様替えする,もようがえする;家具,かぐ;静かな,しずかな;快適な,かいてきな
+home:1|近所,きんじょ;地元の,じもとの;安全な,あんぜんな;思い出に残る,おもいでにのこる
+home:2|集中する,しゅうちゅうする;邪魔,じゃま;整頓された,せいとんされた;机,つくえ
+travel:0|海岸,かいがん;穏やかな,おだやかな;リフレッシュする,りふれっしゅする;旅行,りょこう
+travel:1|文化,ぶんか;現地の,げんちの;道に迷う,みちにまよう;予想外の,よそうがいの
+travel:2|出張,しゅっちょう;遅れた,おくれた;予備の計画,よびのけいかく;取引先,とりひきさき
+friends:0|応援する,おうえんする;連絡を取り合う,れんらくをとりあう;定期的に,ていきてきに;古い友人,ふるいゆうじん
+friends:1|休日,きゅうじつ;家族,かぞく;一緒に,いっしょに;一番いいところ,いちばんいいところ
+friends:2|同僚,どうりょう;祝う,いわう;プロジェクト,ぷろじぇくと;より親しい,よりしたしい
+`;
+
 /* 화면 문자열 한국어 → 베트남어 (긴 조각 우선 치환). 숫자 포함 문장은 정규식 규칙(VIR) 사용 */
 const VIM={
 "Barron OPIc 연습실 · English / 中文 / 日本語":"Phòng luyện OPIc Barron · English / 中文 / 日本語",
@@ -1577,7 +2086,7 @@ function extras(){const cards=document.querySelectorAll("#model .qc");cards.forE
  const en=s.lang==="en";let h=`<div class="interp"><b>🇰🇷🇻🇳 ${T("원어민식 해석","Bản dịch tự nhiên")}</b><div class="iq">${esc(ip.q)}</div><div>${esc(ip.a)}</div>${en?"":`<div class="mut nt">${T("중국어·일본어 답안은 같은 뜻의 영어 모범답안 기준 해석이에요. 문장 하나하나가 완전히 일치하지 않을 수 있어요.","Bản dịch dựa trên bài mẫu tiếng Anh cùng nội dung; từng câu có thể không khớp hoàn toàn.")}</div>`}</div>`;
   if(en){h+=`<details class="study"><summary><b>${T("📘 학습 노트: 필수 표현 · 주고받는 질문 · 숙어 · 단어","📘 Ghi chú học tập: cấu trúc quan trọng · hỏi đáp · thành ngữ · từ vựng")}</b></summary><p class="mut nt">${GT()}</p>${studyHTML(x)}</details>`;
    if(s.lv===2)h+=`<details class="study al"><summary><b>${T("🌟 AL 업그레이드 (고급)","🌟 Nâng cấp AL (cao cấp)")}</b></summary>${alHTML(x.a,x.key.split(":")[0],x.q)}${alNote()}</details>`}
-  else h+=`<p class="mut nt">${T("학습 노트(필수 표현·숙어·단어)는 지금은 영어만 제공해요.","Ghi chú học tập (cấu trúc, thành ngữ, từ vựng) hiện chỉ có cho tiếng Anh.")}</p>`;
+  else h+=`<details class="study"><summary><b>${T("📘 학습 노트: 필수 표현 · 주고받는 질문 · 숙어 · 단어","📘 Ghi chú học tập: cấu trúc quan trọng · hỏi đáp · thành ngữ · từ vựng")}</b></summary>${studyHTMLZJ(x)}</details>`;
   el.insertAdjacentHTML("beforeend",h)})}
 /* --- AL 문장 변환기 --- */
 function alDraw(){const o=$("alout");if(o&&o.dataset.has&&$("alin").value.trim())alRun()}
@@ -1713,5 +2222,35 @@ document.addEventListener("click",e=>{const b=e.target.closest("#storycard .sn,#
  else if(b.id==="srbtn"){$("srule").innerHTML=stReport($("mine").value)}});
 {const _d3=draw;draw=function(){_d3();storyDraw();trTree($("storycard"));const sb=$("srbtn");if(sb)sb.textContent=T("📖 스토리 규칙 점검","📖 Kiểm tra quy tắc kể chuyện");$("srule").innerHTML=""}}
 storyDraw();trTree($("storycard"));
+
+/* 중국어·일본어 학습 노트 */
+const ZVD={},JVD={};
+ZVOC.trim().split("\n").forEach(l=>{const x=l.split("|");ZVD[x[0]]=x[1].split(";").map(z=>z.split(","))});
+JVOC.trim().split("\n").forEach(l=>{const x=l.split("|");JVD[x[0]]=x[1].split(";").map(z=>z.split(","))});
+function zjRP(c,it,zi,ji,lg){try{return RPI[c]?RPI[c][lg]:rpItem(it,zi,ji,lg)}catch(e){return null}}
+function whyZJ(lg,it){const vi=UI==="vi",out=[],seen={};const R1=lg==="zh"?ZVR:JVR,R2=lg==="zh"?ZWR:JWR;
+ const add=(R,t)=>R.forEach(([re,k,v])=>{if(re.test(t)&&!seen[k]){seen[k]=1;out.push([t,vi?v:k])}});
+ add(R1,it.a);add(R2,it.w);
+ if(!out.length)out.push([it.a+" "+it.w,T("이 항목은 통째로 외워 두세요.","Hãy học thuộc nguyên cụm này.")]);return out}
+function studyHTMLZJ(x){const lg=s.lang,key=x.key,c=key.split(":")[0],ix=+key.split(":")[1],it=lg==="zh"?Z[c][ix]:J[c][ix],en=D[c].i[ix],L=s.lv,vi=UI==="vi";
+ const PA=lg==="zh"?ZPAT:JPAT,PM=lg==="zh"?PMAPZ:PMAPJ,rp=x.q===4?zjRP(c,en,Z[c][ix],J[c][ix],lg):null;let h="";
+ h+=`<h3>${T("① 필수 표현 — 왜 이렇게 쓰나요?","① Cấu trúc câu quan trọng — vì sao viết như vậy?")}</h3>`;
+ PM[x.q][L].forEach(k=>{const P=PA[k];let ex="";try{ex=P.ex(it,rp)}catch(e){}h+=`<div class="pat"><div class="pp">${esc(P.p)} <span class="mut">= ${esc(vi?P.mv:P.mk)}</span></div><div>${esc(vi?P.wv:P.wk)}</div><div class="exs">${ab(ex)} <span class="en">${esc(ex)}</span></div></div>`});
+ if(x.q<=1){const usu=x.q===1,sen=lg==="zh"?`我${usu?"通常":""}${it.w}${it.a}。`:`${usu?"たいてい、":""}${it.w}${it.a}。`;
+  h+=`<div class="pat"><div class="pp">🔍 ${T("문장 분해","Phân tích câu")} ${ab(sen)}</div><div class="toks">${(lg==="zh"?[["我",T("주어","chủ ngữ")]].concat(usu?[["通常",T("빈도부사","trạng từ tần suất")]]:[]):usu?[["たいてい",T("빈도부사","trạng từ tần suất")]]:[]).concat([[it.w,T("때·장소","thời gian/nơi chốn")],[it.a,T("동사 + 목적어","động từ + tân ngữ")]]).map(z=>`<span class="tok">${esc(z[0])}<small>${esc(z[1])}</small></span>`).join("")}</div><div class="mut">${esc(sen)}</div>`;
+  h+=`<div class="why"><b>💡 ${T("단어 선택 이유","Vì sao chọn từ này")}</b><ul>${whyZJ(lg,it).map(z=>`<li><b>${esc(z[0])}</b> — ${esc(z[1])}</li>`).join("")}</ul></div></div>`}
+ h+=`<h3>${T(x.q===4?"② 주고받는 질문 (내가 묻고 상대가 답하는 연습용 예시 대화)":"② 주고받는 질문 (시험관이 묻고 내가 답하기)",x.q===4?"② Hỏi – đáp (đoạn hội thoại mẫu: bạn hỏi, đối phương trả lời)":"② Hỏi – đáp (giám khảo hỏi, bạn trả lời)")}</h3><div class="qa">`;
+ let kq=[];try{kq=qaFor(x,en,key,c)}catch(e){}
+ let rows=[];
+ if(x.q===4){const RR=(lg==="zh"?RPRZ:RPRJ)[RPI[c]?c:"item"];(rp?rp.q:[]).forEach((q,k)=>rows.push([q,RR[k]]))}
+ else rows=(lg==="zh"?QATZ:QATJ)[x.q](it);
+ rows.forEach((z,k)=>{const t=kq[k]||["","","",""];h+=`<div class="qar"><div>${x.q===4?"🙋":"🎤"} ${sp(z[0])} <span class="mut">→ ${esc(t[2])}</span></div><div class="ans2">💬 ${sp(z[1])} <span class="mut">→ ${esc(t[3])}</span></div></div>`});h+="</div>";
+ if(x.q===4)h+=`<p class="mut nt">${T("상대 응답은 연습을 위해 제가 만든 가상 대화예요. 실제 시험 내용이 아니에요.","Câu trả lời của đối phương là hội thoại giả định do tôi viết để luyện tập, không phải nội dung thi thật.")}</p>`;
+ h+=`<h3>${T("③ 숙어·관용 표현","③ Thành ngữ")}</h3>`;
+ (lg==="zh"?IDZ:IDJ).filter(d=>d[0]===c).forEach(d=>{h+=`<div class="pat"><div class="pp">${esc(d[1])} ${ab(d[1])} <span class="mut">(${esc(d[2])}) = ${esc(vi?d[4]:d[3])}</span></div><div>${esc(vi?d[6]:d[5])}</div><div class="exs">${ab(d[7])} <span class="en">${esc(d[7])}</span></div></div>`});
+ h+=`<h3>${T("④ 단어","④ Từ vựng")}</h3><div class="tw"><table><tr><th></th><th>${lg==="zh"?"中文 (pinyin)":"日本語 (よみ)"}</th><th>${T("한국어","Tiếng Việt")}</th></tr>`;
+ const gl=VOCD[key]||[];((lg==="zh"?ZVD:JVD)[key]||[]).forEach((z,i)=>{const g=gl[i]||["","",""];h+=`<tr><td>${ab(z[0])}</td><td>${sp(z[0])} <span class="mut">${esc(z[1]||"")}</span></td><td>${esc(vi?g[2]:g[1])}</td></tr>`});h+="</table></div>";
+ h+=`<p class="mut nt">${T("이 학습 노트는 원어민 검수 전이에요. 병음·읽기와 숙어 설명은 일반 중국어·일본어 지식으로 작성했으니 중요한 표현은 사전으로 확인하세요.","Ghi chú này chưa được người bản ngữ kiểm duyệt. Phiên âm/cách đọc và giải thích thành ngữ viết từ kiến thức chung, hãy kiểm tra lại bằng từ điển với biểu hiện quan trọng.")}</p>`;
+ return h}
 
 </script></body></html>
