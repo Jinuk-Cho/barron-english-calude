@@ -71,6 +71,11 @@ html{font-size:18px}
 .mut,.fl,.badge,.badge2,.stp,.mem{font-size:max(.85rem,12px)}
 .fl input,.fl select,textarea{font-size:max(1rem,16px)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #2383ab;outline-offset:2px}
+/* Improve profile dialog readability. */
+#modal .mbody *{font-size:max(1rem,18px);line-height:1.6} #modal .mbody h2,#modal .mbody h3{font-size:max(1.1rem,20px)}
+#modal .mbody :is(.mut,.fl){color:var(--ink)}
+#modal .mbody :is(input,select,textarea){color:var(--ink);min-height:48px}
+#modal .mbody input::placeholder,#modal .mbody textarea::placeholder{color:var(--mut);opacity:1}
 @media(max-width:480px){main{padding:12px}.card{padding:12px}.frm{grid-template-columns:minmax(0,1fr)}#modal .mhead{flex-wrap:wrap}#modal .mhead .font-controls{order:3;width:100%;margin:2px 0}}
 
 </style></head><body><main>
