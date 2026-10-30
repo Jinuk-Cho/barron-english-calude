@@ -3429,13 +3429,24 @@ Rules:
 Input:
 ${lines.join("\n")}`}
 function txHTML(){const vi=UI==="vi";
- return `<details class="abd"><summary><b>${T("AI 번역 붙여넣기 (선택 · 무료 · 직접 복사)","Dán bản dịch từ AI (tùy chọn · miễn phí · tự sao chép)")}</b></summary>
+ const unk=(typeof xlReport==="function"?xlReport().unknown.length:0);return `<details class="abd"${unk?" open":""}><summary><b>${T("AI 번역 붙여넣기 (선택 · 무료 · 직접 복사)","Dán bản dịch từ AI (tùy chọn · miễn phí · tự sao chép)")}</b></summary>
  <div class="mut">${T("이 앱은 AI를 호출하지 않습니다. 입력한 문장이 내장 사전에 없을 때, ①요청문을 복사해 ChatGPT·Gemini·Claude 등 원하는 AI에 직접 붙여넣고 ②받은 번역을 아래에 붙여넣으면 답변에 반영됩니다. 이름·연락처 같은 개인정보는 입력 칸에 쓰지 마세요. AI 번역은 틀릴 수 있어 원어민 검수가 필요합니다.","Ứng dụng này không gọi AI. Khi câu bạn nhập không có trong từ điển: ① sao chép yêu cầu và tự dán vào AI bạn chọn (ChatGPT, Gemini, Claude…), ② dán bản dịch nhận được vào ô bên dưới để đưa vào bài mẫu. Đừng ghi thông tin cá nhân (tên, liên lạc). Bản dịch của AI có thể sai nên cần người bản ngữ kiểm tra.")}</div>
+ <div class="row" id="txchrow" hidden><button class="btn" id="txchrome">${T("⚡ Chrome 내장 번역으로 초안 만들기","⚡ Tạo bản nháp bằng dịch tích hợp của Chrome")}</button><span class="mut" id="txchmsg"></span></div>
  <div class="row"><button class="btn" id="txcopy">${T("① 번역 요청문 복사","① Sao chép yêu cầu dịch")}</button><span class="mut" id="txmsg"></span></div>
  <textarea id="txprompt" rows="5" readonly style="width:100%;box-sizing:border-box;font:inherit"></textarea>
  <label class="fl">${T("② AI가 준 결과 붙여넣기 (한 줄에 하나: [ev] …)","② Dán kết quả AI (mỗi dòng một mục: [ev] …)")}<textarea id="txin" rows="4" style="width:100%;box-sizing:border-box;font:inherit" placeholder="[ev] ..."></textarea></label>
  <div class="row"><button class="btn p" id="txapply">${T("적용","Áp dụng")}</button><span class="mut" id="txres"></span></div></details>`}
-function wireTx(){const pr=$("txprompt");if(!pr)return;const upd=()=>{pr.value=txPrompt()||T("(먼저 이유·사건·생각 등 자유 입력 칸을 채우세요)","(Hãy điền các ô tự do: lý do, sự việc, suy nghĩ…)")};upd();
+async function txChrome(){const L=s.lang,m=s.me||{},msg=x=>{const e=$("txchmsg");if(e)e.textContent=x},tl=L;
+ if(typeof Translator==="undefined"){msg(T("이 브라우저는 내장 번역을 지원하지 않아요. 아래 복사·붙여넣기를 쓰세요.","Trình duyệt này không hỗ trợ dịch tích hợp. Hãy dùng cách sao chép–dán bên dưới."));return}
+ const VIX=/[ăâđêôơưàáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũỳýỵỷỹ]/i,cache={},lines=[],skip=[];
+ try{for(const k of TXK){const v=(m[k]||"").trim();if(!v)continue;const sl=/[가-힣]/.test(v)?"ko":VIX.test(v)?"vi":null;if(!sl){skip.push(k);continue}
+  if(!cache[sl]){const av=await Translator.availability({sourceLanguage:sl,targetLanguage:tl});if(av==="unavailable"){skip.push(k);continue}
+   cache[sl]=await Translator.create({sourceLanguage:sl,targetLanguage:tl,monitor(mon){mon.addEventListener("downloadprogress",e=>msg(T("번역 모델 내려받는 중 ","Đang tải mô hình dịch ")+Math.round((e.loaded||0)*100)+"%"))}})}
+  let o=(await cache[sl].translate(v)).trim();if(k==="rs"){o=o.replace(/[.。]$/,"");if(L==="en")o=o.replace(/^because\s+/i,"").replace(/^./,c=>c.toLowerCase())}
+  lines.push("["+k+"] "+o)}
+  $("txin").value=lines.join("\n");msg(lines.length?T("초안을 아래 칸에 넣었어요. 고친 뒤 ‘적용’을 누르세요. (검수 전 초안"+(L==="ja"?" · 이유 [rs]는 보통체로 고쳐 주세요":"")+")","Đã điền bản nháp vào ô dưới. Hãy sửa rồi bấm ‘Áp dụng’. (nháp, chưa kiểm tra"+(L==="ja"?" · [rs] cần chuyển sang thể thường":"")+")"):T("번역할 한국어·베트남어 입력이 없어요.","Không có nội dung tiếng Hàn/Việt để dịch."))}
+ catch(e){msg(T("내장 번역을 쓰지 못했어요: ","Không dùng được dịch tích hợp: ")+(e&&e.message||e))}}
+function wireTx(){const pr=$("txprompt");if(!pr)return;const chrow=$("txchrow");if(chrow&&typeof Translator!=="undefined"){chrow.hidden=false;$("txchrome").onclick=txChrome}const upd=()=>{pr.value=txPrompt()||T("(먼저 이유·사건·생각 등 자유 입력 칸을 채우세요)","(Hãy điền các ô tự do: lý do, sự việc, suy nghĩ…)")};upd();
  document.querySelectorAll('[id^="me_"]').forEach(e=>e.addEventListener("input",upd));const dt=pr.closest("details");if(dt)dt.addEventListener("toggle",upd);
  $("txcopy").onclick=()=>{upd();const ok=()=>$("txmsg").textContent=T("복사했어요. 원하는 AI에 붙여넣으세요.","Đã sao chép. Hãy dán vào AI bạn chọn.");try{navigator.clipboard.writeText(pr.value).then(ok,()=>{pr.select();$("txmsg").textContent=T("자동 복사가 막혀 있어요. 위 칸을 직접 복사(Ctrl+C)하세요.","Không sao chép tự động được. Hãy tự chọn và sao chép (Ctrl+C) ô trên.")})}catch(e){pr.select();$("txmsg").textContent=T("위 칸을 직접 복사(Ctrl+C)하세요.","Hãy tự sao chép ô trên (Ctrl+C).")}};
  $("txapply").onclick=()=>{const L=s.lang,m=s.me=s.me||{};m.tx=m.tx||{};const txt=$("txin").value,got={};let mm;const re=/^\s*\[(ev|th|past|now|rs)\]\s*(.+?)\s*$/gim;while((mm=re.exec(txt)))got[mm[1].toLowerCase()]=mm[2].replace(/^["“「]|["”」]$/g,"");
@@ -3561,7 +3572,7 @@ function DISC(){return T("독립적인 연습 도구입니다. ACTFL 공식 앱�
 function renderDisc(){const h=document.querySelector(".hdr");if(!h)return;let d=$("disc");if(!d){d=document.createElement("div");d.id="disc";d.className="mut";d.style.margin="2px 0 8px";h.parentNode.insertBefore(d,h.nextSibling)}d.textContent="ℹ "+DISC()}
 function updXl(){const e=$("xlnote");if(!e)return;const r=xlReport();let h="";
  if(r.translated.length)h+="✅ "+T("사전으로 바꾼 말","Từ đã chuyển bằng từ điển")+": "+r.translated.map(esc).join(" · ");
- if(r.unknown.length)h+=(h?"<br>":"")+"⚠ "+T("번역하지 못한 말(답변에 넣지 않았어요 — 선택한 언어로 직접 쓰거나 다른 말로 바꿔 보세요)","Chưa dịch được (chưa đưa vào bài mẫu — hãy tự viết bằng ngôn ngữ đã chọn hoặc đổi cách nói)")+": "+r.unknown.map(esc).join(" · ");
+ if(r.unknown.length)h+=(h?"<br>":"")+"⚠ "+T("번역하지 못한 말(답변에 넣지 않았어요 — 아래 ‘AI 번역 붙여넣기’를 쓰거나, 선택한 언어로 직접 쓰거나, 다른 말로 바꿔 보세요)","Chưa dịch được (chưa đưa vào bài mẫu — hãy dùng ‘Dán bản dịch từ AI’ bên dưới, tự viết bằng ngôn ngữ đã chọn hoặc đổi cách nói)")+": "+r.unknown.map(esc).join(" · ");
  e.innerHTML=h}
 function renderFoot(){const e=$("footnote");if(!e)return;e.innerHTML=`<b>${T("이 앱의 성격","Tính chất ứng dụng")}</b>: ${DISC()}<br><b>${T("개인정보 · 비용","Quyền riêng tư · chi phí")}</b>: ${T("이 사이트는 서버나 유료 AI를 쓰지 않는 정적 페이지입니다(이용자가 늘어도 문장별 AI 비용이 없습니다). 입력한 답변·내 이야기·녹음은 이 기기의 브라우저 메모리에만 있고 전송·저장되지 않습니다. API 키는 코드에 없습니다. 자유 입력만으로 자연스러운 문장을 새로 만드는 AI 기능은 포함하지 않았습니다(만든다면 서버가 필요하고 비용이 발생합니다 — 현재 비용 0원). 첨삭은 규칙 기반(AI 아님)이라 잡지 못하는 오류가 있습니다. 한국어·베트남어 해석과 학습 노트는 AI(Claude)가 작성했고 원어민 검수 전입니다. 중국어 병음·일본어 읽기는 변환 도구로 만든 것이라 오류가 있을 수 있습니다.","Trang này là trang tĩnh, không dùng máy chủ hay AI trả phí (người dùng tăng cũng không phát sinh chi phí AI theo từng câu). Câu trả lời, câu chuyện và bản ghi âm chỉ nằm trong bộ nhớ trình duyệt của thiết bị, không gửi đi hay lưu. Không có khóa API trong mã. Chưa có tính năng AI tự tạo câu từ nhập tự do (nếu làm sẽ cần máy chủ và phát sinh chi phí — hiện chi phí 0 đồng). Chỉnh sửa theo quy tắc (không phải AI) nên có lỗi không bắt được. Bản dịch Hàn/Việt và ghi chú học do AI (Claude) viết, chưa được người bản ngữ kiểm duyệt. Pinyin và cách đọc tiếng Nhật do công cụ chuyển đổi tạo, có thể có sai sót.")}`}
 /* ---- 팝업(모달): '나에 대하여' / '문체·분량' ---- */
