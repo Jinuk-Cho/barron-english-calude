@@ -63,8 +63,9 @@ table.st th:first-child,table.st td:first-child{width:2.4em;text-align:right;col
 @media(prefers-color-scheme:dark){.warn{background:#3b2c10;color:#f3d9a4;border-color:#6b5320}.ok{background:#12301d;color:#b8e6c6;border-color:#2c6a41}.mem{background:#33290f;color:#f3d9a4}}
 
 @media(max-width:480px){.hdr h1{font-size:1.15rem}.uisw{flex-direction:column;gap:4px;margin-top:8px}.uisw .chip{padding:4px 10px;font-size:.8rem}}
+#lg,.uisw{display:none} #lg.closest{}
 </style></head><body><main>
-<div class="hdr"><h1>Barron OPIc 연습실 · English / 中文 / 日本語</h1><div class="uisw" role="group" aria-label="UI language"><button class="chip" id="uiko" aria-pressed="true">한국어</button><button class="chip" id="uivi" aria-pressed="false">Tiếng Việt</button></div></div>
+<div class="hdr"><h1>Barron OPIc 영어 연습실</h1><div class="uisw" role="group" aria-label="UI language"><button class="chip" id="uiko" aria-pressed="true">한국어</button><button class="chip" id="uivi" aria-pressed="false">Tiếng Việt</button></div></div>
 <div class="mut">언어·레벨·주제를 클릭으로 고르면 질문과 모범 답변이 자동 생성됩니다. 문장을 누르면 소리를 듣고, 내 답변을 쓰면 첨삭합니다.</div>
 
 <details class="card"><summary><b>시험 컨설팅 · 출제 구조와 준비 전략 (출처 포함)</b></summary>
@@ -98,7 +99,7 @@ table.st th:first-child,table.st td:first-child{width:2.4em;text-align:right;col
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const LV=[{n:"초급",w:[30,60],z:[40,90],j:[40,100],c:2,i:"IL 이하 수준 · 짧고 단순한 문장"},{n:"중급",w:[70,110],z:[90,150],j:[100,180],c:4,i:"IM 수준 · 이유와 세부 설명 추가"},{n:"고급",w:[110,170],z:[140,220],j:[160,260],c:6,i:"IH~AL 수준 · 회고와 의견까지 확장"}];
+const LV=[{n:"초급",w:[30,60],z:[40,90],j:[40,100],c:2,i:"IL 이하 수준 · 짧고 단순한 문장"},{n:"IM 목표",w:[70,110],z:[90,150],j:[100,180],c:4,i:"IM 수준 · 이유와 세부 설명 추가"},{n:"IH 목표",w:[110,170],z:[140,220],j:[160,260],c:6,i:"IH~AL 수준 · 회고와 의견까지 확장"}];
 const QS=["설명 (Describe)","루틴 (Routine)","경험 (Past experience)","비교 (Comparison)","롤플레이 (Role-play)"];
 const D={
 hobby:{t:"취미 Hobby",i:[
@@ -465,7 +466,7 @@ return out}
 function draw(){
 chips($("lg"),["English","中文 Chinese","日本語 Japanese"],["en","zh","ja"].indexOf(s.lang),i=>{stopA();s.lang=["en","zh","ja"][i];draw()});
 chips($("lv"),LV.map((l,i)=>s.lang==="ja"?["初級 (초급)","中級 (중급)","上級 (고급)"][i]:s.lang==="zh"?["初级 (초급)","中级 (중급)","高级 (고급)"][i]:l.n),s.lv,i=>{s.lv=i;draw()});
-chips($("cat"),CK.map(k=>s.lang!=="en"?(s.lang==="ja"?CJ:CZ)[k]+" ("+D[k].t.split(" ")[0]+")":D[k].t),CK.indexOf(s.cat),i=>{s.cat=CK[i];s.it=0;draw()});
+chips($("cat"),CK.map(k=>s.lang!=="en"?(s.lang==="ja"?CJ:CZ)[k]+" ("+D[k].t.split(" ")[0]+")":D[k].t),CK.indexOf(s.cat),i=>{saveTopic();s.cat=CK[i];s.it=0;loadTopic();if(!s.sel.some(k=>k.startsWith(s.cat+":")))s.sel.push(s.cat+":0");draw()});
 mc($("it"),D[s.cat].i.map((x,j)=>s.lang==="ja"?J[s.cat][j].l+" ("+x.ko+")":s.lang==="zh"?(Z[s.cat][j].zl||Z[s.cat][j].n)+" ("+x.ko+")":x.ko+" · "+x.k),i=>s.sel.includes(s.cat+":"+i),i=>{const k=s.cat+":"+i,p=s.sel.indexOf(k);p<0?s.sel.push(k):s.sel.splice(p,1);draw()});
 mc($("q"),s.lang==="ja"?["説明 (설명)","日常の習慣 (루틴)","過去の経験 (경험)","比較 (비교)","ロールプレイ (롤플레이)"]:s.lang==="zh"?["描述 (설명)","日常习惯 (루틴)","过去经历 (경험)","比较 (비교)","角色扮演 (롤플레이)"]:QS,i=>s.qs.includes(i),i=>{const p=s.qs.indexOf(i);p<0?s.qs.push(i):s.qs.splice(p,1);draw()});
 const SP=i=>{speed=[0.7,0.85,1][i];draw();if(LASTQ&&"speechSynthesis" in window&&speechSynthesis.speaking)sayQ(LASTQ)};chips($("rate2"),["0.7×","0.85×","1.0×"],[0.7,0.85,1].indexOf(speed),SP);
@@ -476,7 +477,7 @@ $("model").innerHTML=SETS.length?SETS.map((x,n)=>`<div class="qc"><div class="mu
 $("meta").textContent="· 항목 "+s.sel.length+"개 × 유형 "+s.qs.length+"개 = "+SETS.length+"문항 (문장을 누르면 재생)";if(SETS.length){s.pq=SETS[0].q;s.pm=SETS[0].a;$("pq").textContent="Q1. "+SETS[0].qt}else $("pq").textContent="";$("mine").placeholder="여기에 "+LN[s.lang]+"로 답변을 써 보세요. (모범 답변을 복사해 내 경험에 맞게 고쳐도 됩니다)";$("mine").lang=s.lang;vstat()}
 $("model").onclick=e=>{const b=e.target.closest("button[data-a]"),t=e.target.closest(".sn");if(b){const x=SETS[+b.dataset.n],a=b.dataset.a;if(a==="play")say(x.a);else if(a==="all")sayQ([x.qt,x.a]);else act(+b.dataset.n)}else if(t)say(t.dataset.t)};
 const pa=()=>sayQ(SETS.flatMap(x=>[x.qt,x.a]));$("playTop").onclick=pa;$("stopTop").onclick=stopA;$("testTop").onclick=()=>sayQ([{zh:"你好，这是声音测试。",ja:"こんにちは。音声テストです。",en:"Hello. This is a sound test."}[s.lang]]);
-$("use").onclick=()=>{$("mine").value=s.pm;$("mine").focus()};$("clr").onclick=()=>{s.sel=[];draw()};
+$("use").onclick=()=>{$("mine").value=s.pm;$("mine").focus()};$("clr").onclick=()=>{s.sel=[s.cat+":0"];draw()};
 $("playMine").onclick=()=>say($("mine").value);
 function diff(a,b){const tk=z=>z.match(/[\w'’]+|[^\w\s]/g)||[],P=z=>/^[^\w]$/.test(z),x=tk(a),y=tk(b),n=x.length,m=y.length,T=Array.from({length:n+1},()=>new Array(m+1).fill(0));
 for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)T[i][j]=x[i]===y[j]?T[i+1][j+1]+1:Math.max(T[i+1][j],T[i][j+1]);
@@ -3054,6 +3055,9 @@ const RDJ={"m":5,"w":{"普段":"ふだん","誰":"だれ","一緒に":"いっし
 
 /* ===== 화자·문체·내 이야기·역할 대화·문장별 해석·코치 ===== */
 Object.assign(s,{spk:"virt",sty:"talk",long:false,me:{},pers:{},role:{},pi:0,keep:[],rdon:true});
+let topicProfiles={};
+function saveTopic(){topicProfiles[s.cat]=JSON.parse(JSON.stringify(s.me))}
+function loadTopic(){s.me=JSON.parse(JSON.stringify(topicProfiles[s.cat]||{}))}
 const SPKN=[["실제 나","Chính tôi"],["가상 인물","Nhân vật hư cấu"],["역할 상황","Tình huống nhập vai"]],SPKK=["real","virt","role"];
 const LANGW={en:"English",zh:"中文",ja:"日本語"};
 let _rdT=0;const redraw=()=>{clearTimeout(_rdT);_rdT=setTimeout(()=>draw(),250)};
@@ -3067,7 +3071,7 @@ function longSents(c,j,q,lv){const P=fieldsFor(c,j),lg=s.lang;
 const QKEY=(c,j,L)=>{const it=D[c].i[j],zi=Z[c][j],ji=J[c][j];return L==="ja"?ji.n:L==="zh"?zi.n.replace(/我/g,"你"):it.n.replace(/\bmy own\b/g,"your own").replace(/\bmy\b/g,"your")};
 buildSets=function(){const L=s.lang,out=[],seenRP={},lv=s.lv;
  const qs=s.spk==="role"?[4]:[...s.qs].sort();
- s.sel.forEach(key=>{const p=key.split(":"),c=p[0],j=+p[1],it=D[c].i[j],zi=Z[c][j],ji=J[c][j];
+ (s.sel.length?s.sel:[s.cat+":0"]).forEach(key=>{const p=key.split(":"),c=p[0],j=+p[1],it=D[c].i[j],zi=Z[c][j],ji=J[c][j];
   const lab=L==="ja"?ji.l:L==="zh"?(zi.zl||zi.n):it.k,qk=QKEY(c,j,L);
   qs.forEach(q=>{
    if(q===4){if(RPI[c]){if(seenRP[c])return;seenRP[c]=1}const R=roleLines(c,j,lv);
@@ -3483,6 +3487,23 @@ function summary(){const e=$("sumrow");if(!e)return;const vi=UI==="vi",st=STYL[s
  const rd=document.createElement("div");rd.className="row";rd.id="rdrow";rd.style.margin="6px 0";$("model").parentNode.insertBefore(rd,$("model"))})();
 {const _d6=draw;draw=function(){renderSettings();chipsStatic();_d6();renderPractice();renderExt();renderConsult();renderFoot();renderDisc();updXl();summary();{const dn=document.querySelector("#modal .mdone");if(dn)dn.textContent=T("완료 (닫기)","Xong (đóng)")}
  const rr=$("rdrow");if(rr){if(s.lang==="en")rr.innerHTML="";else chips(rr,[T("읽기 숨김","Ẩn cách đọc"),T("읽기 표시 ("+(s.lang==="zh"?"병음":"かな, 초급 기본")+")","Hiện cách đọc ("+(s.lang==="zh"?"pinyin":"kana")+")")],s.rdon?1:0,i=>{s.rdon=i===1;draw()})}}}
-draw();
 
+/* Browser-only persistence: no user data leaves this device. */
+const STORAGE_KEY="barron.opic.local.v1";
+let restoreDraft="", progress={}, saveTimer;
+function readLocal(){try { const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(!v||v.version!==1)return false; Object.assign(s,v.state||{}); s.lang="en"; topicProfiles=v.topics||{}; progress=v.progress||{}; restoreDraft=v.draft||""; return true } catch(e){return false}}
+function persist(){try {saveTopic(); localStorage.setItem(STORAGE_KEY,JSON.stringify({version:1,state:s,topics:topicProfiles,progress,draft:$("mine").value,savedAt:new Date().toISOString()})); const e=$("saveStatus");if(e)e.textContent="이 브라우저에 저장됨 · "+new Date().toLocaleTimeString();}catch(e){const el=$("saveStatus");if(el)el.textContent="저장하지 못했습니다. 브라우저 저장 공간을 확인해 주세요."}}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,500)}
+const restored=readLocal(); s.lang="en"; UI="ko";
+const top=document.createElement("div"); top.className="card"; top.innerHTML='<b>학습 기록</b> <span id="saveStatus" class="mut" role="status">이 기기의 브라우저에 저장됩니다.</span><div class="row"><button class="btn" id="exportLocal">백업 파일 내보내기</button><button class="btn" id="importLocal">백업 파일 가져오기</button><button class="btn" id="deleteLocal">이 기기의 학습 기록 삭제</button></div><p class="mut">기기나 브라우저가 달라지면 자동으로 옮겨지지 않습니다. 공용 기기에서는 브라우저 프로필을 따로 사용하세요.</p><input id="backupFile" type="file" accept="application/json,.json" hidden>'; document.querySelector("main").insertBefore(top,document.querySelector("#sumrow"));
+$("exportLocal").onclick=()=>{persist();const b=new Blob([localStorage.getItem(STORAGE_KEY)],{type:"application/json"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="opic-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+$("importLocal").onclick=()=>$("backupFile").click();
+$("backupFile").onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const raw=await file.text(),v=JSON.parse(raw);if(v.version!==1||!v.state||!Array.isArray(v.state.sel)||!Array.isArray(v.state.qs))throw Error();if(!confirm("현재 이 브라우저의 기록을 백업 내용으로 바꾸시겠습니까?"))return;localStorage.setItem(STORAGE_KEY,raw);location.reload()}catch(err){alert("올바른 OPIc 백업 파일을 선택해 주세요.")}e.target.value=""};
+$("deleteLocal").onclick=()=>{if(confirm("이 브라우저의 학습 기록을 삭제하시겠습니까? 삭제 전 백업할 수 있습니다.")){localStorage.removeItem(STORAGE_KEY);location.reload()}};
+const baseDraw=draw; draw=function(){baseDraw();renderProgress();scheduleSave()};
+function renderProgress(){let e=$("progressPanel");if(!e){e=document.createElement("div");e.id="progressPanel";e.className="card";$("practice").before(e)} const x=SETS[s.pi];if(!x){e.textContent="연습 문항을 선택하세요.";return}const key=x.key+":"+x.q+":"+s.lv; const done=!!progress[key];e.innerHTML='<b>학습 진도</b> <span class="mut">현재 문항을 연습했으면 완료로 표시하세요.</span> <label><input type="checkbox" id="progressCheck" '+(done?'checked':'')+'> 현재 문항 완료</label>';$("progressCheck").onchange=ev=>{progress[key]=ev.target.checked;scheduleSave()}}
+const oldPractice=renderPractice;renderPractice=function(){oldPractice();renderProgress();scheduleSave()};
+document.addEventListener("input",scheduleSave);document.addEventListener("change",scheduleSave);document.addEventListener("click",()=>setTimeout(scheduleSave,0));
+draw();$("mine").value=restoreDraft;
+if(!restored){s.spk="real";draw();openModal("A",$("openA"));}
 </script></body></html>
