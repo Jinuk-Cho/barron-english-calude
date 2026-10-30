@@ -64,7 +64,7 @@ table.st th:first-child,table.st td:first-child{width:2.4em;text-align:right;col
 @media(prefers-color-scheme:dark){.warn{background:#3b2c10;color:#f3d9a4;border-color:#6b5320}.ok{background:#12301d;color:#b8e6c6;border-color:#2c6a41}.mem{background:#33290f;color:#f3d9a4}}
 
 @media(max-width:480px){.hdr h1{font-size:1.15rem}.uisw{flex-direction:column;gap:4px;margin-top:8px}.uisw .chip{padding:4px 10px;font-size:.8rem}}
-#lg,.uisw{display:none}
+
 html{font-size:18px}
 .font-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0;color:var(--ink)}
 .font-controls .btn{min-width:44px;min-height:44px;padding:6px 12px;font-size:1rem}
@@ -3098,11 +3098,15 @@ buildSets=function(){const L=s.lang,out=[],seenRP={},lv=s.lv;
    if(q===4){if(RPI[c]){if(seenRP[c])return;seenRP[c]=1}const R=roleLines(c,j,lv);
     out.push({key,q,ko:RPI[c]?"상황 롤플레이":it.ko,kk:RPI[c]?D[c].t.split(" ")[0]:lab,qt:R.sc[L],qk,role:R,mode:"role",a:R.lines.filter(l=>l.who==="me").map(l=>l[L]).join(" "),S:R.lines});return}
    let S,mode=s.spk==="real"?"real":"virt",align=true;
-   if(mode==="real"){s.me=topicProfiles[key]||{};S=meSents(c,j,q,lv);s.me=currentMe}
+   let fb="";
+   if(mode==="real"){s.me=topicProfiles[key]||{};S=meSents(c,j,q,lv);s.me=currentMe;
+    const nreal=S.filter(z=>!z.skip&&(z[L]||"").trim()).length;
+    if(nreal===0){S=s.long?longSents(c,j,q,lv).S:composeVirt(c,j,q,lv);mode="virt";fb="full"}
+    else if(nreal<2){const have=new Set(S.map(z=>z.pat).filter(Boolean));const seenT=new Set(S.map(z=>(z[L]||"").trim()));const V=composeVirt(c,j,q,lv).filter(z=>(!z.pat||!have.has(z.pat))&&!seenT.has((z[L]||"").trim())).slice(0,2-nreal).map(z=>Object.assign({},z,{ko:(z.ko||"")+" 〔가상 예시〕",vi:(z.vi||"")+" 〔ví dụ giả định〕",vx:1}));if(V.length){S=S.concat(V);fb="part"}}}
    else if(s.long){const r=longSents(c,j,q,lv);S=r.S;align=r.ok}
    else S=composeVirt(c,j,q,lv);
    const pats=[];S.forEach(z=>{if(z.pat&&!pats.includes(z.pat))pats.push(z.pat)});
-   out.push({key,q,ko:it.ko,kk:lab,qt:(L==="ja"?QJ:L==="zh"?QC:QE)[q](qk),qk,mode,align,S,a:joinS(S,L),pats:mode==="virt"&&s.long?null:pats,long:!!s.long&&mode==="virt"})})});
+   out.push({key,q,ko:it.ko,kk:lab,qt:(L==="ja"?QJ:L==="zh"?QC:QE)[q](qk),qk,mode,fb,align,S,a:joinS(S,L),pats:mode==="virt"&&s.long?null:pats,long:!!s.long&&mode==="virt"})})});
  return out};
 /* ---- 읽기(병음·かな): d_read.js 데이터가 있을 때만 ---- */
 function RDR(l,t){try{if(l==="zh"&&typeof RDZ!=="undefined"){let o=[];const cs=[...t];for(let i=0;i<cs.length;i++){const c=cs[i];if(/[\u4e00-\u9fff]/.test(c)){o.push(RDZ.b[c+(cs[i+1]||"")]||RDZ.d[c]||"")}else if(/[，。！？、：；]/.test(c)){o.push(c)}else o.push(c)}return o.join(" ").replace(/\s+([，。！？、：；])/g,"$1").replace(/\s+/g," ").trim()}
@@ -3112,7 +3116,7 @@ const needRd=()=>s.lang==="zh"?s.rdon:s.lang==="ja"?(s.rdon&&(s.lv===0||s.rdon==
 /* ---- 카드 ---- */
 const TYN=()=>s.lang==="ja"?["説明","日常の習慣","過去の経験","比較","ロールプレイ"]:s.lang==="zh"?["描述","日常习惯","过去经历","比较","角色扮演"]:["설명","루틴","경험","비교","롤플레이"];
 const TIP=[["첫 문장에서 질문에 바로 답하고, 이유 앞에서 잠깐 쉬세요.","Trả lời thẳng câu hỏi ở câu đầu, ngắt nhẹ trước phần lý do."],["순서 단어(First, Then)마다 끊어 읽으면 듣는 사람이 따라가기 쉬워요.","Ngắt sau mỗi từ chỉ thứ tự (First, Then) để người nghe dễ theo dõi."],["과거 이야기는 천천히, 감정을 말하는 문장은 조금 낮게 말해 보세요.","Kể chuyện quá khứ chậm lại, câu nói về cảm xúc hạ giọng một chút."],["'예전'과 '지금'을 말하는 단어를 또렷하게 강조하세요.","Nhấn rõ các từ chỉ 'trước đây' và 'bây giờ'."],["질문 문장은 끝을 올리고, 부탁은 공손한 어조로 말하세요.","Câu hỏi lên giọng cuối câu, lời nhờ thì nói lịch sự."]];
-function badge(x){const m=x.mode;return m==="real"?T("🧾 내가 입력하거나 선택한 내용으로 만든 답변 (가상 경험 포함 가능)","🧾 Câu trả lời chỉ dùng thông tin bạn đã nhập"):m==="role"?T("🎭 역할 연습용 가상 상황 (실제 시험 내용 아님)","🎭 Tình huống giả định để luyện nhập vai (không phải đề thi thật)"):T("🧪 가상 인물의 예시 답변","🧪 Câu trả lời mẫu của nhân vật hư cấu")+(Object.values(s.pers||{}).some(v=>(v||"").trim())?" · "+T("입력한 인물 설정 반영","có áp dụng thiết lập nhân vật bạn nhập"):"")}
+function badge(x){const m=x.mode;if(x.fb==="full")return T("🧪 입력이 아직 부족해 가상 인물 예시로 채웠어요 (내 입력은 아직 반영 전)","🧪 Chưa đủ thông tin bạn nhập nên dùng ví dụ nhân vật giả định (chưa phản ánh dữ liệu của bạn)");if(x.fb==="part")return T("🧾+🧪 내 입력 + 부족한 부분은 가상 예시〔가상 예시〕로 보충","🧾+🧪 Dữ liệu của bạn + phần thiếu bổ sung bằng ví dụ giả định 〔ví dụ giả định〕");return m==="real"?T("🧾 내가 입력하거나 선택한 내용으로 만든 답변 (가상 경험 포함 가능)","🧾 Câu trả lời chỉ dùng thông tin bạn đã nhập"):m==="role"?T("🎭 역할 연습용 가상 상황 (실제 시험 내용 아님)","🎭 Tình huống giả định để luyện nhập vai (không phải đề thi thật)"):T("🧪 가상 인물의 예시 답변","🧪 Câu trả lời mẫu của nhân vật hư cấu")+(Object.values(s.pers||{}).some(v=>(v||"").trim())?" · "+T("입력한 인물 설정 반영","có áp dụng thiết lập nhân vật bạn nhập"):"")}
 function sentRows(x){const L=s.lang,vi=UI==="vi",rd=needRd(),ord=vi?["vi","ko"]:["ko","vi"],nm=vi?{ko:"Tiếng Hàn",vi:"Tiếng Việt"}:{ko:"한국어",vi:"베트남어"};
  let h=`<div class="tw"><table class="st"><tr><th>#</th><th>${LANGW[L]}</th>${rd?`<th>${L==="zh"?"拼音":"よみ"}</th>`:""}${ord.map(k=>`<th>${T("해석","Nghĩa")} (${nm[k]})</th>`).join("")}</tr>`;
  x.S.forEach((z,i)=>{const t=z[L];if(!t)return;const r=rd?RDR(L,t):"";
@@ -3567,5 +3571,5 @@ function renderProgress(){let e=$("progressPanel");if(!e){e=document.createEleme
 const oldPractice=renderPractice;renderPractice=function(){oldPractice();renderProgress();scheduleSave()};
 document.addEventListener("input",scheduleSave);document.addEventListener("change",scheduleSave);document.addEventListener("click",()=>setTimeout(scheduleSave,0));
 draw();$("mine").value=restoreDraft;
-if(!restored){s.spk="real";draw();openModal("A",$("openA"));}
+if(!restored){s.spk="real";draw()}
 </script></body></html>
