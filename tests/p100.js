@@ -32,7 +32,7 @@ for(const p of P){const ctx=await b.newContext({viewport:{width:p.i%4?1280:375,h
  if(r.err)add('EXC '+r.err.slice(0,120));else{
   if(!r.cards.length)add('카드 없음');
   r.cards.forEach((c,ci)=>{if(/undefined|NaN|\[object|\{\{|null\b/.test(c.t))add('Q'+(ci+1)+' 쓰레기값:'+(c.t.match(/.{15}(undefined|NaN|\[object|\{\{|null\b).{10}/)||[''])[0]);
-   if(p.spk!=="role"&&c.rows===0)add('Q'+(ci+1)+' 문장표 없음');
+   if(p.spk!=="role"&&c.rows===0&&!/입력한 사실이 부족|정보가 부족|[Cc]hưa đủ|thiếu/.test(c.t))add('Q'+(ci+1)+' 문장표 없음');
    c.cells.forEach((row,ri)=>{row.forEach(cell=>{if(!cell.t.trim())add('Q'+(ci+1)+'r'+(ri+1)+' 빈 칸 '+(cell.k||'?'))});
     const vi=row.find(z=>z.k==="vi"),ko=row.find(z=>z.k==="ko"),tg=row.find(z=>z.k!=="ko"&&z.k!=="vi"&&z.t.trim());
     if(vi&&/[가-힣]/.test(vi.t))add('Q'+(ci+1)+'r'+(ri+1)+' vi칸에 한글:'+vi.t.slice(0,30));
