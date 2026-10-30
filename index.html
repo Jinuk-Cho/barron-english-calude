@@ -25,6 +25,15 @@ ul{margin:6px 0;padding-left:20px}
 .qc{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}.qq{color:var(--pri);font-weight:600;margin:4px 0}summary{cursor:pointer}a{color:var(--pri)}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.hdr h1{flex:1;min-width:0}
 .uisw{display:flex;gap:6px;flex:none;margin-top:10px}.uisw .chip{padding:5px 12px;font-size:.88rem}
+
+#modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center}#modal[hidden]{display:none}
+#modal .mback{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+#modal .mdlg{position:relative;background:var(--card);color:var(--fg,inherit);border:1px solid var(--line);border-radius:16px;width:min(760px,94vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+#modal .mhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}#modal .mbody{padding:12px 16px;overflow:auto;flex:1}#modal .mfoot{padding:10px 16px;border-top:1px solid var(--line);text-align:right}
+@media(max-width:720px){#modal{align-items:flex-end}#modal .mdlg{width:100vw;max-height:94vh;border-radius:16px 16px 0 0}}
+.stl{display:grid;gap:8px;margin:8px 0}.stc{border:1px solid var(--line);border-radius:12px;padding:10px 12px}.stc.on{border-color:var(--btn,#1d3b4a);box-shadow:inset 0 0 0 1px var(--btn,#1d3b4a)}
+.stc .sth{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px}.badge2{font-size:.8rem;color:#2e7d32}.exr{padding:4px 0;border-bottom:1px dashed var(--line)}.exd summary{cursor:pointer;margin:6px 0;font-size:.9rem}
+#sumrow .sumtxt{font-size:.95rem;line-height:1.7}.warnc{color:#b26a00}
 .interp{background:var(--acc);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:.95rem;line-height:1.7}.interp .iq{color:var(--pri);font-weight:600;margin:2px 0}
 details.study{border:1px solid var(--line);border-radius:10px;padding:6px 12px;margin-top:8px}details.study summary{padding:4px 0}
 .study h3{font-size:.98rem;margin:14px 0 6px;color:var(--pri)}
@@ -1652,6 +1661,79 @@ function roleLines(c,j,lv){const L=s.lang,it=D[c].i[j],zi=Z[c][j],ji=J[c][j],key
  A("me","Thank you for your help.","谢谢你的帮助。","ご協力ありがとうございます。","도와주셔서 감사합니다.","Cảm ơn bạn đã giúp đỡ.");
  return{sc:{en:rE.sc,zh:rZ.sc,ja:rJ.sc,ko:rK[0],vi:rV[0]},lines}}
 
+/* 문체 보강: 문장 추가(o 앞·m 중간·c 끝) + 예문(ex) + 설명(info/use/tip). 모든 예문·문장은 이 앱을 위해 새로 쓴 것이며 실제 문학 작품의 문장을 옮기지 않았다.
+   실제 나(real) 화면에도 들어가므로 사건·사실 주장은 넣지 않고 말투·태도만 바꾸는 문장만 쓴다. 예문(ex)은 '예시'로만 보여 준다. */
+const SX=(en,zh,ja,ko,vi)=>[en,zh,ja,ko,vi];
+Object.assign(STYL.calm,{
+ o:[SX("There is nothing special about it.","这件事并没有什么特别的。","特別なことではありません。","특별한 이야기는 아니에요.","Chuyện này không có gì đặc biệt.")],
+ m:[SX("I don't talk about it much.","我不太常提起它。","あまり人には話しません。","남에게 자주 말하지는 않아요.","Tôi không hay nói về nó.")],
+ info:["감정 표현을 줄이고 보이는 것·한 일을 짧게 말해요.","Giảm biểu cảm, nói ngắn gọn điều nhìn thấy và việc đã làm."],
+ use:["차분하게 말하고 싶을 때, 말이 빨라지는 긴장 상황","Khi muốn nói bình tĩnh, hoặc khi hồi hộp nói quá nhanh"],
+ tip:["문장 사이를 한 박자씩 쉬세요. 억양은 낮고 평평하게.","Ngắt một nhịp giữa các câu; giọng thấp và đều."],
+ ex:[SX("I walk after dinner.","晚饭后我会出去走走。","夕食のあと、少し歩きます。","저녁을 먹고 나면 걸어요.","Sau bữa tối, tôi đi dạo."),
+  SX("Nothing special happens.","没有什么特别的事发生。","特別なことは何も起きません。","특별한 일은 일어나지 않아요.","Không có chuyện gì đặc biệt xảy ra."),
+  SX("The streetlights come on, one by one, and I count them without meaning to.","路灯一盏一盏亮起来，我不知不觉就数了起来。","街灯が一つずつ灯り、気づくと数えています。","가로등이 하나둘 켜지고, 저도 모르게 그 수를 세요.","Đèn đường sáng lên từng cái một, và tôi đếm chúng mà không để ý."),
+  SX("Then I go home.","然后，我回家。","それから、家に帰ります。","그러고는 집으로 돌아가요.","Rồi tôi về nhà.")]});
+Object.assign(STYL.story,{
+ m:[SX("Here is the part I remember best.","我记得最清楚的是这一段。","いちばんよく覚えているのは、こんな場面です。","제가 가장 또렷이 기억하는 장면은 이래요.","Đây là đoạn tôi nhớ rõ nhất.")],
+ c:[SX("And that is how it became a part of my days.","就这样，它成了我日子的一部分。","そんなふうに、私の毎日の一部になりました。","그렇게 제 하루의 일부가 됐어요.","Và cứ thế, nó thành một phần ngày tháng của tôi."),
+  SX("That's the short version of my story.","这就是我的故事的简短版本。","これが私の話の短いバージョンです。","이게 제 이야기의 짧은 버전이에요.","Đó là phiên bản ngắn của câu chuyện của tôi.")],
+ info:["청자에게 말을 거는 도입 → 장면 하나 → 변화 → 짧은 마무리.","Mở bằng lời nói với người nghe → một cảnh → thay đổi → kết ngắn."],
+ use:["경험·과거 이야기, 면접형 질문에서 구체성을 더하고 싶을 때","Kể trải nghiệm / chuyện quá khứ, muốn thêm tính cụ thể"],
+ tip:["‘장면’ 문장은 천천히, 변화가 생기는 문장은 약간 빠르게.","Câu tả cảnh nói chậm, câu có thay đổi nói nhanh hơn một chút."],
+ ex:[SX("Let me tell you about my evening walks.","我来讲讲我的傍晚散步吧。","夕方の散歩の話をしますね。","저녁 산책 이야기를 해 볼게요.","Để tôi kể về những buổi đi dạo buổi tối."),
+  SX("It was a rainy night, I forgot my umbrella, and I decided to walk anyway.","那是一个下雨的晚上，我忘了带伞，索性就这样走了。","雨の夜、傘を忘れたので、そのまま歩くことにしました。","비 오는 밤이었는데 우산을 깜빡해서 그냥 걷기로 했어요.","Đó là một đêm mưa, tôi quên mang ô và quyết định cứ thế đi bộ."),
+  SX("By the time I got home, I was soaked and laughing.","到家时，我浑身湿透，却一直在笑。","家に着くころには、びしょぬれで、笑っていました。","집에 도착했을 땐 흠뻑 젖어서 웃고 있었어요.","Về đến nhà, tôi ướt sũng mà vẫn cười."),
+  SX("Since then, I walk every evening, rain or not.","从那以后，不管下不下雨，我每天傍晚都会去散步。","それ以来、雨でも晴れでも、毎晩歩いています。","그 뒤로는 비가 오든 안 오든 매일 저녁 걸어요.","Từ đó, dù mưa hay không, tối nào tôi cũng đi dạo.")]});
+Object.assign(STYL.insight,{
+ o:[SX("Let me put it simply.","简单地说吧。","簡単に言いますね。","간단히 말해 볼게요.","Để tôi nói đơn giản.")],
+ m:[SX("The more I think about it, the simpler it seems.","越想，越觉得它很简单。","考えるほど、単純なことのように思えます。","생각할수록 단순한 일처럼 느껴져요.","Càng nghĩ, tôi càng thấy nó đơn giản.")],
+ c:[SX("Small things, I think, say a lot about us.","我觉得，小事常常能说明很多。","小さなことが、案外多くを語ると思います。","작은 일들이 의외로 많은 걸 말해 준다고 생각해요.","Tôi nghĩ những điều nhỏ bé lại nói lên rất nhiều."),
+  SX("Perhaps that is all there is to say.","也许要说的就这些了。","言いたいことは、たぶんそれだけです。","아마 말씀드릴 건 이게 전부예요.","Có lẽ chỉ có bấy nhiêu để nói.")],
+ info:["사실 → 짧은 생각 한 줄. 결론을 크게 외치지 않고 한 발 물러서서 말해요.","Nêu sự việc → một câu suy nghĩ ngắn; không hô to kết luận."],
+ use:["의견·가치관을 묻는 질문, 고급(AL 지향) 연습에서 깊이를 더할 때","Câu hỏi về quan điểm / giá trị; luyện trình độ cao"],
+ tip:["통찰 문장 앞에서 한 박자 쉬고, 끝을 올리지 말고 내려 마무리.","Ngừng một nhịp trước câu chiêm nghiệm, hạ giọng ở cuối."],
+ ex:[SX("I walk in the evening.","我傍晚会出去散步。","夕方に歩きます。","저는 저녁에 걸어요.","Tôi đi bộ vào buổi tối."),
+  SX("For a while I thought I was walking to clear my head.","有一阵子，我以为自己是为了让头脑清醒。","しばらくは、頭をすっきりさせるためだと思っていました。","한동안은 머리를 식히려고 걷는다고 생각했어요.","Có một thời gian tôi nghĩ mình đi để đầu óc thanh thản."),
+  SX("Now I think I was learning to be alone without feeling lonely.","现在我觉得，我是在学着独处，却不感到孤单。","今は、さみしくならずに一人でいる練習だったと思います。","지금은 외롭지 않게 혼자 있는 법을 배우고 있었다고 생각해요.","Bây giờ tôi nghĩ mình đang học cách ở một mình mà không thấy cô đơn."),
+  SX("It is a small difference. It changed a lot.","差别很小，改变却很大。","小さな違いですが、多くが変わりました。","작은 차이지만 많은 것이 달라졌어요.","Khác biệt nhỏ thôi, nhưng nó đổi thay rất nhiều.")]});
+Object.assign(STYL.D,{
+ o:[SX("Let me start with a quiet moment.","先从一个安静的瞬间说起吧。","静かな場面から話します。","조용한 장면 하나로 시작할게요.","Tôi xin bắt đầu từ một khoảnh khắc yên tĩnh.")],
+ info:["담담한 1인칭 장면 → 짧은 회고 → 절제된 마무리 (세 문체 혼합).","Cảnh ngôi thứ nhất điềm đạm → hồi tưởng ngắn → kết tiết chế (kết hợp ba văn phong)."],
+ use:["경험 이야기에서 가장 ‘글 같은’ 느낌을 낼 때. 비유는 최대 2개, 어울리지 않으면 쓰지 않아요.","Khi muốn kể trải nghiệm có chất văn; ẩn dụ tối đa 2, không hợp thì bỏ."],
+ tip:["짧은 문장(장면)과 긴 문장(회고)을 섞되, 말하기 편한 길이(20단어 이하)로.","Trộn câu ngắn (cảnh) và câu dài (hồi tưởng), mỗi câu ≤ 20 từ."],
+ ex:[SX("The streetlights came on while I was still at the corner.","我还站在路口时，路灯就亮了。","まだ角に立っているうちに、街灯がつきました。","모퉁이에 서 있는 사이 가로등이 켜졌어요.","Đèn đường bật sáng khi tôi vẫn đứng ở góc phố."),
+  SX("I stood there a moment, and then I walked.","我站了一会儿，然后继续往前走。","少しそこに立って、それから歩きました。","잠시 서 있다가 다시 걸었어요.","Tôi đứng đó một lúc rồi bước đi."),
+  SX("Looking back, those quiet hours were something I did not know I needed.","回头看，那些安静的时光，是当时的我还不知道自己需要的。","振り返ると、あの静かな時間は、そのころの私が必要だと気づいていなかったものです。","돌아보면 그 조용한 시간은 그때는 제게 필요한 줄 몰랐던 시간이었어요.","Nhìn lại, những giờ yên tĩnh ấy là điều tôi đã không biết mình cần."),
+  SX("That is enough for me.","对我来说，这就够了。","それで十分です。","저에게는 그걸로 충분해요.","Với tôi, vậy là đủ.")]});
+Object.assign(STYL.talk,{
+ info:["가장 말하기 쉬운 기본 문체. 질문에 바로 답하고 이유를 붙여요.","Văn phong cơ bản, dễ nói nhất: trả lời thẳng rồi nêu lý do."],
+ use:["처음 연습할 때, 시험처럼 자연스럽게 대화하고 싶을 때","Khi mới luyện hoặc muốn nói tự nhiên như hội thoại"],
+ tip:["첫 문장에서 질문에 바로 답하고, 이유 앞에서 잠깐 쉬세요.","Trả lời thẳng ở câu đầu, ngắt nhẹ trước lý do."],
+ ex:[SX("I walk after dinner because it helps me relax.","我晚饭后会散步，因为这能让我放松。","夕食のあとに散歩します。リラックスできるからです。","저녁 먹고 나서 산책해요. 긴장이 풀리거든요.","Sau bữa tối tôi đi dạo vì nó giúp tôi thư giãn."),
+  SX("It is easy to start and easy to keep.","它很容易开始，也很容易坚持。","始めやすくて、続けやすいです。","시작하기도 쉽고 이어 가기도 쉬워요.","Dễ bắt đầu và cũng dễ duy trì."),
+  SX("I enjoy it a lot.","我很喜欢。","とても気に入っています。","정말 좋아해요.","Tôi rất thích.")]});
+/* 새 문체 2종 */
+STYL.crisp={name:["간결·단호 (결론부터)","Ngắn gọn·dứt khoát (kết luận trước)"],
+ o:[SX("Short answer first.","先说结论。","まず結論から言います。","결론부터 말할게요.","Tôi nói kết luận trước.")],m:[],
+ c:[SX("That is my answer.","这就是我的回答。","以上が私の答えです。","이게 제 대답이에요.","Đó là câu trả lời của tôi.")],noEmo:true,
+ info:["결론 → 이유 하나 → 끝. 장식 없이 짧게.","Kết luận → một lý do → kết thúc, không rườm rà."],
+ use:["시간이 부족할 때, 롤플레이·비교 질문에서 핵심만 말하고 싶을 때","Khi ít thời gian, hoặc muốn nói gọn ở câu hỏi so sánh / nhập vai"],
+ tip:["문장 끝을 내려서 확신 있게. 군더더기(Well, you know)를 줄이세요.","Hạ giọng cuối câu cho chắc chắn; bớt từ đệm."],
+ ex:[SX("Short answer first: I walk every evening.","先说结论：我每天傍晚都散步。","まず結論から言います。毎晩歩いています。","결론부터 말할게요. 매일 저녁 걸어요.","Tôi nói kết luận trước: tối nào tôi cũng đi dạo."),
+  SX("The reason is simple: it clears my head.","理由很简单：它让我头脑清醒。","理由は簡単です。頭がすっきりするからです。","이유는 간단해요. 머리가 맑아져요.","Lý do đơn giản: nó giúp đầu óc minh mẫn."),
+  SX("That is my answer.","这就是我的回答。","以上が私の答えです。","이게 제 대답이에요.","Đó là câu trả lời của tôi.")]};
+STYL.light={name:["가볍게·위트","Nhẹ nhàng·dí dỏm"],
+ o:[SX("Funny thing is, it is easier than it sounds.","有意思的是，这比听起来容易。","面白いことに、思ったより簡単です。","재밌는 건, 생각보다 쉽다는 거예요.","Điều buồn cười là nó dễ hơn nghe có vẻ.")],m:[],
+ c:[SX("So, yes, I recommend it.","所以，是的，我推荐。","というわけで、おすすめです。","그러니까, 네, 추천해요.","Vậy nên, vâng, tôi khuyên bạn thử.")],noEmo:false,
+ info:["밝은 어조의 한마디로 시작하고 추천으로 닫아요. 농담은 한 번만.","Mở bằng một câu vui, kết bằng lời khuyên; đùa tối đa một lần."],
+ use:["친구·일상 주제에서 분위기를 풀고 싶을 때(공식·업무 주제에는 비추천)","Chủ đề bạn bè / đời thường; không hợp chủ đề công việc, trang trọng"],
+ tip:["웃는 목소리로 첫 문장을 밝게. 속도는 평소보다 약간 느리게.","Câu đầu nói tươi, tốc độ chậm hơn bình thường một chút."],
+ ex:[SX("Funny thing is, my evening walk started as a way to avoid the dishes.","有意思的是，我的傍晚散步最初只是为了躲开洗碗。","面白いことに、夕方の散歩は皿洗いから逃げる口実から始まりました。","재밌게도 저녁 산책은 설거지를 피하려고 시작한 거예요.","Điều buồn cười là buổi đi dạo tối của tôi bắt đầu chỉ để trốn rửa bát."),
+  SX("Now the dishes wait, and I get the fresh air.","现在碗留在那里等着，我却得到了新鲜空气。","今では皿は待っていて、私は新鮮な空気を手に入れています。","이제 설거지는 기다리고 저는 맑은 공기를 마셔요.","Giờ bát cứ đợi đó, còn tôi được hít không khí trong lành."),
+  SX("So, yes, I recommend it.","所以，是的，我推荐。","というわけで、おすすめです。","그러니까, 네, 추천해요.","Vậy nên, vâng, tôi khuyên bạn thử.")]};
+STK.push("crisp","light");
+
 /* 고급(IH/AL) 어휘 격상 사전: [정규식 문자열, 치환, 원래 표현, 격상 표현, ko 뜻, vi 뜻]. 같은 품사·활용을 유지하는 안전한 교체만 포함 */
 const ALD=[
 ["\\bI like (?!to\\b)","I adore ","like","adore","(대상을) 매우 좋아하다","rất yêu thích"],
@@ -3045,7 +3127,7 @@ function frmSel(id,lab,arr,labs,val,vals){return `<label class="fl">${lab}<selec
 function renderSettings(){const el=$("setcard");if(!el)return;const sig=[s.spk,UI,s.lang].join("|");if(el.dataset.sig===sig)return;el.dataset.sig=sig;const vi=UI==="vi";
  const exKV=UI==="vi"?["giám đốc công ty phân phối ở Hà Nội","Hà Nội","đọc sách và quần vợt","bận rộn nhưng đều đặn","điềm tĩnh và tỉ mỉ"]:["하노이 유통회사 대표","하노이","독서와 테니스","바쁘지만 규칙적","차분하고 꼼꼼함"];
  const ex0={en:["a distribution company CEO in Hanoi","Hanoi","reading and tennis","busy but regular","calm and careful"],zh:["河内一家流通公司的总经理","河内","读书和打网球","忙碌但很规律","冷静细心"],ja:["ハノイの流通会社のCEO","ハノイ","読書とテニス","忙しいが規則的","落ち着いて慎重"]}[s.lang];const ex=exKV;
- let h=`<h2>${T("화자와 문체","Người nói và văn phong")} <span class="mut">${T("(화자와 문체는 따로 고릅니다)","(chọn riêng người nói và văn phong)")}</span></h2><div class="mut">${T("① 화자","① Người nói")}</div><div class="row" id="spk"></div>`;
+ let h=`<h2>${T("나에 대하여 (화자)","Về tôi (người nói)")}</h2><div class="mut">${T("누가 말하는지 고릅니다. 문체·분량은 따로 고릅니다.","Chọn ai là người nói. Văn phong và độ dài chọn riêng.")}</div><div class="row" id="spk"></div>`;
  if(s.spk==="virt"){h+=`<div class="mut">${T("가상 인물이 말하는 예시 답변입니다. 아래 칸은 모두 선택 사항이고, 비워 두면 일반 예시 인물이 말합니다. 한국어·베트남어·영어로 입력하면 되고, 앱이 내장 사전으로 선택한 언어에 맞춰 넣습니다(AI 번역 아님, 사전에 없는 말은 만들어 넣지 않고 아래에 알려 줍니다). 아래 예시는 입력 예일 뿐 기본 설정이 아닙니다.","Đây là câu trả lời mẫu của nhân vật hư cấu. Mọi ô đều tùy chọn; để trống thì dùng nhân vật mẫu chung. Bạn có thể nhập bằng tiếng Việt, tiếng Hàn hoặc tiếng Anh; ứng dụng dùng từ điển tích hợp để chuyển sang ngôn ngữ đã chọn (không phải dịch bằng AI; từ không có trong từ điển sẽ không bị tự bịa mà được báo bên dưới). Ví dụ bên dưới chỉ là gợi ý, không phải mặc định.")}</div><div class="frm">`+PERSK.map((k,i)=>frmInput("pe_"+k,PERSL[k][vi?1:0],T("예: ","VD: ")+ex[i],s.pers[k])).join("")+`</div><div class="mut" id="xlnote" aria-live="polite"></div>`}
  else if(s.spk==="real"){const m=s.me;h+=`<div class="mut">${T("내가 입력하거나 고른 사실만 사용합니다. 입력하지 않은 직업·장소·사건·감정은 만들어 넣지 않아요. 자유 입력 칸은 한국어·베트남어·영어 모두 가능합니다. 짧은 단어·표현(취미, 이유 등)은 내장 사전으로 선택한 언어에 맞추고, 사전에 없는 문장은 번역하지 않고 아래에 알려 드려요.","Chỉ dùng thông tin bạn nhập hoặc chọn. Nghề nghiệp, nơi chốn, sự việc, cảm xúc bạn không nhập sẽ không bị tự thêm. Ô nhập tự do dùng được tiếng Việt, Hàn hoặc Anh. Từ/cụm ngắn (sở thích, lý do…) được chuyển bằng từ điển tích hợp; câu không có trong từ điển sẽ không được dịch và được báo bên dưới.")}</div><div class="frm">`
   +frmInput("me_tn",T("주제 이름 바꾸기 (선택)","Đổi tên chủ đề (tùy chọn)"),T("예: 테니스","VD: quần vợt"),m.tn)+frmInput("me_ta",T("내가 하는 일 (동사구, 선택)","Việc tôi làm (cụm động từ, tùy chọn)"),T("예: 테니스","VD: quần vợt"),m.ta)
@@ -3057,18 +3139,27 @@ function renderSettings(){const el=$("setcard");if(!el)return;const sig=[s.spk,U
   +frmInput("me_th",T("지금의 생각 (한 문장)","Suy nghĩ hiện tại (một câu)"),T("예: 계속 하고 싶어요","VD: tôi muốn tiếp tục"),m.th)
   +frmInput("me_past",T("예전에는 (비교용, 한 문장)","Ngày trước (để so sánh, một câu)"),T("예: 자주 하지 않았어요","VD: ít khi làm"),m.past)+frmInput("me_now",T("지금은 (비교용, 한 문장)","Bây giờ (để so sánh, một câu)"),T("예: 매일 해요","VD: mỗi ngày"),m.now)+`</div>`}
  else{h+=`<div class="mut">${T("역할 연습입니다. 아래 ‘주제’에서 고른 항목의 상황(약속 잡기·서비스에 문의하기 등)으로 질문·요청·응답을 한 줄씩 연습합니다. 긴 독백은 만들지 않아요.","Luyện nhập vai. Tình huống (hẹn bạn, hỏi dịch vụ…) lấy từ mục bạn chọn ở 'Chủ đề'; luyện từng câu hỏi · lời nhờ · phản hồi. Không tạo độc thoại dài.")}</div><div class="frm">`+frmInput("ro_sit",T("상황 메모 (선택)","Ghi chú tình huống (tùy chọn)"),T("예: 주말에 친구와 약속 잡기","VD: hẹn bạn vào cuối tuần"),s.role.sit)+frmInput("ro_other",T("상대 (선택)","Đối tượng (tùy chọn)"),T("예: 친구 / 호텔 직원","VD: bạn / nhân viên khách sạn"),s.role.other)+`</div>`}
- h+=`<div class="mut" style="margin-top:10px">${T("② 문체","② Văn phong")}</div><div class="row" id="sty"></div><div class="mut" id="styinfo"></div>`;
- h+=`<div class="mut" style="margin-top:10px">${T("③ 분량","③ Độ dài")}</div><div class="row" id="lenc"></div><div class="mut" id="leninfo"></div>`;
- h+=`<div class="row" style="margin-top:12px"><button class="btn p" id="startp">▶ ${T("연습 시작","Bắt đầu luyện")}</button><span class="mut">${T("규칙 기반 문장 조합입니다(AI 아님). 문체 효과는 문장 추가·순서 방식이라 원어민 검수가 필요합니다.","Ghép câu theo quy tắc (không phải AI). Hiệu ứng văn phong chỉ thêm/sắp xếp câu nên cần người bản ngữ kiểm tra.")}</span></div>`;
- el.innerHTML=h;wireSettings()}
+ let hB="";
+ hB+=`<div class="mut">${T("① 문체 — 예문을 보고 고르세요","① Văn phong — xem ví dụ rồi chọn")}</div><div class="stl" id="sty"></div><div class="mut" id="styinfo"></div>`;
+ hB+=`<div class="mut" style="margin-top:10px">${T("② 분량","② Độ dài")}</div><div class="row" id="lenc"></div><div class="mut" id="leninfo"></div>`;
+ hB+=`<div class="row" style="margin-top:12px"><button class="btn p" id="startp">▶ ${T("연습 시작","Bắt đầu luyện")}</button><span class="mut">${T("규칙 기반 문장 조합입니다(AI 아님). 문체 효과는 문장 추가·순서 방식이라 원어민 검수가 필요합니다.","Ghép câu theo quy tắc (không phải AI). Hiệu ứng văn phong chỉ thêm/sắp xếp câu nên cần người bản ngữ kiểm tra.")}</span></div>`;
+ el.innerHTML=h;const eb=$("setB");if(eb)eb.innerHTML=hB;wireSettings()}
 function wireSettings(){const bind=(id,obj,key)=>{const e=$(id);if(!e)return;const f=()=>{obj[key]=e.value;redraw()};e.oninput=f;e.onchange=f};
  PERSK.forEach(k=>bind("pe_"+k,s.pers,k));["tn","ta","pref","when","place","comp","freq","rs","ev","ft","fn","th","past","now"].forEach(k=>bind("me_"+k,s.me,k));bind("ro_sit",s.role,"sit");bind("ro_other",s.role,"other");
- $("startp").onclick=()=>{const p=$("practice");if(p)p.scrollIntoView({behavior:"smooth",block:"start"})}}
+ const sp=$("startp");if(sp)sp.onclick=()=>{closeModal();const p=$("practice");if(p)p.scrollIntoView({behavior:"smooth",block:"start"})}}
 function chipsStatic(){const vi=UI==="vi";chips($("spk"),SPKN.map(z=>z[vi?1:0]),SPKK.indexOf(s.spk),i=>{s.spk=SPKK[i];draw()});
- chips($("sty"),STK.map(k=>STYL[k].name[vi?1:0]),STK.indexOf(s.sty),i=>{s.sty=STK[i];draw()});
- const si=$("styinfo");if(si)si.textContent={talk:T("가장 말하기 쉬운 기본 문체입니다.","Văn phong cơ bản, dễ nói nhất."),calm:T("감정 표현을 줄이고 담담하게 마무리합니다.","Giảm biểu cảm, kết thúc điềm đạm."),story:T("‘이야기하듯’ 도입과 마무리 문장을 붙입니다.","Thêm câu mở và kết kiểu kể chuyện."),insight:T("감정은 줄이고 조용한 통찰 한 줄로 마무리합니다.","Giảm cảm xúc, kết bằng một câu chiêm nghiệm nhẹ."),D:T("담담한 장면 → 짧은 회고 → 절제된 마무리. 비유는 쓰지 않습니다. 실제 문학 작품의 문장은 사용하지 않습니다.","Cảnh điềm đạm → hồi tưởng ngắn → kết tiết chế. Không dùng ẩn dụ. Không dùng câu văn của tác phẩm có thật.")}[s.sty];
+ styleCards();
+ const si=$("styinfo");if(si)si.textContent=T("고른 문체는 문장 추가·순서 방식으로 반영됩니다(AI 아님). 화자(직업·지역 등)는 그대로 유지돼요.","Văn phong được áp dụng bằng cách thêm/sắp xếp câu (không phải AI). Người nói giữ nguyên.");
  chips($("lenc"),[T("짧은 회화 (기본)","Hội thoại ngắn (mặc định)"),T("긴 답변 연습 (자체 목표)","Luyện câu trả lời dài (mục tiêu tự đặt)")],s.long?1:0,i=>{s.long=i===1;draw()});
  const li=$("leninfo");if(li)li.textContent=s.spk==="real"?T("‘실제 나’는 입력한 사실만 쓰기 때문에 분량 목표를 적용하지 않습니다(내용을 늘리려고 지어내지 않아요).","‘Chính tôi’ chỉ dùng thông tin bạn nhập nên không áp dụng mục tiêu độ dài (không bịa thêm để kéo dài)."):s.long?T("초급 약 70~90단어 · 중급 약 120~150단어 · 고급 약 170~200단어 (한·중·일은 글자 수로 환산). 이 앱의 자체 연습 목표이며 OPIc 공식 기준·합격 조건이 아닙니다. 점수 향상 효과는 검증되지 않았습니다."+(s.spk==="real"?" ‘실제 나’에서는 입력한 사실만 쓰므로 길이가 제한됩니다.":""),"Sơ cấp khoảng 70~90 từ · trung cấp 120~150 · cao cấp 170~200 (tiếng Trung/Nhật quy đổi theo ký tự). Đây là mục tiêu luyện tập tự đặt, không phải tiêu chuẩn hay điều kiện đậu của OPIc. Hiệu quả tăng điểm chưa được kiểm chứng."):T("먼저 짧게 답하는 연습입니다. 필요하면 ‘긴 답변 연습’으로 이유와 사례를 더 붙여 보세요.","Trước hết hãy trả lời ngắn. Khi cần, chuyển sang 'câu trả lời dài' để thêm lý do và ví dụ.")}
+
+function styleCards(){const el=$("sty");if(!el)return;const vi=UI==="vi",L=s.lang,rd=needRd();
+ el.innerHTML=STK.map(k=>{const st=STYL[k],on=s.sty===k,ex=st.ex||[];
+  const rows=ex.map(z=>{const t=z[LG5.indexOf(L)];const r=rd?RDR(L,t):"";return `<div class="exr"><div>${esc(t)}</div>${r?`<div class="mut">${esc(r)}</div>`:""}<div class="mut">${esc(z[vi?4:3])}</div></div>`}).join("");
+  return `<div class="stc${on?" on":""}" data-k="${k}"><div class="sth"><b>${esc(st.name[vi?1:0])}</b>${on?`<span class="badge2">✔ ${T("선택됨","Đã chọn")}</span>`:`<button class="btn" data-pick="${k}">${T("이 문체 쓰기","Dùng văn phong này")}</button>`}</div>
+  <div class="mut">${esc((st.info||["",""])[vi?1:0])}</div><div class="mut">${T("이럴 때","Khi nào dùng")}: ${esc((st.use||["",""])[vi?1:0])}</div>
+  <details class="exd"${on?" open":""}><summary>${T("예문 보기 (이 앱에서 새로 쓴 예시)","Xem ví dụ (do ứng dụng tự viết)")}</summary>${rows}<div class="mut">${T("말하기 팁","Mẹo nói")}: ${esc((st.tip||["",""])[vi?1:0])}</div></details></div>`}).join("");
+ el.onclick=e=>{const b=e.target.closest("[data-pick]");if(b){s.sty=b.dataset.pick;draw()}}}
 
 /* 긴 답변 연습(자체 목표): 5개 언어 문장 묶음(en,zh,ja,ko,vi)을 같은 순서로 쌓아 문장 단위 정렬을 보장한다.
    숫자 m = 이 문장이 들어가는 최소 레벨(0 초급, 1 중급, 2 고급). 정수 항목 = SLOTS[q]의 슬롯 번호. */
@@ -3277,14 +3368,30 @@ function updXl(){const e=$("xlnote");if(!e)return;const r=xlReport();let h="";
  if(r.unknown.length)h+=(h?"<br>":"")+"⚠ "+T("번역하지 못한 말(답변에 넣지 않았어요 — 선택한 언어로 직접 쓰거나 다른 말로 바꿔 보세요)","Chưa dịch được (chưa đưa vào bài mẫu — hãy tự viết bằng ngôn ngữ đã chọn hoặc đổi cách nói)")+": "+r.unknown.map(esc).join(" · ");
  e.innerHTML=h}
 function renderFoot(){const e=$("footnote");if(!e)return;e.innerHTML=`<b>${T("이 앱의 성격","Tính chất ứng dụng")}</b>: ${DISC()}<br><b>${T("개인정보 · 비용","Quyền riêng tư · chi phí")}</b>: ${T("이 사이트는 서버나 유료 AI를 쓰지 않는 정적 페이지입니다(이용자가 늘어도 문장별 AI 비용이 없습니다). 입력한 답변·내 이야기·녹음은 이 기기의 브라우저 메모리에만 있고 전송·저장되지 않습니다. API 키는 코드에 없습니다. 자유 입력만으로 자연스러운 문장을 새로 만드는 AI 기능은 포함하지 않았습니다(만든다면 서버가 필요하고 비용이 발생합니다 — 현재 비용 0원). 첨삭은 규칙 기반(AI 아님)이라 잡지 못하는 오류가 있습니다. 한국어·베트남어 해석과 학습 노트는 AI(Claude)가 작성했고 원어민 검수 전입니다. 중국어 병음·일본어 읽기는 변환 도구로 만든 것이라 오류가 있을 수 있습니다.","Trang này là trang tĩnh, không dùng máy chủ hay AI trả phí (người dùng tăng cũng không phát sinh chi phí AI theo từng câu). Câu trả lời, câu chuyện và bản ghi âm chỉ nằm trong bộ nhớ trình duyệt của thiết bị, không gửi đi hay lưu. Không có khóa API trong mã. Chưa có tính năng AI tự tạo câu từ nhập tự do (nếu làm sẽ cần máy chủ và phát sinh chi phí — hiện chi phí 0 đồng). Chỉnh sửa theo quy tắc (không phải AI) nên có lỗi không bắt được. Bản dịch Hàn/Việt và ghi chú học do AI (Claude) viết, chưa được người bản ngữ kiểm duyệt. Pinyin và cách đọc tiếng Nhật do công cụ chuyển đổi tạo, có thể có sai sót.")}`}
+/* ---- 팝업(모달): '나에 대하여' / '문체·분량' ---- */
+let _mOpener=null;
+function closeModal(){const m=$("modal");if(!m||m.hidden)return;const body=m.querySelector(".mbody"),keep=$("popstore");[...body.children].forEach(c=>keep.appendChild(c));m.hidden=true;document.body.style.overflow="";if(_mOpener&&_mOpener.focus)_mOpener.focus();_mOpener=null;draw()}
+function openModal(kind,opener){const m=$("modal");if(!m)return;_mOpener=opener||null;const body=m.querySelector(".mbody"),keep=$("popstore");
+ [...body.children].forEach(c=>keep.appendChild(c));const node=$(kind==="A"?"setcard":"setB");body.appendChild(node);
+ m.querySelector(".mtitle").textContent=kind==="A"?T("나에 대하여","Về tôi"):T("문체·분량","Văn phong · Độ dài");
+ m.hidden=false;document.body.style.overflow="hidden";const f=m.querySelector("button,input,select");(f||m.querySelector(".mclose")).focus()}
+function summary(){const e=$("sumrow");if(!e)return;const vi=UI==="vi",st=STYL[s.sty||"talk"],r=xlReport(),w=r.unknown.length;
+ e.querySelector(".sumtxt").innerHTML=`🙋 <b>${esc(SPKN[SPKK.indexOf(s.spk)][vi?1:0])}</b> · 🎨 <b>${esc(st.name[vi?1:0].split(" (")[0])}</b> · 📏 <b>${s.long?T("긴 답변 연습","Câu dài"):T("짧은 회화","Hội thoại ngắn")}</b>${w?` · <span class="warnc">⚠ ${T("번역 못 한 말","Chưa dịch")} ${w}</span>`:""}`;
+ e.querySelector("#openA").textContent="🙋 "+T("나에 대하여","Về tôi");e.querySelector("#openB").textContent="🎨 "+T("문체·분량","Văn phong · Độ dài")}
 /* ---- 초기 DOM 구성 ---- */
 (function init(){const main=document.querySelector("main"),cat=$("cat").closest(".card");
- const set=document.createElement("div");set.className="card";set.id="setcard";cat.parentNode.insertBefore(set,cat);
+ const set=document.createElement("div");set.id="setcard";const setB=document.createElement("div");setB.id="setB";
+ const ps=document.createElement("div");ps.id="popstore";ps.hidden=true;ps.appendChild(set);ps.appendChild(setB);document.body.appendChild(ps);
+ const sr=document.createElement("div");sr.className="card";sr.id="sumrow";sr.innerHTML='<div class="sumtxt"></div><div class="row" style="margin-top:8px"><button class="btn p" id="openA"></button><button class="btn p" id="openB"></button></div>';cat.parentNode.insertBefore(sr,cat);
+ const md=document.createElement("div");md.id="modal";md.hidden=true;md.innerHTML='<div class="mback"></div><div class="mdlg" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="mhead"><b class="mtitle" id="mtitle"></b><button class="btn mclose" aria-label="close">✕</button></div><div class="mbody"></div><div class="mfoot"><button class="btn p mdone"></button></div></div>';document.body.appendChild(md);
+ md.querySelector(".mback").onclick=closeModal;md.querySelector(".mclose").onclick=closeModal;md.querySelector(".mdone").onclick=closeModal;
+ md.addEventListener("keydown",e=>{if(e.key==="Escape"){e.stopPropagation();closeModal();return}if(e.key==="Tab"){const f=[...md.querySelectorAll("button,input,select,summary,textarea,[tabindex]:not([tabindex='-1'])")].filter(x=>!x.disabled&&x.offsetParent!==null);if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+ $("openA").onclick=e=>openModal("A",e.currentTarget);$("openB").onclick=e=>openModal("B",e.currentTarget);
  const pr=document.createElement("div");pr.className="card";pr.id="practice";const mc=$("model").closest(".card");mc.parentNode.insertBefore(pr,mc.nextSibling);
  const cs=document.querySelector("details.card");cs.id="consult";main.appendChild(cs);
  const foot=[...main.querySelectorAll(":scope > .mut")].pop();if(foot)foot.id="footnote";
  const rd=document.createElement("div");rd.className="row";rd.id="rdrow";rd.style.margin="6px 0";$("model").parentNode.insertBefore(rd,$("model"))})();
-{const _d6=draw;draw=function(){renderSettings();chipsStatic();_d6();renderPractice();renderExt();renderConsult();renderFoot();renderDisc();updXl();
+{const _d6=draw;draw=function(){renderSettings();chipsStatic();_d6();renderPractice();renderExt();renderConsult();renderFoot();renderDisc();updXl();summary();{const dn=document.querySelector("#modal .mdone");if(dn)dn.textContent=T("완료 (닫기)","Xong (đóng)")}
  const rr=$("rdrow");if(rr){if(s.lang==="en")rr.innerHTML="";else chips(rr,[T("읽기 숨김","Ẩn cách đọc"),T("읽기 표시 ("+(s.lang==="zh"?"병음":"かな, 초급 기본")+")","Hiện cách đọc ("+(s.lang==="zh"?"pinyin":"kana")+")")],s.rdon?1:0,i=>{s.rdon=i===1;draw()})}}}
 draw();
 
