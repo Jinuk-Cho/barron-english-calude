@@ -3201,7 +3201,18 @@ function longSents(c,j,q,lv){const P=fieldsFor(c,j),lg=s.lang;
  const A={en:splitS(F[q][lv](P.en),"en"),zh:splitS(FZ[q][lv](P.zh),"zh"),ja:splitS(FJ[q][lv](P.ja),"ja"),ko:splitS(TK[q][lv](P.ko),"ko"),vi:splitS(TV[q][lv](P.vi),"vi")};
  const n=A.en.length,ok=LG5.every(l=>A[l].length===n);
  const body=ok?A.en.map((_,i)=>({en:A.en[i],zh:A.zh[i],ja:A.ja[i],ko:A.ko[i],vi:A.vi[i]})):A[lg].map(t=>({[lg]:t}));
- return{S:[...styleSents("o",lv),...persSents(lv),...body,...(s.sty!=="talk"||true?styleSents("c",lv):[])],ok}}
+ let S=[...styleSents("o",lv),...persSents(lv),...body,...(s.sty!=="talk"||true?styleSents("c",lv):[])];
+ if(KV(lg)&&ok)S=fitKV(S,c,j,q,lv);
+ return{S,ok}}
+/* 한·베 긴 답변 길이 보정: 레벨 목표(어절/음절) 범위 안으로. 문장 단위로만 빼거나 더해 3~5개 언어 정렬 유지 */
+function fitKV(S,c,j,q,lv){const L=s.lang,r=LV[lv][L==="ko"?"k":"v"],lo=r[0],hi=r[1];
+ const wc=z=>((z[L]||"").match(/[^\s.,!?。，、;:“”"()]+/g)||[]).length,tot=a=>a.reduce((n,z)=>n+wc(z),0);
+ let a=S.slice(),guard=0;
+ while(tot(a)>hi&&a.length>5&&guard++<12){const t=tot(a),mid=(lo+hi)/2;let bi=-1,bd=1e9;for(let i=1;i<a.length-1;i++){const w=wc(a[i]);if(t-w<lo)continue;const d=Math.abs(t-w-mid);if(d<bd){bd=d;bi=i}}if(bi<0)break;a.splice(bi,1)}
+ if(tot(a)<lo){const seen=new Set(a.map(z=>(z[L]||"").trim())),have=new Set(a.map(z=>z.pat).filter(Boolean));
+  const V=composeVirt(c,j,q,lv).filter(z=>(z[L]||"").trim()&&!seen.has((z[L]||"").trim())&&(!z.pat||!have.has(z.pat)));
+  for(const z of V){if(tot(a)>=lo)break;if(tot(a)+wc(z)>hi)continue;a.splice(Math.max(1,a.length-1),0,z)}}
+ return a}
 const QKEY=(c,j,L)=>{const it=D[c].i[j],zi=Z[c][j],ji=J[c][j];return L==="ko"?KO[c+":"+j].n:L==="vi"?VI[c+":"+j].n:L==="ja"?ji.n:L==="zh"?zi.n.replace(/我/g,"你"):it.n.replace(/\bmy own\b/g,"your own").replace(/\bmy\b/g,"your")};
 buildSets=function(){const L=s.lang,out=[],seenRP={},lv=s.lv;
  saveTopic();const currentMe=s.me;
@@ -3433,7 +3444,8 @@ const LSEQ=[
 ];
 longSents=function(c,j,q,lv){const P=fieldsFor(c,j),st=STYL[s.sty||"talk"],body=[];
  (LSEQ[q]||[]).forEach(([m,it])=>{if(lv<m)return;if(typeof it==="number"){const sl=SLOTS[q][it];if(sl.emo&&st.noEmo)return;body.push({en:sl.t[0](P),zh:sl.t[1](P),ja:sl.t[2](P),ko:sl.t[3](P),vi:sl.t[4](P),pat:sl.pat})}else body.push(it(P))});
- return{S:[...styleSents("o",lv),...persSents(lv),...body,...styleSents("m",lv),...styleSents("c",lv)],ok:true}};
+ let S=[...styleSents("o",lv),...persSents(lv),...body,...styleSents("m",lv),...styleSents("c",lv)];if(KV(s.lang))S=fitKV(S,c,j,q,lv);
+ return{S,ok:true}};
 
 /* '나의 이야기 노트'(서술형·추상 질문) + 문장 틀 도우미 + 규칙 기반 '내 이야기 요약'(AI 아님)
    - 노트는 한국어·베트남어·영어 무엇으로 써도 된다. 노트는 이 기기의 브라우저 메모리에만 있다(전송·저장 없음).
@@ -3472,7 +3484,7 @@ function aboutHTML(){const vi=UI==="vi",L=s.lang,nt=s.notes||{};
  <div class="mut">${T("짧게 답하지 말고 장면과 마음을 풀어 써 보세요. 노트는 한국어·베트남어·영어 모두 가능하고, 이 기기에만 있습니다(전송·저장 안 함). 앱은 노트를 번역하지 않습니다(AI 없음) — 아래 ‘문장 틀’을 보고 선택한 언어로 한 문장만 완성하면 그 문장이 답변에 들어갑니다. 쓰고 싶은 질문만 쓰세요.","Đừng trả lời cụt; hãy kể cảnh và cảm xúc. Ghi chú viết bằng tiếng Việt/Hàn/Anh đều được và chỉ nằm trên thiết bị này (không gửi/lưu). Ứng dụng không dịch ghi chú (không có AI) — hãy xem ‘khung câu’ và tự hoàn thành một câu bằng ngôn ngữ đã chọn; câu đó sẽ được đưa vào bài mẫu. Chỉ cần trả lời câu bạn muốn.")}</div>`;
  ABQ.forEach((p,i)=>{h+=`<div class="abq"><label class="fl"><b>${i+1}. ${esc(vi?p.vi:p.ko)}</b><textarea id="ab_n${i}" rows="2" maxlength="400" placeholder="${esc(T("여기에 자유롭게 (한국어·베트남어·영어)","Viết tự do ở đây (Việt/Hàn/Anh)"))}">${esc(nt["n"+i]||"")}</textarea></label>
   <div class="mut" id="ab_h${i}"></div>
-  <label class="fl"><span class="mut">${T("문장 틀","Khung câu")} (${LW(L)}): <b>${esc(p.fr[L])}</b> — ${esc(L===(vi?"vi":"ko")?p.fr.en:(vi?p.g.vi:p.g.ko))}</span><input id="ab_s${i}" type="text" maxlength="160" value="${esc(nt[abK(i,L)]||"")}" placeholder="${esc(p.fr[L])}"></label><div class="mut warnc" id="ab_w${i}"></div></div>`});
+  <label class="fl"><span class="mut">${T("문장 틀","Khung câu")} (${LW(L)}): <b class="keepko">${esc(p.fr[L])}</b> — ${esc(L===(vi?"vi":"ko")?p.fr.en:(vi?p.g.vi:p.g.ko))}</span><input id="ab_s${i}" type="text" maxlength="160" value="${esc(nt[abK(i,L)]||"")}" placeholder="${esc(p.fr[L])}"></label><div class="mut warnc" id="ab_w${i}"></div></div>`});
  return h+`</details><div class="abprof" id="abprof"></div>`}
 function wireAbout(){const vi=UI==="vi";ABQ.forEach((p,i)=>{const n=$("ab_n"+i),sn=$("ab_s"+i);if(!n||!sn)return;s.notes=s.notes||{};
   const hint=()=>{const hs=abHints(n.value);$("ab_h"+i).innerHTML=hs.length?T("사전에서 찾은 말 (문장 채우기용)","Từ tìm thấy trong từ điển (để điền câu)")+": "+hs.map(x=>esc(x.src+" → "+x.dst)).join(" · "):""};
@@ -3510,7 +3522,7 @@ function profHTML(){const d=profData(),vi=UI==="vi";const T2=(a,b)=>vi?b:a;
  h+=`<tr><td>${T("입력량","Lượng nhập")}</td><td data-l="${T("입력량","Lượng nhập")}">${T("자유 입력 "+d.n+"칸 · "+d.chars+"자 · 노트 "+d.notes+"개 · 내가 쓴 "+LW(s.lang)+" 문장 "+d.sents+"개","Ô tự do "+d.n+" · "+d.chars+" ký tự · ghi chú "+d.notes+" · câu "+LW(s.lang)+" tự viết "+d.sents)}</td></tr>`;
  const tot=d.facts+d.feel+d.thought,mx=Math.max(d.facts,d.feel,d.thought);const lead=tot?(d.thought===mx?T("생각·이유","suy nghĩ · lý do"):d.facts===mx?T("사실(어디서·언제·누구와)","sự việc (ở đâu · khi nào · với ai)"):T("감정","cảm xúc")):"—";
  h+=`<tr><td>${T("이야기 재료","Chất liệu câu chuyện")}</td><td data-l="${T("재료","Chất liệu")}">${T("사실 "+d.facts+" · 감정 "+d.feel+" · 생각·이유 "+d.thought+" → 입력은 ‘"+lead+"’ 쪽이 가장 많아요.","Sự việc "+d.facts+" · cảm xúc "+d.feel+" · suy nghĩ/lý do "+d.thought+" → nhập nhiều nhất ở ‘"+lead+"’.")}</td></tr>`;
- h+=`<tr><td>${T("자주 나온 주제","Chủ đề lặp lại")}</td><td data-l="${T("주제","Chủ đề")}">${d.themes.length?d.themes.map(t=>esc(t.n[vi?1:0])+" "+t.c+"회("+esc(t.hit.slice(0,3).join(", "))+")").join(" · "):T("뚜렷하게 반복된 주제 단어가 없어요.","Chưa có từ chủ đề nào lặp lại rõ.")}</td></tr>`;
+ h+=`<tr><td>${T("자주 나온 주제","Chủ đề lặp lại")}</td><td data-l="${T("주제","Chủ đề")}">${d.themes.length?d.themes.map(t=>esc(t.n[vi?1:0])+" "+t.c+T("회"," lần")+" (<span class=\"keepko\">"+esc(t.hit.slice(0,3).join(", "))+"</span>)").join(" · "):T("뚜렷하게 반복된 주제 단어가 없어요.","Chưa có từ chủ đề nào lặp lại rõ.")}</td></tr>`;
  h+=`<tr><td>${T("시간 방향","Hướng thời gian")}</td><td data-l="${T("시간","Thời gian")}">${T("지난 일 "+d.tm.past+" · 지금 "+d.tm.now+" · 앞으로 "+d.tm.fut+" (단어 개수)","Quá khứ "+d.tm.past+" · hiện tại "+d.tm.now+" · tương lai "+d.tm.fut+" (số từ)")}</td></tr>`;
  h+=`<tr><td>${T("감정 단어","Từ chỉ cảm xúc")}</td><td data-l="${T("감정","Cảm xúc")}">${d.emo.c?d.emo.c+T("개 ("," ("+"")+esc(d.emo.hit.slice(0,4).join(", "))+")":T("0개","0")}${d.feel?T(" · 선택한 감정 "+d.feel+"개"," · cảm xúc đã chọn "+d.feel):""}</td></tr></table>`;
  const tips=[];

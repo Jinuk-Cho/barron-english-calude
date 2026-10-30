@@ -1,0 +1,5 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage();await p.goto('file://'+process.argv[2]);await p.waitForTimeout(300);
+const r=await p.evaluate(()=>{document.getElementById('uiko').click();const cnt=t=>(t.match(/[^\s.,!?。，、;:“”"()]+/g)||[]).length;const o={};
+for(const L of ['ko','vi'])for(const sty of ['talk','calm','story','insight','D'])for(const lv of [0,1,2]){s.spk='virt';s.lv=lv;s.sty=sty;s.long=true;s.qs=[0,1,2,3];s.sel=[];for(const c of Object.keys(D))D[c].i.forEach((_,j)=>s.sel.push(c+":"+j));s.lang=L;
+ const [lo,hi]=LV[lv][L==='ko'?'k':'v'];const k=L+' '+sty+' L'+lv;o[k]={n:0,hi:0,lo:0,min:1e9,max:0,lov:[lo,hi]};buildSets().forEach(x=>{const t=cnt(x.a);const e=o[k];e.n++;if(t>hi)e.hi++;if(t<lo)e.lo++;e.min=Math.min(e.min,t);e.max=Math.max(e.max,t)})}
+return o});let n=0,h=0,l=0;for(const [k,e] of Object.entries(r)){n+=e.n;h+=e.hi;l+=e.lo;if(e.hi||e.lo)console.log(k,JSON.stringify(e))}console.log('TOTAL',n,'above',h,'below',l,'in-range',((n-h-l)/n*100).toFixed(1)+'%');await b.close()})();
