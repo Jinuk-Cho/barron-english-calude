@@ -17,4 +17,8 @@ ok(r.s0===0&&r.s1===1,`연속일 시작 0→1 (${r.s0}→${r.s1})`);ok(r.xp1===1
 ok(r.plan&&r.plan.L===10&&r.plan.perDay>0,"D-10 계획 계산 "+JSON.stringify(r.plan));ok(r.past&&r.past.L===-1?false:true,"지난 시험일은 계획 없음(null)");ok(r.weak===1&&r.weak2===0,"복습 큐 중복 방지·삭제");
 ok(r.listenCap===10&&r.listenXp===10,`듣기 XP 하루 10회 상한 (${r.listenCap}회, ${r.listenXp}XP)`);ok(/첫 모의시험/.test(r.ko)&&/모의시험 3회/.test(r.ko)&&/XP 500/.test(r.ko),"배지 지급");
 ok(!/[가-힣]/.test(r.vi),"베트남어 UI에 한글 없음");ok(/점수나 시험 등급이 아닙니다/.test(r.ko),"점수 아님 고지");ok(errs.length===0,"오류 0 "+(errs[0]||""));ok(reqs.length===0,"외부 요청 0");
+/* 만족도·추이·ics·백업 왕복 */
+const r2=await p.evaluate(()=>{HAB.reset();const D=HAB.get(),dd=n=>{const t=new Date();t.setDate(t.getDate()-n);return HAB.ds(t)};D.days[dd(8)]={spoke:1,xp:1,act:1,rate:2};D.days[dd(9)]={spoke:1,xp:1,act:1,rate:3};HAB.rate(4);const t=HAB.trend();const ics=HAB.ics("21:30");document.getElementById("uiko").click();
+ HAB.log("rec");const snap=JSON.stringify(HAB.get());HAB.reset();HAB.set(JSON.parse(snap));return{t,ics,same:JSON.stringify(HAB.get())===snap,txt:document.getElementById("habit").innerText}});
+ok(r2.t.cur===4&&r2.t.prev===2.5,"7일 평균 추이 계산 "+JSON.stringify(r2.t));ok(/BEGIN:VCALENDAR/.test(r2.ics)&&/RRULE:FREQ=DAILY/.test(r2.ics)&&/T213000/.test(r2.ics),"ics 형식(매일 반복, 21:30)");ok(r2.same,"기록 복원 왕복 동일");ok(/실력 점수가 아닙니다/.test(r2.txt),"만족도는 실력 점수 아님 고지");
 console.log("TOTAL FAIL",fail);await b.close()})();

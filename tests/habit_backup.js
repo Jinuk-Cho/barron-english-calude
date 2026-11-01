@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');const F=process.argv[2];let fail=0;const ok=(c,m)=>{console.log((c?"PASS ":"FAIL ")+m);if(!c)fail++};
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({acceptDownloads:true});const p=await ctx.newPage();p.on('dialog',d=>d.accept());
+await p.goto('file://'+F);await p.waitForTimeout(300);
+await p.evaluate(()=>{HAB.reset();HAB.log("rec");HAB.log("exam");HAB.rate(5)});const before=await p.evaluate(()=>JSON.stringify(HAB.get()));
+const [dl]=await Promise.all([p.waitForEvent('download'),p.evaluate(()=>document.getElementById("exportLocal").click())]);const path=await dl.path();const fs=require('fs');const v=JSON.parse(fs.readFileSync(path,'utf8'));
+ok(!!v.habit&&v.habit.xp===60,"백업 파일에 습관 기록 포함 (xp "+(v.habit&&v.habit.xp)+")");
+await p.evaluate(()=>{HAB.reset()});ok((await p.evaluate(()=>HAB.get().xp))===0,"초기화 후 xp 0");
+await p.setInputFiles('#backupFile',path);await p.waitForTimeout(800);
+const after=await p.evaluate(()=>JSON.stringify(HAB.get()));ok(after===before,"백업 복원 후 습관 기록 동일");
+await p.evaluate(()=>document.getElementById("deleteLocal").click());await p.waitForTimeout(600);ok((await p.evaluate(()=>localStorage.getItem("barron.opic.habit.v1")))===null||(await p.evaluate(()=>JSON.parse(localStorage.getItem("barron.opic.habit.v1")||"{}").xp||0))===0,"기록 삭제 시 습관 기록도 삭제");
+console.log("TOTAL FAIL",fail);await b.close()})();
