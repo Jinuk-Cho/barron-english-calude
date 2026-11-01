@@ -3866,6 +3866,48 @@ function renderExam(){const el=$("exam");if(!el)return;if(EX.st==="run"){exView(
  el.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{EX.lvl=+b.dataset.l;renderExam()});$("exstrict").onchange=e=>{EX.strict=e.target.checked};$("exgo").onclick=exStart}
 (function(){const pr=$("practice");if(!pr||$("exam"))return;const d=document.createElement("div");d.className="card";d.id="exam";pr.parentNode.insertBefore(d,pr.nextSibling);renderExam()})();
 {const _dEx=draw;draw=function(){_dEx();if(EX.st!=="run")renderExam()}}
+/* ===== 학습 습관 대시보드 (재방문용): 연속일·오늘 목표·XP·D-day 계획·복습 큐 =====
+   - 모든 기록은 이 기기의 localStorage에만 저장(서버 없음). 점수·등급이 아니라 '연습 활동 기록'이다.
+   - 목표·XP·계획의 기본값은 이 앱의 자체 설정이며 학습 효과는 검증되지 않았다. */
+const HAB=(()=>{const KEY="barron.opic.habit.v1";let d={days:{},xp:0,exam:"",goal:3,weak:[],badges:{},exams:0};
+ try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&typeof v==="object")d=Object.assign(d,v)}catch(e){}
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}};
+ const ds=(t=new Date())=>t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+ const XPV={rec:10,examq:8,exam:50,check:5,done:5,listen:1};
+ const day=()=>d.days[ds()]||(d.days[ds()]={spoke:0,xp:0,act:0});
+ function log(type,n){const x=day(),p=(XPV[type]||0)*(n||1);if(type==="listen"&&x.listen>=10)return;if(type==="listen")x.listen=(x.listen||0)+1;
+  x.xp+=p;d.xp+=p;x.act++;if(type==="rec"||type==="examq")x.spoke+=(n||1);if(type==="exam")d.exams++;badges();save();render()}
+ function streak(){let n=0,t=new Date();if(!(d.days[ds(t)]&&d.days[ds(t)].act>0))t.setDate(t.getDate()-1);while(d.days[ds(t)]&&d.days[ds(t)].act>0){n++;t.setDate(t.getDate()-1)}return n}
+ function week(){const o=[];const t=new Date();for(let i=6;i>=0;i--){const q=new Date(t);q.setDate(t.getDate()-i);const x=d.days[ds(q)];o.push({l:["일","월","화","수","목","금","토"][q.getDay()],v:x?x.spoke:0,a:x?x.act:0})}return o}
+ const lvl=()=>Math.floor(Math.sqrt(d.xp/50))+1;const nextXp=()=>Math.pow(lvl(),2)*50;
+ const BD=[["first",()=>Object.values(d.days).some(x=>x.spoke>0),"첫 말하기","Lần nói đầu tiên"],["s3",()=>streak()>=3,"3일 연속","3 ngày liên tiếp"],["s7",()=>streak()>=7,"7일 연속","7 ngày liên tiếp"],["ex1",()=>d.exams>=1,"첫 모의시험","Thi thử lần đầu"],["ex3",()=>d.exams>=3,"모의시험 3회","Thi thử 3 lần"],["xp500",()=>d.xp>=500,"XP 500","XP 500"]];
+ function badges(){BD.forEach(b=>{if(!d.badges[b[0]]&&b[1]())d.badges[b[0]]=ds()})}
+ function addWeak(k){if(k&&!d.weak.some(w=>w.key===k.key&&w.q===k.q)){d.weak.push(k);if(d.weak.length>30)d.weak.shift();save()}}
+ function dropWeak(key,q){d.weak=d.weak.filter(w=>!(w.key===key&&w.q===q));save()}
+ function daysLeft(){if(!d.exam)return null;const a=new Date(d.exam+"T00:00:00"),b=new Date(ds()+"T00:00:00");return Math.round((a-b)/86400000)}
+ function plan(){const L=daysLeft();if(L===null||L<0)return null;const doneSpoke=Object.values(d.days).reduce((n,x)=>n+x.spoke,0),target=Math.max(30,d.goal*14),rem=Math.max(0,target-doneSpoke);return{L,perDay:L>0?Math.ceil(rem/L):rem,rem,target,mock:L>=7?2:1}}
+ function render(){const e=document.getElementById("habit");if(!e)return;const x=day(),g=d.goal,pct=Math.min(100,Math.round(x.spoke/g*100)),st=streak(),pl=plan(),wk=week(),mx=Math.max(1,...wk.map(w=>w.v));
+  const bars=wk.map(w=>`<div style="flex:1;text-align:center"><div style="height:42px;display:flex;align-items:flex-end;justify-content:center"><div title="${w.v}" style="width:60%;background:var(--pri);opacity:${w.v?1:.18};height:${Math.max(4,Math.round(w.v/mx*40))}px;border-radius:3px"></div></div><div class="mut" style="font-size:.75em">${T(w.l,["CN","T2","T3","T4","T5","T6","T7"][["일","월","화","수","목","금","토"].indexOf(w.l)])}</div></div>`).join("");
+  const bg=BD.filter(b=>d.badges[b[0]]).map(b=>`<span class="chip on" style="cursor:default">🏅 ${T(b[2],b[3])}</span>`).join(" ");
+  const wk2=d.weak.slice(0,3).map((w,i)=>`<li><span lang="en">${esc(w.qt.slice(0,90))}</span> <button class="btn" data-hw="${i}">${T("연습","Luyện")}</button></li>`).join("");
+  e.innerHTML=`<h2>🔥 ${T("오늘의 연습","Luyện tập hôm nay")} <span class="mut">Lv.${lvl()} · XP ${d.xp}/${nextXp()}</span></h2>
+  <div class="row" style="align-items:center;gap:14px"><div><b style="font-size:1.6em">${st}</b> ${T("일 연속","ngày liên tiếp")}</div><div style="flex:1;min-width:180px"><div class="mut">${T("오늘 말하기","Nói hôm nay")} ${x.spoke}/${g} ${pct>=100?"✅":""}</div><div style="background:var(--line);border-radius:6px;height:10px"><div style="width:${pct}%;height:10px;border-radius:6px;background:var(--pri)"></div></div></div><label class="mut">${T("목표","Mục tiêu")} <select id="hgoal">${[1,2,3,5,8].map(n=>`<option${n===g?" selected":""}>${n}</option>`).join("")}</select> ${T("문제/일","câu/ngày")}</label></div>
+  <div style="display:flex;gap:4px;margin:8px 0">${bars}</div>
+  <div class="row" style="align-items:center;gap:8px"><label class="mut">${T("시험일(D-day)","Ngày thi (D-day)")} <input type="date" id="hexam" value="${esc(d.exam)}"></label>${pl?`<span class="ok">D-${pl.L} · ${T("하루 ","Mỗi ngày ")}${pl.perDay}${T("문제 말하기 · 모의시험 ","câu · thi thử ")}${pl.mock}${T("회 권장","lần")}</span>`:`<span class="mut">${T("시험일을 넣으면 하루 목표를 계산해 드려요.","Nhập ngày thi để tính mục tiêu mỗi ngày.")}</span>`}</div>
+  ${wk2?`<h3>🔁 ${T("오늘의 복습 (모의시험에서 짧거나 비어 있던 문제)","Ôn hôm nay (câu trả lời ngắn/trống ở bài thi thử)")}</h3><ul>${wk2}</ul>`:""}
+  ${bg?`<div style="margin-top:6px">${bg}</div>`:""}
+  <div class="mut" style="margin-top:6px">${T("기록은 이 기기에만 저장돼요(서버 전송 없음). XP·연속일은 연습 활동 기록이며 실력 점수나 시험 등급이 아닙니다. 목표 기본값은 이 앱의 자체 설정입니다.","Dữ liệu chỉ lưu trên thiết bị này (không gửi lên máy chủ). XP và chuỗi ngày là ghi nhận hoạt động luyện tập, không phải điểm năng lực hay cấp độ thi. Mục tiêu mặc định do ứng dụng tự đặt.")}</div>`;
+  const gs=document.getElementById("hgoal");if(gs)gs.onchange=ev=>{d.goal=+ev.target.value;save();render()};const he=document.getElementById("hexam");if(he)he.onchange=ev=>{d.exam=ev.target.value;save();render()};
+  e.querySelectorAll("[data-hw]").forEach(b=>b.onclick=()=>{const w=d.weak[+b.dataset.hw];if(!w)return;s.lang="en";s.spk="virt";s.lv=w.lv;s.long=false;s.sel=[w.key];s.qs=[w.q];s.cat=w.key.split(":")[0];s.itemKey=w.key;s.it=+w.key.split(":")[1];draw();const p=document.getElementById("practice");if(p)p.scrollIntoView({block:"start"})})}
+ return{log,render,addWeak,dropWeak,get:()=>d,streak,plan,ds,reset:()=>{d={days:{},xp:0,exam:"",goal:3,weak:[],badges:{},exams:0};save();render()}}})();
+(function(){const h=document.querySelector(".hdr");if(!h||document.getElementById("habit"))return;const e=document.createElement("div");e.className="card";e.id="habit";h.parentNode.insertBefore(e,h.nextSibling);HAB.render()})();
+{const _rs=recStop;recStop=function(){const was=REC.active;_rs();if(was)HAB.log("rec")}}
+{const _en=exNext;exNext=function(){const ph=EX.phase;_en();if(ph==="answer")HAB.log("examq")}}
+{const _ef=exFinish;exFinish=function(a){_ef(a);HAB.log("exam")}}
+{const _rx=renderExam;renderExam=function(){_rx();if(EX.st==="review"&&!EX._weakDone){EX._weakDone=1;EX.qs.forEach((x,i)=>{const r=EX.recs[i]||{},g=EXG[exLv()];if(x.key!=="intro"&&i<EX.i+1&&(!r.dur||r.dur<g[0]*.5))HAB.addWeak({key:x.key,q:x.q,qt:x.qt,lv:x.lv})});HAB.render()}if(EX.st==="idle")EX._weakDone=0}}
+document.addEventListener("change",ev=>{if(ev.target&&ev.target.id==="progressCheck"&&ev.target.checked){const x=SETS[s.pi];if(x)HAB.dropWeak(x.key,x.q);HAB.log("done")}});
+document.addEventListener("click",ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest("#pq1,#chk");if(b)HAB.log(b.id==="chk"?"check":"listen")});
+{const _dh=draw;draw=function(){_dh();HAB.render()}}
 draw();$("mine").value=restoreDraft;
 if(!restored){s.spk="real";draw()}
 </script></body></html>
