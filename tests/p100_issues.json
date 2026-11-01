@@ -1,0 +1,63 @@
+[
+ {
+  "i": 49,
+  "spk": "real",
+  "lang": "en",
+  "ui": "ko",
+  "lv": 2,
+  "kind": "en",
+  "bad": [
+   "입력 조용히 누락/미보고: th=Last week I won a sm",
+   "입력 조용히 누락/미보고: past=It keeps me healthy."
+  ]
+ },
+ {
+  "i": 52,
+  "spk": "real",
+  "lang": "en",
+  "ui": "vi",
+  "lv": 0,
+  "kind": "weird",
+  "bad": [
+   "입력 조용히 누락/미보고: th='\"&<>"
+  ]
+ },
+ {
+  "i": 70,
+  "spk": "real",
+  "lang": "en",
+  "ui": "vi",
+  "lv": 1,
+  "kind": "en",
+  "bad": [
+   "입력 조용히 누락/미보고: th=I want to keep going",
+   "입력 조용히 누락/미보고: past=It keeps me healthy.",
+   "입력 조용히 누락/미보고: now=I want to keep going"
+  ]
+ },
+ {
+  "i": 73,
+  "spk": "real",
+  "lang": "en",
+  "ui": "ko",
+  "lv": 1,
+  "kind": "weird",
+  "bad": [
+   "입력 조용히 누락/미보고: now=<img src=x onerror=a",
+   "입력 조용히 누락/미보고: rs='\"&<>"
+  ]
+ },
+ {
+  "i": 76,
+  "spk": "real",
+  "lang": "en",
+  "ui": "vi",
+  "lv": 1,
+  "kind": "en",
+  "bad": [
+   "입력 조용히 누락/미보고: th=It keeps me healthy.",
+   "입력 조용히 누락/미보고: past=Last week I won a sm",
+   "입력 조용히 누락/미보고: now=because it is fun"
+  ]
+ }
+]
