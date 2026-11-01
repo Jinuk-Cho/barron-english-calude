@@ -3230,6 +3230,7 @@ buildSets=function(){const L=s.lang,out=[],seenRP={},lv=s.lv;
     else if(nreal<2){const have=new Set(S.map(z=>z.pat).filter(Boolean));const seenT=new Set(S.map(z=>(z[L]||"").trim()));const V=composeVirt(c,j,q,lv).filter(z=>(!z.pat||!have.has(z.pat))&&!seenT.has((z[L]||"").trim())).slice(0,2-nreal).map(z=>Object.assign({},z,{ko:L==="ko"?z.ko:(z.ko||"")+" 〔가상 예시〕",vi:L==="vi"?z.vi:(z.vi||"")+" 〔ví dụ giả định〕",vx:1}));if(V.length){S=S.concat(V);fb="part"}}}
    else if(s.long){const r=longSents(c,j,q,lv);S=r.S;align=r.ok}
    else S=composeVirt(c,j,q,lv);
+   if(mode==="real")S=S.filter((z,i)=>!(z[L]||"").trim()||S.findIndex(y=>(y[L]||"").trim()===(z[L]||"").trim())===i);
    const pats=[];S.forEach(z=>{if(z.pat&&!pats.includes(z.pat))pats.push(z.pat)});
    out.push({key,q,ko:gl,kk:lab,qt:QSEL(L)[q](qk),qk,mode,fb,align,S,a:joinS(S,L),pats:mode==="virt"&&s.long?null:pats,long:!!s.long&&mode==="virt"})})});
  return out};
