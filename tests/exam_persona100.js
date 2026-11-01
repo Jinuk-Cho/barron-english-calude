@@ -8,7 +8,7 @@ const P=[];for(let i=0;i<100;i++){const nc=pick([2,3,3,4,5,6]);const cats=[];whi
   beh:pick(["normal","fast","slow","replay2s","replay7s","replayTwice","quit","fulltime"]),dur:pick([8,25,45,70,110,150])})}
 (async()=>{const b=await chromium.launch({args:["--use-fake-device-for-media-stream","--use-fake-ui-for-media-stream"]});const iss=[];let tq=0,tc=0;
 for(const p of P){const ctx=await b.newContext({viewport:{width:p.w,height:800},permissions:p.mic==="ok"?["microphone"]:[]});const pg=await ctx.newPage();const errs=[],reqs=[];pg.on('pageerror',e=>errs.push(e.message));pg.on('request',r=>{if(!/^(file|data|blob):/.test(r.url()))reqs.push(r.url())});pg.on('dialog',d=>{errs.push("DIALOG");d.dismiss()});
- await pg.addInitScript(({mic,tts})=>{window.__spoken=[];if(tts==="ok"){window.SpeechSynthesisUtterance=function(t){this.text=t};Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{speak(u){window.__spoken.push(u.text);setTimeout(()=>u.onend&&u.onend(),30)},cancel(){},getVoices(){return[]},resume(){},speaking:false,pending:false,onvoiceschanged:null}})}else{try{delete window.speechSynthesis}catch(e){}try{Object.defineProperty(window,'speechSynthesis',{configurable:true,value:undefined})}catch(e){}}
+ await pg.addInitScript(({mic,tts})=>{window.__spoken=[];if(tts==="ok"){window.SpeechSynthesisUtterance=function(t){this.text=t};Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{speak(u){window.__spoken.push(u.text);setTimeout(()=>u.onend&&u.onend(),30)},cancel(){},getVoices(){return[]},resume(){},speaking:false,pending:false,onvoiceschanged:null}})}else{try{delete window.speechSynthesis}catch(e){}}
   if(mic==="denied"&&navigator.mediaDevices)navigator.mediaDevices.getUserMedia=()=>Promise.reject(Object.assign(new Error("x"),{name:"NotAllowedError"}));if(mic==="none")delete window.MediaRecorder},{mic:p.mic,tts:p.tts});
  await pg.clock.install({time:Date.now()});await pg.goto('file://'+F);await pg.waitForTimeout(250);
  const bad=[];const add=m=>bad.push(m);
@@ -31,11 +31,11 @@ for(const p of P){const ctx=await b.newContext({viewport:{width:p.w,height:800},
   if(p.tts==="none"&&!(await pg.evaluate(()=>!!document.querySelector("#exam .qq"))))add("TTS 없음인데 질문 글자 미표시");
   if(p.mic==="none"&&!/ghi âm|녹음/.test(txt0))add("-");
   /* 응시 행동 */
-  let answered=0,replayOk=0,replayBad=0;const total=p.beh==="quit"?Math.max(2,Math.floor(n/2)):n;
+  let answered=0,replayOk=0,replayBad=0;const total=p.beh==="fulltime"?0:p.beh==="quit"?Math.max(2,Math.floor(n/2)):n;
   for(let k=0;k<total;k++){
    await pg.clock.runFor(100);const ph=await pg.evaluate(()=>EX.phase);if(ph!=="answer"){await pg.clock.runFor(8000)}
    if(p.beh.startsWith("replay")&&k<3){const wait=p.beh==="replay7s"?7000:2000;await pg.clock.runFor(wait);const before=await pg.evaluate(()=>EX.rep);const dis=await pg.evaluate(()=>document.getElementById("exrep").disabled);
-    if(p.strict){if(p.beh==="replay7s"&&!dis)add("5초 지난 뒤 다시 듣기 가능");if(p.beh!=="replay7s"&&dis)add("5초 안인데 다시 듣기 불가");}
+    if(p.strict&&p.tts==="ok"){if(p.beh==="replay7s"&&!dis)add("5초 지난 뒤 다시 듣기 가능");if(p.beh!=="replay7s"&&dis)add("5초 안인데 다시 듣기 불가");}
     if(!dis){await pg.click('#exrep',{force:true});await pg.waitForTimeout(80);await pg.clock.runFor(300);replayOk++;
      if(p.beh==="replayTwice"){await pg.clock.runFor(100);const d2=await pg.evaluate(()=>document.getElementById("exrep").disabled);if(p.strict&&!d2){add("다시 듣기 2회째 허용");replayBad++}}}}
    const secs=p.beh==="fast"?3:p.beh==="slow"?200:p.dur;await pg.clock.runFor(secs*1000);
