@@ -3794,6 +3794,77 @@ const baseDraw=draw; draw=function(){baseDraw();try{const LC={en:"en",zh:"zh-CN"
 function renderProgress(){let e=$("progressPanel");if(!e){e=document.createElement("div");e.id="progressPanel";e.className="card";$("practice").before(e)} const x=SETS[s.pi];if(!x){e.textContent=T("연습 문항을 선택하세요.","Hãy chọn câu để luyện.");return}const key=x.key+":"+x.q+":"+s.lv; const done=!!progress[key];e.innerHTML='<b>'+T('학습 진도','Tiến độ học')+'</b> <span class="mut">'+T('현재 문항을 연습했으면 완료로 표시하세요.','Luyện xong câu hiện tại thì hãy đánh dấu hoàn thành.')+'</span> <label><input type="checkbox" id="progressCheck" '+(done?'checked':'')+'> '+T('현재 문항 완료','Hoàn thành câu hiện tại')+'</label>';$("progressCheck").onchange=ev=>{progress[key]=ev.target.checked;scheduleSave()}}
 const oldPractice=renderPractice;renderPractice=function(){oldPractice();renderProgress();scheduleSave()};
 document.addEventListener("input",scheduleSave);document.addEventListener("change",scheduleSave);document.addEventListener("click",()=>setTimeout(scheduleSave,0));
+/* ===== 모의시험 모드 (OPIc 진행 방식 연습: 설문 → 자가진단 → 문항 → 총 40분 → 복기) =====
+   - 독립 연습 도구. ACTFL/YBM 공식 시험·채점이 아니다. 문항 구성은 2차 자료 기반 근사이며 공식 확인이 되지 않았다.
+   - 시험 중에는 모범답안을 숨기고, 질문 재생은 문항당 1회(질문이 끝난 뒤 5초 안에만)로 제한한다(YBM 안내 기준). 녹음은 이 기기 메모리에만 있다. */
+const EX={st:"idle",cats:[],lvl:3,qs:[],i:0,end:0,rep:0,recs:[],mic:null,mr:null,ch:[],tm:null,show:false,strict:true,qEnd:0,t0:0,seed:1,ans0:0,mock:false};
+const EXLIM=40*60*1000;
+const EXG={0:[30,60],1:[60,60],2:[120,120]};/* 수준별 참고 응답 시간(초): ACTFL 2015 평가 보고서의 수준별 응답 시간(Novice 30초, Intermediate 1분, Advanced 2분). YBM 안내는 문항별 제한 없음, 총 40분 */
+function exRnd(){EX.seed=(EX.seed*1664525+1013904223)>>>0;return EX.seed/4294967296}
+function exShuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(exRnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function exLv(){return EX.lvl<=2?0:EX.lvl<=4?1:2}
+function exQ(key,q,lvv){const keep={sel:s.sel,qs:s.qs,lang:s.lang,spk:s.spk,lv:s.lv,long:s.long,sty:s.sty,me:s.me,pers:s.pers,role:s.role,itemKey:s.itemKey};
+ try{s.lang="en";s.spk="virt";s.lv=lvv;s.long=false;s.sty="talk";s.me={};s.pers={};s.role={};s.sel=[key];s.qs=[q];s.itemKey=key;const x=buildSets()[0];return x?{key,q,qt:x.qt,a:x.a,pats:x.pats||[],role:x.role||null,lv:lvv}:null}
+ catch(e){return null}finally{Object.assign(s,keep)}}
+function exBuild(){EX.seed=(Date.now()^0x5bd1e995)>>>0;const n=EX.lvl<=2?12:15,lvv=exLv(),cats=exShuf(EX.cats),sets=n===12?3:4,used=new Set(),out=[];
+ const pickItem=c=>{for(let t=0;t<30;t++){const k=c+":"+Math.floor(exRnd()*D[c].i.length);if(!used.has(k)){used.add(k);return k}}return c+":"+Math.floor(exRnd()*D[c].i.length)};
+ const add=r=>{if(r&&r.qt&&!out.some(o=>o.qt===r.qt)){out.push(r);return r}return null};
+ add({key:"intro",q:-1,qt:"Let's get started. Please tell me a little about yourself.",a:"",pats:[],role:null,lv:lvv});
+ for(let k=0;k<sets;k++){const c=cats[k%cats.length],key=pickItem(c),third=(EX.lvl>=5&&k===sets-1)?3:2;[0,1,third].forEach(q=>add(exQ(key,q,lvv)))}
+ const rest=Object.keys(D).filter(c=>!EX.cats.includes(c)),all=Object.keys(D);
+ if(EX.lvl>=3){add(exQ(pickItem(exShuf(all)[0]),4,lvv));add(exQ(pickItem(cats[0]),3,lvv))}
+ else{[1,2].forEach(q=>add(exQ(pickItem(cats[cats.length-1]),q,lvv)))}
+ const un=add(exQ(pickItem(exShuf(rest.length?rest:all)[0]),0,lvv));if(un)un.unexp=true;
+ let g=0;while(out.length<n&&g++<40)add(exQ(pickItem(exShuf(all)[0]),[0,1,2][g%3],lvv));
+ return out.slice(0,n)}
+function exSay(t,done){let d=false;const f=()=>{if(!d){d=true;done&&done()}};try{if(!("speechSynthesis" in window)){setTimeout(f,300);return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=speed;const v=pick("en-US");if(v)u.voice=v;u.onend=f;u.onerror=f;speechSynthesis.speak(u);setTimeout(f,Math.max(6000,t.length*130))}catch(e){setTimeout(f,300)}}
+function exRecStart(){EX.ch=[];if(!EX.mic||!window.MediaRecorder)return;try{EX.mr=new MediaRecorder(EX.mic);EX.mr.ondataavailable=e=>{if(e.data&&e.data.size)EX.ch.push(e.data)};EX.mr.start()}catch(e){EX.mr=null}}
+function exRecStop(cb){const i=EX.i,fin=()=>{const r=EX.recs[i]||(EX.recs[i]={});if(EX.ch.length){if(r.url)URL.revokeObjectURL(r.url);r.url=URL.createObjectURL(new Blob(EX.ch,{type:(EX.mr&&EX.mr.mimeType)||"audio/webm"}))}cb&&cb()};
+ if(EX.mr&&EX.mr.state!=="inactive"){EX.mr.onstop=fin;try{EX.mr.stop()}catch(e){fin()}}else fin()}
+function exAsk(){const q=EX.qs[EX.i];EX.st="run";EX.phase="listen";EX.rep=EX.rep||0;exView();exSay(q.qt,()=>{if(EX.phase!=="listen")return;EX.phase="answer";EX.qEnd=Date.now();EX.ans0=Date.now();exRecStart();exView()})}
+function exNext(){if(EX.phase!=="answer")return;const dur=Math.round((Date.now()-EX.ans0)/1000);exRecStop(()=>{const r=EX.recs[EX.i]||(EX.recs[EX.i]={});r.dur=(r.dur||0)+dur;r.rep=EX.rep;EX.i++;EX.rep=0;if(EX.i>=EX.qs.length)exFinish();else exAsk()})}
+function exReplay(){if(EX.phase!=="answer"||(EX.strict&&(EX.rep>=1||Date.now()-EX.qEnd>5000)))return;EX.rep++;EX.phase="listen";try{if(EX.mr&&EX.mr.state!=="inactive"){EX.mr.onstop=null;EX.mr.stop()}}catch(e){}EX.ch=[];exView();exSay(EX.qs[EX.i].qt,()=>{if(EX.phase!=="listen")return;EX.phase="answer";EX.qEnd=Date.now();EX.ans0=Date.now();exRecStart();exView()})}
+function exFinish(auto){clearInterval(EX.tm);try{speechSynthesis.cancel()}catch(e){}if(EX.mic){EX.mic.getTracks().forEach(t=>t.stop());EX.mic=null}
+ const done=()=>{EX.st="review";EX.phase="";EX.used=Math.round((Date.now()-EX.t0)/1000);EX.auto=!!auto;renderExam()};
+ if(EX.phase==="answer"&&EX.i<EX.qs.length){const dur=Math.round((Date.now()-EX.ans0)/1000);exRecStop(()=>{const r=EX.recs[EX.i]||(EX.recs[EX.i]={});r.dur=(r.dur||0)+dur;done()})}else done()}
+async function exStart(){EX.qs=exBuild();EX.i=0;EX.recs=[];EX.rep=0;EX.mic=null;EX.mock=true;
+ if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder){try{EX.mic=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){EX.micErr=e&&e.name||"err"}}
+ EX.t0=Date.now();EX.end=EX.t0+EXLIM;clearInterval(EX.tm);EX.tm=setInterval(exTick,1000);exAsk()}
+function exTick(){const left=EX.end-Date.now();const t=document.getElementById("extimer");if(t)t.textContent=exFmt(left);if(left<=0)exFinish(true)}
+function exFmt(ms){ms=Math.max(0,ms);const m=Math.floor(ms/60000),sc=Math.floor(ms/1000)%60;return m+":"+String(sc).padStart(2,"0")}
+function exView(){const el=$("exam");if(!el)return;const q=EX.qs[EX.i];if(!q)return;const lis=EX.phase==="listen",can=EX.phase==="answer"&&(!EX.strict||(EX.rep<1&&Date.now()-EX.qEnd<=5000));
+ el.innerHTML=`<h2>🎧 ${T("모의시험 진행 중","Đang thi thử")} <span class="mut">Q${EX.i+1} / ${EX.qs.length}</span> · ⏱ <b id="extimer">${exFmt(EX.end-Date.now())}</b></h2>
+ <div class="exq" role="status" aria-live="polite">${lis?"🔊 "+T("질문을 듣는 중…","Đang nghe câu hỏi…"):"🔴 "+(EX.mic?T("답변 녹음 중… 끝나면 ‘다음 문제’","Đang ghi âm… xong thì bấm 'Câu tiếp'"):T("답변하세요(마이크 없음: 녹음되지 않음). 끝나면 ‘다음 문제’","Hãy trả lời (không có micro: không ghi âm). Xong thì bấm 'Câu tiếp'"))}</div>
+ ${EX.show||!("speechSynthesis" in window)?`<div class="qq" lang="en">${esc(q.qt)}</div>`:`<div class="mut">${T("실제 시험처럼 질문 글자는 숨겼어요. 필요하면 ‘질문 글자 보기’를 누르세요.","Giống thi thật, chữ của câu hỏi được ẩn. Cần thì bấm 'Xem chữ câu hỏi'.")}</div>`}
+ <div class="row" style="margin-top:8px"><button class="btn p" id="exnext"${lis?" disabled":""}>${T("다음 문제 ▶","Câu tiếp ▶")}</button><button class="btn" id="exrep"${can?"":" disabled"}>${T("질문 다시 듣기 (1회, 질문 후 5초 안)","Nghe lại câu hỏi (1 lần, trong 5 giây)")}</button><button class="btn" id="extxt">${EX.show?T("질문 글자 숨기기","Ẩn chữ câu hỏi"):T("질문 글자 보기","Xem chữ câu hỏi")}</button><button class="btn" id="exstop">${T("시험 종료","Kết thúc")}</button></div>
+ <div class="mut">${T("시험 중에는 모범답안을 볼 수 없습니다. 총 40분이 지나면 자동 종료됩니다.","Trong khi thi không xem được câu mẫu. Hết 40 phút tổng sẽ tự kết thúc.")}${EX.micErr?" ⚠ "+T("마이크를 쓸 수 없어 녹음 없이 진행합니다.","Không dùng được micro nên thi không ghi âm."):""}</div>`;
+ $("exnext").onclick=exNext;$("exrep").onclick=exReplay;$("extxt").onclick=()=>{EX.show=!EX.show;exView()};$("exstop").onclick=()=>exFinish(false);
+ if(can){clearTimeout(EX.rt);EX.rt=setTimeout(()=>{const b=$("exrep");if(b&&EX.phase==="answer")b.disabled=true},Math.max(0,5000-(Date.now()-EX.qEnd)))}}
+function exRT(x){return x.role?T("롤플레이","Nhập vai"):x.unexp?T("돌발 주제","Chủ đề bất ngờ"):x.key==="intro"?T("자기소개","Tự giới thiệu"):[T("설명","Mô tả"),T("루틴","Thói quen"),T("경험","Kinh nghiệm"),T("비교","So sánh")][x.q]||""}
+function renderExam(){const el=$("exam");if(!el)return;if(EX.st==="run"){exView();return}
+ if(EX.st==="review"){const g=EXG[exLv()],tot=EX.recs.reduce((n,r)=>n+((r&&r.dur)||0),0),ans=EX.qs.filter((_,i)=>EX.recs[i]&&EX.recs[i].dur>0).length,short=[];
+  let rows=EX.qs.map((x,i)=>{const r=EX.recs[i]||{},d=r.dur||0,low=d>0&&d<g[0]*.5;if(i<EX.i||d>0){if(low||!d)short.push(i)}
+   return `<tr><td>${i+1}</td><td>${esc(exRT(x))}</td><td lang="en">${esc(x.qt)}</td><td>${d?d+T("초","s"):(i<EX.i?T("기록 없음","—"):T("미응시","Chưa thi"))}</td><td>${r.rep?T("사용","Đã dùng"):"—"}</td><td>${r.url?`<audio controls src="${r.url}" style="width:160px;max-width:100%"></audio>`:T("녹음 없음","Không có")}</td><td>${x.a?`<details><summary>${T("모범답안","Câu mẫu")}</summary><div lang="en">${esc(x.a)}</div></details>`:"—"}</td><td><button class="btn" data-pr="${i}"${x.key==="intro"?" disabled":""}>${T("이 문제 연습","Luyện câu này")}</button></td></tr>`}).join("");
+  el.innerHTML=`<h2>📋 ${T("모의시험 복기","Xem lại bài thi thử")}</h2><div class="ok">${T("응시","Đã thi")} ${EX.i>=EX.qs.length?EX.qs.length:EX.i}/${EX.qs.length} · ${T("사용 시간","Thời gian")} ${exFmt(EX.used*1000)} / 40:00 ${EX.auto?T("(시간 종료)","(hết giờ)"):""} · ${T("녹음된 답변","Câu có ghi âm")} ${EX.qs.filter((_,i)=>EX.recs[i]&&EX.recs[i].url).length}</div>
+  <div class="mut">${T("이 복기는 점수나 등급이 아닙니다. 앱은 말을 자동으로 채점하지 않습니다. 녹음을 들으며 직접 점검하세요.","Phần xem lại này không phải điểm hay cấp độ. Ứng dụng không tự chấm lời nói. Hãy nghe lại bản ghi và tự kiểm tra.")}</div>
+  <div class="tw"><table class="st"><thead><tr><th>#</th><th>${T("유형","Loại")}</th><th>${T("질문","Câu hỏi")}</th><th>${T("답변 시간","Thời gian")}</th><th>${T("다시 듣기","Nghe lại")}</th><th>${T("내 녹음","Bản ghi")}</th><th>${T("모범답안","Câu mẫu")}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+  <h3>${T("자가 점검 체크리스트","Danh sách tự kiểm tra")}</h3><ul class="mut"><li>${T("한 문제당 참고 답변 시간: 약 ","Thời gian trả lời tham khảo mỗi câu: khoảng ")}${g[0]===g[1]?g[0]:g[0]+"~"+g[1]}${T("초 (ACTFL 2015 평가 보고서의 수준별 응답 시간 기준. YBM 안내는 문항별 제한이 없고 총 40분입니다.)","s (theo thời gian trả lời theo cấp trong báo cáo đánh giá ACTFL 2015; hướng dẫn của YBM không giới hạn từng câu, tổng 40 phút.)")}</li><li>${T("현재·과거·미래를 문제에 맞게 썼는가","Đã dùng hiện tại/quá khứ/tương lai đúng yêu cầu chưa")}</li><li>${T("이유와 구체적 예(사람·장소·시간)를 말했는가","Đã nêu lý do và ví dụ cụ thể (người, nơi, thời gian) chưa")}</li><li>${T("외운 문장이 아니라 내 경험으로 말했는가 (ACTFL은 암기한 답을 평가하도록 설계되지 않았다고 안내)","Đã nói bằng trải nghiệm của mình thay vì câu học thuộc chưa (ACTFL nêu bài thi không được thiết kế để đánh giá câu học thuộc)")}</li></ul>
+  ${short.length?`<div class="warn">${T("답변이 매우 짧거나 기록이 없는 문제","Câu trả lời rất ngắn hoặc không có ghi")}: ${short.map(i=>"Q"+(i+1)).join(", ")} — ${T("‘이 문제 연습’으로 다시 해 보세요.","hãy luyện lại bằng 'Luyện câu này'.")}</div>`:""}
+  <div class="row"><button class="btn p" id="exagain">${T("다시 모의시험","Thi thử lại")}</button><button class="btn" id="exreset">${T("처음으로","Về đầu")}</button></div>`;
+  $("exagain").onclick=()=>{EX.st="idle";EX.recs.forEach(r=>r&&r.url&&URL.revokeObjectURL(r.url));renderExam()};$("exreset").onclick=$("exagain").onclick;
+  el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const x=EX.qs[+b.dataset.pr];if(!x||x.key==="intro")return;s.lang="en";s.spk="virt";s.lv=x.lv;s.long=false;s.sel=[x.key];s.qs=[x.q];s.cat=x.key.split(":")[0];s.itemKey=x.key;s.it=+x.key.split(":")[1];draw();const p=$("practice");if(p)p.scrollIntoView({block:"start"})});return}
+ const cat=Object.keys(D);el.innerHTML=`<h2>📝 ${T("모의시험 (OPIc 진행 방식 연습)","Thi thử (luyện theo quy trình OPIc)")}</h2>
+ <div class="mut">${T("독립 연습 도구이며 ACTFL·YBM 공식 시험이 아닙니다. 문항 수·구성은 공식 확인이 되지 않은 2차 자료 기반 근사입니다(자가진단 1~2는 12문항, 3~6은 15문항, 총 40분).","Công cụ luyện tập độc lập, không phải kỳ thi chính thức của ACTFL/YBM. Số câu và cấu trúc là ước lượng từ tài liệu thứ cấp chưa xác nhận chính thức (tự đánh giá 1~2: 12 câu, 3~6: 15 câu, tổng 40 phút).")}</div>
+ <h3>① ${T("설문 (Background Survey): 관심 주제를 2개 이상 고르세요","Khảo sát (Background Survey): chọn từ 2 chủ đề trở lên")}</h3><div class="row" id="excats">${cat.map(c=>`<label class="chip${EX.cats.includes(c)?" on":""}"><input type="checkbox" data-c="${c}"${EX.cats.includes(c)?" checked":""} style="margin-right:4px">${esc(UI==="vi"&&typeof VM2!=="undefined"?(D[c].t.split(" ")[0]):D[c].t.split(" ")[0])}</label>`).join("")}</div>
+ <h3>② ${T("자가진단 난이도 (1 쉬움 ~ 6 어려움)","Tự đánh giá độ khó (1 dễ ~ 6 khó)")}</h3><div class="row" id="exlvl">${[1,2,3,4,5,6].map(n=>`<button class="chip${EX.lvl===n?" on":""}" data-l="${n}">${n}</button>`).join("")}</div>
+ <div class="mut">${T("1~2 → 초급 폼(12문항) · 3~4 → IM 목표(15문항) · 5~6 → IH~AL 목표(15문항, 비교·롤플레이 포함). 이 대응은 앱의 연습 기준입니다.","1~2 → mức sơ cấp (12 câu) · 3~4 → mục tiêu IM (15 câu) · 5~6 → mục tiêu IH~AL (15 câu, có so sánh và nhập vai). Đây là cách quy đổi của ứng dụng.")}</div>
+ <label class="mut"><input type="checkbox" id="exstrict"${EX.strict?" checked":""}> ${T("질문 다시 듣기 제한(문항당 1회, 질문 후 5초 안 — YBM 안내 기준). 끄면 연습용으로 제한 없음.","Giới hạn nghe lại (1 lần/câu, trong 5 giây sau câu hỏi — theo hướng dẫn YBM). Tắt để luyện không giới hạn.")}</label>
+ <div class="row" style="margin-top:8px"><button class="btn p" id="exgo"${EX.cats.length<2?" disabled":""}>${T("모의시험 시작 (마이크 권한 요청)","Bắt đầu thi thử (xin quyền micro)")}</button></div>
+ <div class="mut">🔒 ${T("녹음은 이 기기의 브라우저 메모리에만 있고 서버로 전송·저장되지 않습니다. 새로고침하면 사라집니다. 영어로 진행됩니다.","Bản ghi chỉ nằm trong bộ nhớ trình duyệt của thiết bị, không gửi hay lưu lên máy chủ. Tải lại trang là mất. Thi bằng tiếng Anh.")}</div>`;
+ el.querySelectorAll("[data-c]").forEach(b=>b.onchange=()=>{const c=b.dataset.c;EX.cats=b.checked?[...new Set([...EX.cats,c])]:EX.cats.filter(x=>x!==c);renderExam()});
+ el.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{EX.lvl=+b.dataset.l;renderExam()});$("exstrict").onchange=e=>{EX.strict=e.target.checked};$("exgo").onclick=exStart}
+(function(){const pr=$("practice");if(!pr||$("exam"))return;const d=document.createElement("div");d.className="card";d.id="exam";pr.parentNode.insertBefore(d,pr.nextSibling);renderExam()})();
+{const _dEx=draw;draw=function(){_dEx();if(EX.st!=="run")renderExam()}}
 draw();$("mine").value=restoreDraft;
 if(!restored){s.spk="real";draw()}
 </script></body></html>
