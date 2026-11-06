@@ -2,7 +2,7 @@ const {chromium}=require('playwright');const F=process.argv[2];const R=[];const 
 (async()=>{const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:1280,height:900}})).newPage();const errs=[],reqs=[];p.on('pageerror',e=>errs.push(e.message));p.on('request',r=>{if(!/^(file|blob|data):/.test(r.url()))reqs.push(r.url())});
 await p.goto('file://'+F);
 const setup=async(lang)=>{await p.evaluate(l=>{s.spk='real';s.lang=l;s.lv=2;s.long=false;s.sel=['hobby:0'];s.qs=[0,1,2,3];s.me={tn:'테니스',ta:'테니스 치기',when:'weekend',place:'park',ev:'지난주에 작은 대회에서 이겼어요',rs:'마음이 맑아져요',th:'더 잘하고 싶어요'};draw()},lang);await p.evaluate(()=>document.getElementById('openA').click());await p.waitForTimeout(250);await p.evaluate(()=>document.querySelectorAll('#modal details').forEach(d=>d.open=true))};
-const body=()=>p.evaluate(()=>[...document.querySelectorAll('#model .qc')].map(c=>c.innerText).join('\n'));
+const body=()=>p.evaluate(()=>[...document.querySelectorAll('#model>.qc')].map(c=>c.innerText).join('\n'));
 await setup('en');
 ok('요청문 생성',await p.evaluate(()=>/\[ev\] 지난주/.test(document.getElementById('txprompt').value)&&/\[rs\]/.test(document.getElementById('txprompt').value)&&/English/.test(document.getElementById('txprompt').value)),await p.evaluate(()=>document.getElementById('txprompt').value.slice(0,120)));
 ok('적용 전: 미번역 보고',await p.evaluate(()=>xlReport().unknown.length>=2));

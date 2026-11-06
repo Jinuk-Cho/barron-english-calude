@@ -3,7 +3,7 @@ const ok=(p,n,c,i)=>R.push([p,n,!!c,i===undefined?"":String(i).slice(0,170)]);
 const HG=/[가-힣]/,VI=/[ăâđêôơưạảãệộịọỏụủữựỳỵỷỹ]/i;
 async function open(b,vp,init){const ctx=await b.newContext({viewport:vp||{width:1280,height:900},acceptDownloads:true});const p=await ctx.newPage();p.errs=[];p.reqs=[];p.on('pageerror',e=>p.errs.push(e.message));p.on('dialog',d=>{p.errs.push('DLG '+d.message());d.dismiss()});p.on('request',r=>{if(!/^(file|blob|data):/.test(r.url()))p.reqs.push(r.url())});await p.goto('file://'+F);await p.waitForTimeout(150);return p}
 const set=(p,c)=>p.evaluate(c=>{document.getElementById(c.ui==='vi'?'uivi':'uiko').click();s.spk=c.spk;s.lang=c.lang;s.lv=c.lv;s.sty=c.sty||'talk';s.long=!!c.long;s.sel=c.sel||['hobby:0'];s.qs=c.qs||[0,1,2,3];s.me=c.me||{};s.pers=c.pers||{};s.role={};draw()},c);
-const cards=p=>p.evaluate(()=>[...document.querySelectorAll('#model .qc')].map(c=>({txt:c.innerText,rows:[...c.querySelectorAll('table.st tr')].filter(tr=>tr.querySelector('td')).map(tr=>[...tr.querySelectorAll('td')].map(td=>({k:td.dataset.k||'',t:td.innerText.trim()}))),ans:(c.querySelector('.ans')||{}).innerText||''})));
+const cards=p=>p.evaluate(()=>[...document.querySelectorAll('#model>.qc')].map(c=>({txt:c.innerText,rows:[...c.querySelectorAll('table.st tr')].filter(tr=>tr.querySelector('td')).map(tr=>[...tr.querySelectorAll('td')].map(td=>({k:td.dataset.k||'',t:td.innerText.trim()}))),ans:(c.querySelector('.ans')||{}).innerText||''})));
 const words=t=>(t.match(/[A-Za-z']+/g)||[]).length;
 (async()=>{const b=await chromium.launch();
 // P1 초보 한국인

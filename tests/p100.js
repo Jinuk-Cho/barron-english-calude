@@ -24,7 +24,7 @@ for(const p of P){const ctx=await b.newContext({viewport:{width:p.i%4?1280:375,h
  await pg.goto('file://'+F);await pg.waitForTimeout(150);
  const r=await pg.evaluate(p=>{try{document.getElementById(p.ui==="vi"?"uivi":"uiko").click();s.spk=p.spk;s.lang=p.lang;s.lv=p.lv;s.me=p.me;s.pers=p.pers;s.sty=p.sty;s.long=p.long;s.sel=p.sel;s.qs=p.qs;s.role={};draw();
   const out={cards:[],rep:xlReport()};
-  document.querySelectorAll('#model .qc').forEach(c=>{const rows=[...c.querySelectorAll('table.st tbody tr, table.st tr')].filter(tr=>tr.querySelector('td'));
+  document.querySelectorAll('#model>.qc').forEach(c=>{const rows=[...c.querySelectorAll('table.st tbody tr, table.st tr')].filter(tr=>tr.querySelector('td'));
    const cells=rows.map(tr=>[...tr.querySelectorAll('td')].map(td=>({k:td.dataset.k||"",t:td.innerText})));
    out.cards.push({t:c.innerText,rows:cells.length,cells,ans:(c.querySelector('.ans')||{}).innerText||""})});
   out.scroll=document.documentElement.scrollWidth-innerWidth;out.html=document.body.innerHTML.includes('<img src=x');return out}catch(e){return{err:e.message+e.stack}}},p);
