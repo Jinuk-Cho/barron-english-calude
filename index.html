@@ -103,6 +103,7 @@ button{font:inherit;cursor:pointer}button:focus-visible,input:focus-visible,summ
 
 }
 #classic-lessons .shell{padding:12px 0 20px}#classic-lessons .hero{padding:24px 28px}#classic-lessons .hero h1{font-size:clamp(1.6rem,3.8vw,2.5rem)}
+.breakdown-table-wrap{overflow-x:auto}.breakdown-table{width:100%;border-collapse:collapse;table-layout:fixed}.breakdown-table caption{text-align:left;color:#536b60;font-size:.86rem;margin:0 0 6px}.breakdown-table th,.breakdown-table td{padding:9px 10px;text-align:left;vertical-align:top;white-space:normal;overflow-wrap:anywhere;border-bottom:1px solid #cbded3}.breakdown-table thead th{background:#dcece2;color:#183a47}.breakdown-table tbody th{width:44%;color:#183a47}.breakdown-note{padding:12px;background:#fffefa;border-radius:10px;line-height:1.75}.breakdown-note p{margin:5px 0}.breakdown-extra{border-top:1px solid #dce9df;padding-top:10px}@media(max-width:480px){.breakdown-table th,.breakdown-table td{padding:8px 6px;font-size:.9rem}}
 </style></head><body><main>
 <div class="hdr"><h1>Barron OPIc 영어 연습실</h1><div class="uisw" role="group" aria-label="UI language" hidden><button class="chip" id="uiko" aria-pressed="true">한국어</button><button class="chip" id="uivi" aria-pressed="false">Tiếng Việt</button></div></div>
 <details class="card" id="classic-lessons"><summary style="font-size:1.1rem;font-weight:800;cursor:pointer;padding:8px 0">📚 내 1·2회차 수업 열기 · 취미 / 집과 동네</summary><p>기존에 공부하시던 문단, 듣기, 필수 표현과 풀이를 이곳에서 그대로 열 수 있어요.</p><div class="shell">
@@ -4088,11 +4089,24 @@ function qaSection(section){
   }
   return `<details class="section-card" open><summary>질문 5개로 대화 연습하기</summary><div class="section-body"><p class="intro-small">질문을 듣고 먼저 스스로 답해 본 뒤, 예시 답을 확인하세요.</p>${pairs.map((p,i)=>`<div class="qa-item"><div class="qa-line"><div><strong>${esc(p.q.en)}</strong><div class="qa-ko">${esc(p.q.ko)}</div></div><button class="icon-btn" type="button" data-speak="${esc(cleanSpeech(p.q.en))}" aria-label="${i+1}번 질문 듣기">▶</button></div>${p.a?`<div class="qa-line"><div><div class="qa-en" lang="en">${esc(p.a.en)}</div><div class="qa-ko">${esc(p.a.ko)}</div></div><button class="icon-btn" type="button" data-speak="${esc(cleanSpeech(p.a.en))}" aria-label="${i+1}번 답 듣기">▶</button></div>`:''}</div>`).join('')}</div></details>`;
 }
+function classicExtra(row){
+ const k=row[0];const e={
+ 'I usually + verb(동사)':'usually는 ‘보통’이라는 빈도부사(adverb, 빈도를 말하는 단어)예요. 일반동사 앞에 놓아요: I usually run. be동사 뒤에 놓는 경우도 있어요: I am usually busy. 예문에서는 go for an easy run을 ‘가볍게 달리기를 하러 가다’로 묶어 보세요.',
+ 'I used to + verb(동사)':'used to는 예전의 상태나 습관을 말해요. 뒤에 동사원형(verb, 동사의 기본형)이 오므로 be를 써요. be a beginner는 ‘초보이다’, at tennis는 ‘테니스에서’라는 뜻이에요. 보통 지금은 예전과 달라졌다는 느낌이 있어요.',
+ "I'd like to + verb(동사)":"I’d는 I would의 줄임말이에요. would like to는 ‘~하고 싶어요’라는 부드러운 표현이고, to 뒤에는 make처럼 동사의 기본형을 써요.",
+ 'I like / enjoy + -ing(동사-ing형)':'enjoy reading에서 reading은 ‘읽는 것’을 말해요. enjoy 뒤에 동작을 이어 쓸 때는 보통 -ing 형태를 써요: enjoy reading. like는 like reading과 like to read 둘 다 가능해요.',
+ "I'm good at + noun(명사) / -ing(동사-ing형)":"good at은 ‘~을 잘하는’이라는 표현이에요. at 뒤에는 tennis 같은 명사(noun)나 playing tennis처럼 -ing 형태를 쓸 수 있어요. pretty는 여기서 ‘꽤’라는 뜻이에요.",
+ "It's good for + noun(명사)":"good for는 ‘~에 좋다’예요. for 뒤에는 my health처럼 대상이 와요. 문장 맨 앞의 Running at an easy pace는 ‘편한 속도로 달리는 것’ 전체를 가리켜요.",
+ 'There is / There are + noun(명사)':'There is no는 ‘~이 없다’예요. 한국어에서는 ‘우리 건물 근처에 마트가 없어요’처럼 자연스럽게 순서를 바꿔 말할 수 있어요.',
+ 'not near ~':'not near는 ‘가까이에 있지 않은’이라는 뜻이에요. My building is not near a supermarket은 자연스럽게 ‘우리 건물 근처에는 마트가 없어요’라고 해요.',
+ 'I have lived here for + period(기간)':'have lived는 과거부터 지금까지 이어지는 일을 말해요. for 뒤에 기간이 와요: for a year는 ‘1년 동안 / 1년째’예요.'
+ };return e[k]?'<p class="breakdown-extra">'+esc(e[k])+'</p>':'';
+}
 function examplesSection(section){
   const table = section.blocks.find(b=>b.type==='table');
   if(!table) return '';
   const heading = section.title.replace(/^\d+\s*/, '');
-  return `<details class="section-card"><summary>${esc(heading)} · 예문 듣기</summary><div class="section-body"><p class="intro-small">예문을 듣고, ‘풀어서 설명 보기’를 눌러 단어와 표현의 쓰임을 살펴보세요.</p>${table.rows.map((row,i)=>`<div class="row-card"><div class="pattern">${esc(row[0])}</div><div class="row-meaning">${esc(row[1])}</div><div class="example"><div><div class="example-en" lang="en">${esc(row[2])}</div><div class="example-ko">${esc(row[3])}</div></div><button type="button" class="icon-btn" data-speak="${esc(row[2])}" aria-label="${i+1}번 예문 듣기">▶</button></div>${row[4]?`<details class="breakdown"><summary>🔎 풀어서 설명 보기</summary><div class="breakdown-body"><p class="breakdown-label">문장을 작은 부분으로 나눠 볼게요</p><dl>${row[4].parts.map(p=>`<div><dt lang="en">${esc(p.english)}</dt><dd>${esc(p.korean)}</dd></div>`).join('')}</dl><p class="breakdown-note">${esc(row[4].note)}</p></div></details>`:''}</div>`).join('')}</div></details>`;
+  return `<details class="section-card"><summary>${esc(heading)} · 예문 듣기</summary><div class="section-body"><p class="intro-small">예문을 듣고, ‘풀어서 설명 보기’를 눌러 단어와 표현의 쓰임을 살펴보세요.</p>${table.rows.map((row,i)=>`<div class="row-card"><div class="pattern">${esc(row[0])}</div><div class="row-meaning">${esc(row[1])}</div><div class="example"><div><div class="example-en" lang="en">${esc(row[2])}</div><div class="example-ko">${esc(row[3])}</div></div><button type="button" class="icon-btn" data-speak="${esc(row[2])}" aria-label="${i+1}번 예문 듣기">▶</button></div>${row[4]?`<details class="breakdown"><summary>🔎 풀어서 설명 보기</summary><div class="breakdown-body"><p class="breakdown-label">문장을 작은 부분으로 나눠 볼게요</p><div class="breakdown-table-wrap"><table class="breakdown-table"><caption>표현을 나누어 뜻 알아보기</caption><thead><tr><th scope="col">영어 표현</th><th scope="col">뜻과 역할</th></tr></thead><tbody>${row[4].parts.map(p=>`<tr><th scope="row" lang="en" translate="no">${esc(p.english)}</th><td>${esc(p.korean)}</td></tr>`).join('')}</tbody></table></div><div class="breakdown-note"><strong>💡 왜 이렇게 쓸까요?</strong><p>${esc(row[4].note)}</p>${classicExtra(row)}</div></div></details>`:''}</div>`).join('')}</div></details>`;
 }
 function vocabSection(section){
   const table=section.blocks.find(b=>b.type==='table'); if(!table) return '';
